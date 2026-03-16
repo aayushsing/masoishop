@@ -19,6 +19,8 @@
           animation: {
             floaty: 'floaty 6s ease-in-out infinite',
             fadeIn: 'fadeIn 0.35s ease',
+            pulseSoft: 'pulseSoft 2s ease-in-out infinite',
+            splashOut: 'splashOut .5s ease forwards',
           },
           keyframes: {
             floaty: {
@@ -29,6 +31,14 @@
               from: { opacity: 0, transform: 'translateY(8px)' },
               to: { opacity: 1, transform: 'translateY(0)' },
             },
+            pulseSoft: {
+              '0%, 100%': { opacity: 1, transform: 'scale(1)' },
+              '50%': { opacity: .92, transform: 'scale(1.02)' },
+            },
+            splashOut: {
+              from: { opacity: 1, transform: 'scale(1)', visibility: 'visible' },
+              to: { opacity: 0, transform: 'scale(1.02)', visibility: 'hidden' }
+            }
           },
         },
       },
@@ -37,7 +47,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
     :root {
@@ -66,6 +75,7 @@
       --danger: #f87171;
       --warning: #fbbf24;
     }
+    * { box-sizing: border-box; }
     html {
       scroll-behavior: smooth;
       -webkit-tap-highlight-color: transparent;
@@ -78,6 +88,8 @@
         linear-gradient(135deg, var(--bg1), var(--bg2));
       color: var(--text);
       min-height: 100vh;
+      transition: background .35s ease, color .25s ease;
+      overflow-x: hidden;
     }
     .glass {
       background: var(--card);
@@ -85,6 +97,7 @@
       -webkit-backdrop-filter: blur(18px);
       border: 1px solid var(--card-border);
       box-shadow: 0 10px 30px rgba(15,23,42,.08);
+      transition: background .25s ease, border-color .25s ease, transform .25s ease, box-shadow .25s ease;
     }
     .soft-input {
       border: 1px solid rgba(148,163,184,.28);
@@ -101,18 +114,21 @@
       outline: none;
       border-color: rgba(59,130,246,.65);
       box-shadow: 0 0 0 4px rgba(59,130,246,.12);
+      transform: translateY(-1px);
     }
     .btn-3d {
       position: relative;
       transform-style: preserve-3d;
-      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease, filter .15s ease;
       box-shadow: 0 12px 24px rgba(37,99,235,.18), inset 0 1px 0 rgba(255,255,255,.35);
+      will-change: transform;
     }
-    .btn-3d:hover { transform: translateY(-2px); }
+    .btn-3d:hover { transform: translateY(-2px); filter: saturate(1.05); }
     .btn-3d:active { transform: translateY(1px) scale(.99); }
     .card-3d {
       transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
       transition: transform .25s ease, box-shadow .25s ease;
+      will-change: transform;
     }
     .card-3d:hover {
       transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateY(-2px);
@@ -132,6 +148,28 @@
     .table-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
     .table-scroll::-webkit-scrollbar-thumb { background: rgba(148,163,184,.45); border-radius: 999px; }
     .modal-enter { animation: fadeIn .2s ease; }
+    .page-fade { animation: fadeIn .3s ease; }
+    #splash {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at top left, rgba(96,165,250,.24), transparent 24%),
+        radial-gradient(circle at top right, rgba(167,139,250,.18), transparent 20%),
+        linear-gradient(135deg, #020617, #0f172a);
+      color: white;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity .5s ease, visibility .5s ease, transform .5s ease;
+    }
+    #splash.hide {
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(1.02);
+      pointer-events: none;
+    }
     @media print {
       .no-print { display: none !important; }
       body { background: white !important; }
@@ -140,44 +178,42 @@
   </style>
 </head>
 <body>
-  <div id="app" class="min-h-screen"></div>
+  <div id="splash">
+    <div class="text-center animate-pulseSoft px-6">
+      <div class="h-20 w-20 mx-auto rounded-[2rem] bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-500 grid place-items-center text-3xl font-black shadow-floaty">M</div>
+      <h1 class="mt-6 text-3xl sm:text-4xl font-black tracking-tight">Masoi Village Dukan</h1>
+      <p class="mt-3 text-lg sm:text-xl text-slate-200">Developer: Aayush Singh</p>
+    </div>
+  </div>
+
+  <div id="app" class="min-h-screen opacity-0 transition-opacity duration-500"></div>
 
   <script>
-    // =============================
-    // CONFIGURATION
-    // Change these credentials if needed.
-    // =============================
     const APP_CONFIG = {
       appName: 'Masoi Village Dukan',
+      developer: 'Aayush Singh',
       allowedUsers: [
         { email: 'neetu@masoi.com', password: '123456' },
         { email: 'yashvant@masoi.com', password: 'yashvant0101' }
       ],
-      shops: ['Raju Ki Dukan', 'Barhu Ki Dukan'],
+      shops: ['Raju Ki Dukan', 'Barhu Ki Dukan', 'null'],
       currency: '₹'
     };
 
-    // =============================
-    // STORAGE KEYS
-    // =============================
     const KEYS = {
       auth: 'masoi_auth',
       lang: 'masoi_lang',
       theme: 'masoi_theme',
       data: 'masoi_entries',
+      milkData: 'masoi_milk_entries',
       backups: 'masoi_backups',
       prefs: 'masoi_prefs'
     };
 
-    // =============================
-    // TRANSLATIONS
-    // =============================
     const T = {
       en: {
         appTitle: 'Masoi Village Dukan',
-        appTag: 'Village shop purchase ledger',
         loginTitle: 'Welcome back',
-        loginSub: 'Login to manage daily purchases safely on this device.',
         email: 'Email',
         password: 'Password',
         login: 'Login',
@@ -250,7 +286,6 @@
         backupRestored: 'Backup restored successfully.',
         backupImported: 'Backup imported successfully.',
         downloaded: 'Downloaded successfully.',
-        mobileTip: 'Tip: Open in mobile browser and use “Add to Home Screen” for app-like use.',
         totalPrice: 'Total Price',
         actions: 'Actions',
         clearFilters: 'Clear Filters',
@@ -262,31 +297,46 @@
         createdAt: 'Created At',
         restore: 'Restore',
         download: 'Download',
-        importData: 'Import Data',
-        exportData: 'Export Data',
         records: 'Records',
         selectedMonth: 'Selected Month',
         selectedDay: 'Selected Day',
-        signInDemo: 'Use configured credentials from code',
         itemBreakdown: 'Item Breakdown',
         shopBreakdown: 'Shop Breakdown',
         amountByPerson: 'Amount by Person',
         home: 'Home',
         ledger: 'Ledger',
-        dataSafety: 'Data is stored in local storage on this device.',
-        deviceBackup: 'You can also export backups for safer storage.',
         dailyBackup: 'Daily backup',
         weeklyBackup: 'Weekly backup',
         monthlyBackup: 'Monthly backup',
         backupList: 'Saved backups',
         close: 'Close',
-        entryDetails: 'Entry Details'
+        entryDetails: 'Entry Details',
+        milk: 'Milk',
+        milkSection: 'Milk Record',
+        milkEntries: 'Milk Entries',
+        milkToday: 'Today Milk',
+        milkMonth: 'Month Milk',
+        litres: 'Litres',
+        litresShort: 'L',
+        milkType: 'Type',
+        milkGive: 'Giving',
+        milkTake: 'Taking',
+        totalGiven: 'Total Giving',
+        totalTaken: 'Total Taking',
+        netMilk: 'Net Milk',
+        exportMilkPdfDay: 'Milk Day PDF',
+        exportMilkPdfMonth: 'Milk Month PDF',
+        exportMilkExcelDay: 'Milk Day Excel',
+        exportMilkExcelMonth: 'Milk Month Excel',
+        confirmDeleteMilk: 'Are you sure you want to delete this milk entry?',
+        milkSaved: 'Milk entry saved successfully.',
+        milkUpdated: 'Milk entry updated successfully.',
+        milkDeleted: 'Milk entry deleted successfully.',
+        developedBy: 'Developer'
       },
       hi: {
         appTitle: 'मसोई विलेज दुकान',
-        appTag: 'गाँव की दुकान खरीद रजिस्टर',
         loginTitle: 'फिर से स्वागत है',
-        loginSub: 'इस डिवाइस पर सुरक्षित रूप से रोज़ की खरीदारी मैनेज करने के लिए लॉगिन करें।',
         email: 'ईमेल',
         password: 'पासवर्ड',
         login: 'लॉगिन',
@@ -359,7 +409,6 @@
         backupRestored: 'बैकअप सफलतापूर्वक वापस लाया गया।',
         backupImported: 'बैकअप सफलतापूर्वक इम्पोर्ट हुआ।',
         downloaded: 'सफलतापूर्वक डाउनलोड हुआ।',
-        mobileTip: 'टिप: मोबाइल ब्राउज़र में खोलें और “Add to Home Screen” से ऐप जैसा इस्तेमाल करें।',
         totalPrice: 'कुल कीमत',
         actions: 'एक्शन',
         clearFilters: 'फ़िल्टर हटाएँ',
@@ -371,31 +420,45 @@
         createdAt: 'बनने का समय',
         restore: 'वापस लाएँ',
         download: 'डाउनलोड',
-        importData: 'डेटा इम्पोर्ट',
-        exportData: 'डेटा एक्सपोर्ट',
         records: 'रिकॉर्ड',
         selectedMonth: 'चुना गया महीना',
         selectedDay: 'चुना गया दिन',
-        signInDemo: 'कोड में दिए गए लॉगिन का उपयोग करें',
         itemBreakdown: 'सामान अनुसार',
         shopBreakdown: 'दुकान अनुसार',
         amountByPerson: 'व्यक्ति अनुसार खर्च',
         home: 'होम',
         ledger: 'लेजर',
-        dataSafety: 'डेटा इसी डिवाइस के लोकल स्टोरेज में सेव होता है।',
-        deviceBackup: 'अधिक सुरक्षा के लिए आप बैकअप फ़ाइल भी डाउनलोड कर सकते हैं।',
         dailyBackup: 'डेली बैकअप',
         weeklyBackup: 'वीकली बैकअप',
         monthlyBackup: 'मंथली बैकअप',
         backupList: 'सेव किए गए बैकअप',
         close: 'बंद करें',
-        entryDetails: 'एंट्री विवरण'
+        entryDetails: 'एंट्री विवरण',
+        milk: 'दूध',
+        milkSection: 'दूध रिकॉर्ड',
+        milkEntries: 'दूध एंट्री',
+        milkToday: 'आज का दूध',
+        milkMonth: 'महीने का दूध',
+        litres: 'लीटर',
+        litresShort: 'L',
+        milkType: 'प्रकार',
+        milkGive: 'देना',
+        milkTake: 'लेना',
+        totalGiven: 'कुल दिया',
+        totalTaken: 'कुल लिया',
+        netMilk: 'शुद्ध दूध',
+        exportMilkPdfDay: 'दूध दिन PDF',
+        exportMilkPdfMonth: 'दूध महीना PDF',
+        exportMilkExcelDay: 'दूध दिन Excel',
+        exportMilkExcelMonth: 'दूध महीना Excel',
+        confirmDeleteMilk: 'क्या आप इस दूध एंट्री को हटाना चाहते हैं?',
+        milkSaved: 'दूध एंट्री सफलतापूर्वक सेव हुई।',
+        milkUpdated: 'दूध एंट्री सफलतापूर्वक अपडेट हुई।',
+        milkDeleted: 'दूध एंट्री सफलतापूर्वक हटाई गई।',
+        developedBy: 'डेवलपर'
       }
     };
 
-    // =============================
-    // HELPERS
-    // =============================
     const $ = (sel, root = document) => root.querySelector(sel);
     const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
     const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -408,6 +471,7 @@
       return `${d.getFullYear()}-W${String(week).padStart(2, '0')}`;
     };
     const fmtMoney = (n) => `${APP_CONFIG.currency}${Number(n || 0).toFixed(2)}`;
+    const fmtLitre = (n) => `${Number(n || 0).toFixed(2)} L`;
     const formatDateNice = (str, lang) => new Date(str + 'T00:00:00').toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
     const saveLS = (k, v) => localStorage.setItem(k, JSON.stringify(v));
     const readLS = (k, fallback) => {
@@ -420,14 +484,12 @@
     };
     const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
 
-    // =============================
-    // APP STATE
-    // =============================
     const state = {
       lang: readLS(KEYS.lang, 'en'),
       theme: readLS(KEYS.theme, 'dark'),
       auth: readLS(KEYS.auth, null),
       entries: readLS(KEYS.data, []),
+      milkEntries: readLS(KEYS.milkData, []),
       backups: readLS(KEYS.backups, []),
       shops: readLS('masoi_shops', APP_CONFIG.shops),
       page: 'dashboard',
@@ -438,13 +500,11 @@
       selectedDate: todayStr(),
       selectedMonth: monthStr(),
       editingId: null,
-      customUnitEnabled: false,
+      editingMilkId: null,
       modalEntryId: null,
+      modalMilkId: null,
     };
 
-    // =============================
-    // TEXT HELPERS
-    // =============================
     function tr(key) {
       return T[state.lang][key] || key;
     }
@@ -456,6 +516,7 @@
 
     function persist() {
       saveLS(KEYS.data, state.entries);
+      saveLS(KEYS.milkData, state.milkEntries);
       saveLS(KEYS.backups, state.backups);
       saveLS('masoi_shops', state.shops);
       saveLS(KEYS.lang, state.lang);
@@ -500,21 +561,56 @@
       }).sort((a, b) => (b.date + b.createdAt).localeCompare(a.date + a.createdAt));
     }
 
+    function getMilkEntriesFiltered() {
+      return state.milkEntries.filter(e => {
+        const q = state.search.trim().toLowerCase();
+        const matchQ = !q || [e.shop, e.person, e.type, e.note].some(v => String(v || '').toLowerCase().includes(q));
+        const matchShop = state.filterShop === 'all' || e.shop === state.filterShop;
+        const matchFrom = !state.fromDate || e.date >= state.fromDate;
+        const matchTo = !state.toDate || e.date <= state.toDate;
+        return matchQ && matchShop && matchFrom && matchTo;
+      }).sort((a, b) => (b.date + b.createdAt).localeCompare(a.date + a.createdAt));
+    }
+
     function getTodayEntries() {
       return state.entries.filter(e => e.date === state.selectedDate).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    }
+
+    function getTodayMilkEntries() {
+      return state.milkEntries.filter(e => e.date === state.selectedDate).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     }
 
     function getMonthEntries() {
       return state.entries.filter(e => e.date.startsWith(state.selectedMonth)).sort((a, b) => (a.date + a.createdAt).localeCompare(b.date + b.createdAt));
     }
 
+    function getMonthMilkEntries() {
+      return state.milkEntries.filter(e => e.date.startsWith(state.selectedMonth)).sort((a, b) => (a.date + a.createdAt).localeCompare(b.date + b.createdAt));
+    }
+
     function totalOf(entries) {
       return entries.reduce((sum, e) => sum + Number(e.price || 0), 0);
+    }
+
+    function milkTotals(entries) {
+      return entries.reduce((acc, e) => {
+        const litres = Number(e.litres || 0);
+        if (e.type === 'give') acc.give += litres;
+        if (e.type === 'take') acc.take += litres;
+        acc.net = acc.give - acc.take;
+        return acc;
+      }, { give: 0, take: 0, net: 0 });
     }
 
     function summarizeBy(entries, key) {
       const map = new Map();
       entries.forEach(e => map.set(e[key], (map.get(e[key]) || 0) + Number(e.price || 0)));
+      return [...map.entries()].sort((a,b) => b[1]-a[1]);
+    }
+
+    function summarizeMilkBy(entries, key) {
+      const map = new Map();
+      entries.forEach(e => map.set(e[key], (map.get(e[key]) || 0) + Number(e.litres || 0)));
       return [...map.entries()].sort((a,b) => b[1]-a[1]);
     }
 
@@ -525,27 +621,27 @@
       const monthlyId = `month:${entryDate.slice(0,7)}`;
 
       const existingIds = new Set(state.backups.map(b => b.ref));
-      const dataByDay = state.entries.filter(e => e.date === entryDate);
-      const dataByWeek = state.entries.filter(e => weekKey(e.date) === weekKey(entryDate));
-      const dataByMonth = state.entries.filter(e => e.date.startsWith(entryDate.slice(0,7)));
+      const shopDataByDay = state.entries.filter(e => e.date === entryDate);
+      const shopDataByWeek = state.entries.filter(e => weekKey(e.date) === weekKey(entryDate));
+      const shopDataByMonth = state.entries.filter(e => e.date.startsWith(entryDate.slice(0,7)));
 
-      if (!existingIds.has(dailyId) && dataByDay.length) {
-        state.backups.unshift({ id: uid(), ref: dailyId, type: 'day', label: entryDate, createdAt: now, data: dataByDay });
+      const milkDataByDay = state.milkEntries.filter(e => e.date === entryDate);
+      const milkDataByWeek = state.milkEntries.filter(e => weekKey(e.date) === weekKey(entryDate));
+      const milkDataByMonth = state.milkEntries.filter(e => e.date.startsWith(entryDate.slice(0,7)));
+
+      if (!existingIds.has(dailyId) && (shopDataByDay.length || milkDataByDay.length)) {
+        state.backups.unshift({ id: uid(), ref: dailyId, type: 'day', label: entryDate, createdAt: now, data: shopDataByDay, milkData: milkDataByDay });
       }
-      if (!existingIds.has(weeklyId) && dataByWeek.length) {
-        state.backups.unshift({ id: uid(), ref: weeklyId, type: 'week', label: weekKey(entryDate), createdAt: now, data: dataByWeek });
+      if (!existingIds.has(weeklyId) && (shopDataByWeek.length || milkDataByWeek.length)) {
+        state.backups.unshift({ id: uid(), ref: weeklyId, type: 'week', label: weekKey(entryDate), createdAt: now, data: shopDataByWeek, milkData: milkDataByWeek });
       }
-      if (!existingIds.has(monthlyId) && dataByMonth.length) {
-        state.backups.unshift({ id: uid(), ref: monthlyId, type: 'month', label: entryDate.slice(0,7), createdAt: now, data: dataByMonth });
+      if (!existingIds.has(monthlyId) && (shopDataByMonth.length || milkDataByMonth.length)) {
+        state.backups.unshift({ id: uid(), ref: monthlyId, type: 'month', label: entryDate.slice(0,7), createdAt: now, data: shopDataByMonth, milkData: milkDataByMonth });
       }
 
-      // keep backups manageable
       state.backups = state.backups.slice(0, 100);
     }
 
-    // =============================
-    // EXPORTS
-    // =============================
     function entryRows(entries) {
       return entries.map((e, i) => ({
         '#': i + 1,
@@ -556,6 +652,19 @@
         Quantity: e.quantity,
         Unit: e.unit,
         Price: Number(e.price),
+        Note: e.note || '',
+        CreatedAt: e.createdAt
+      }));
+    }
+
+    function milkRows(entries) {
+      return entries.map((e, i) => ({
+        '#': i + 1,
+        Date: e.date,
+        Shop: e.shop,
+        Person: e.person,
+        Type: e.type === 'give' ? 'Giving' : 'Taking',
+        Litres: Number(e.litres),
         Note: e.note || '',
         CreatedAt: e.createdAt
       }));
@@ -574,62 +683,91 @@
       toast(tr('downloaded'), 'success');
     }
 
-    function exportExcel(entries, filename) {
+    function exportExcel(entries, filename, mode = 'ledger') {
       const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(entryRows(entries));
-      XLSX.utils.book_append_sheet(wb, ws, 'Ledger');
+      const ws = XLSX.utils.json_to_sheet(mode === 'milk' ? milkRows(entries) : entryRows(entries));
+      XLSX.utils.book_append_sheet(wb, ws, mode === 'milk' ? 'Milk' : 'Ledger');
       const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
       downloadBlob(filename, new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
     }
 
-    function exportCSV(entries, filename) {
-      const ws = XLSX.utils.json_to_sheet(entryRows(entries));
+    function exportCSV(entries, filename, mode = 'ledger') {
+      const ws = XLSX.utils.json_to_sheet(mode === 'milk' ? milkRows(entries) : entryRows(entries));
       const csv = XLSX.utils.sheet_to_csv(ws);
       downloadBlob(filename, new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
     }
 
-    async function exportPdf(entries, title, filename) {
+    async function exportPdf(entries, title, filename, mode = 'ledger') {
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF('p', 'pt', 'a4');
-      const margin = 40;
-      let y = 50;
+      const margin = 28;
+      let y = 48;
+
       pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(18);
+      pdf.setFontSize(16);
       pdf.text(title, margin, y);
-      y += 22;
+      y += 20;
+
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
       pdf.text(`Generated: ${new Date().toLocaleString()}`, margin, y);
-      y += 20;
+      y += 16;
       pdf.text(`Total Records: ${entries.length}`, margin, y);
       y += 16;
-      pdf.text(`Total Amount: ${fmtMoney(totalOf(entries))}`, margin, y);
-      y += 26;
 
-      const headers = ['Date', 'Shop', 'Person', 'Product', 'Qty', 'Unit', 'Price'];
-      const rows = entries.map(e => [e.date, e.shop, e.person, e.product, String(e.quantity), e.unit, fmtMoney(e.price)]);
+      if (mode === 'milk') {
+        const mt = milkTotals(entries);
+        pdf.text(`Giving: ${fmtLitre(mt.give)}   Taking: ${fmtLitre(mt.take)}   Net: ${fmtLitre(mt.net)}`, margin, y);
+        y += 24;
 
-      const pageWidth = pdf.internal.pageSize.getWidth() - margin * 2;
-      const colWidths = [60, 78, 70, 100, 36, 40, 60];
-      const rowHeight = 18;
+        const headers = ['Date', 'Shop', 'Person', 'Type', 'Litres', 'Note'];
+        const rows = entries.map(e => [e.date, e.shop, e.person, e.type === 'give' ? tr('milkGive') : tr('milkTake'), fmtLitre(e.litres), e.note || '']);
+        const colWidths = [60, 78, 75, 60, 55, 180];
+        const rowHeight = 18;
 
-      function drawRow(values, isHeader = false) {
-        let x = margin;
-        pdf.setFont('helvetica', isHeader ? 'bold' : 'normal');
-        values.forEach((v, idx) => {
-          pdf.rect(x, y - 12, colWidths[idx], rowHeight);
-          pdf.text(String(v).slice(0, 18), x + 4, y);
-          x += colWidths[idx];
-        });
-        y += rowHeight;
-        if (y > 760) {
-          pdf.addPage();
-          y = 50;
+        function drawRow(values, isHeader = false) {
+          let x = margin;
+          pdf.setFont('helvetica', isHeader ? 'bold' : 'normal');
+          values.forEach((v, idx) => {
+            pdf.rect(x, y - 12, colWidths[idx], rowHeight);
+            pdf.text(String(v).slice(0, idx === 5 ? 34 : 18), x + 4, y);
+            x += colWidths[idx];
+          });
+          y += rowHeight;
+          if (y > 770) {
+            pdf.addPage();
+            y = 50;
+          }
         }
+        drawRow(headers, true);
+        rows.forEach(r => drawRow(r));
+      } else {
+        pdf.text(`Total Amount: ${fmtMoney(totalOf(entries))}`, margin, y);
+        y += 24;
+
+        const headers = ['Date', 'Shop', 'Person', 'Product', 'Qty', 'Unit', 'Price'];
+        const rows = entries.map(e => [e.date, e.shop, e.person, e.product, String(e.quantity), e.unit, fmtMoney(e.price)]);
+        const colWidths = [60, 78, 70, 100, 36, 40, 60];
+        const rowHeight = 18;
+
+        function drawRow(values, isHeader = false) {
+          let x = margin;
+          pdf.setFont('helvetica', isHeader ? 'bold' : 'normal');
+          values.forEach((v, idx) => {
+            pdf.rect(x, y - 12, colWidths[idx], rowHeight);
+            pdf.text(String(v).slice(0, 18), x + 4, y);
+            x += colWidths[idx];
+          });
+          y += rowHeight;
+          if (y > 770) {
+            pdf.addPage();
+            y = 50;
+          }
+        }
+        drawRow(headers, true);
+        rows.forEach(r => drawRow(r));
       }
 
-      drawRow(headers, true);
-      rows.forEach(r => drawRow(r));
       pdf.save(filename);
       toast(tr('downloaded'), 'success');
     }
@@ -637,17 +775,16 @@
     function exportBackupFile() {
       const payload = {
         app: APP_CONFIG.appName,
+        developer: APP_CONFIG.developer,
         exportedAt: new Date().toISOString(),
         entries: state.entries,
+        milkEntries: state.milkEntries,
         backups: state.backups,
         shops: state.shops
       };
       downloadBlob(`masoi-backup-${todayStr()}.json`, new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
     }
 
-    // =============================
-    // UI BUILDERS
-    // =============================
     function StatCard(title, value, icon, sub = '') {
       return `
         <div class="glass card-3d rounded-3xl p-5 shadow-soft animate-fadeIn">
@@ -672,7 +809,7 @@
                 <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-500 to-violet-500 text-white grid place-items-center font-bold shadow-floaty animate-floaty">M</div>
                 <div>
                   <div class="text-xl font-bold leading-none">${tr('appTitle')}</div>
-                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">${tr('appTag')}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">${tr('developedBy')}: ${APP_CONFIG.developer}</div>
                 </div>
               </div>
               <div class="flex flex-wrap items-center gap-2">
@@ -691,13 +828,14 @@
         ['dashboard', tr('home')],
         ['add', tr('addEntry')],
         ['ledger', tr('ledger')],
+        ['milk', tr('milk')],
         ['reports', tr('reports')],
         ['backups', tr('backups')],
       ];
       return `
         <div class="no-print sticky-bottom-nav safe-area px-4 pb-4 mt-6">
           <div class="glass rounded-3xl px-2 py-2 shadow-soft">
-            <div class="grid grid-cols-5 gap-1 text-center text-xs sm:text-sm">
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-1 text-center text-xs sm:text-sm">
               ${tabs.map(([key, label]) => `
                 <button data-nav="${key}" class="nav-btn rounded-2xl px-2 py-3 ${state.page === key ? 'bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg' : 'text-slate-600 dark:text-slate-200'}">
                   ${escapeHtml(label)}
@@ -711,7 +849,7 @@
 
     function LoginPage() {
       return `
-        <main class="min-h-screen flex items-center justify-center p-4">
+        <main class="min-h-screen flex items-center justify-center p-4 page-fade">
           <div class="w-full max-w-5xl grid lg:grid-cols-2 gap-6 items-stretch">
             <section class="glass rounded-[2rem] p-8 shadow-glass card-3d flex flex-col justify-between">
               <div>
@@ -720,16 +858,16 @@
                   ${tr('appTitle')}
                 </div>
                 <h1 class="text-4xl sm:text-5xl font-black tracking-tight mt-6 leading-tight">
-                  ${tr('appTag')}
+                  ${tr('appTitle')}
                 </h1>
                 <p class="mt-4 text-slate-600 dark:text-slate-300 text-base sm:text-lg">
-                  ${tr('dataSafety')}<br>${tr('deviceBackup')}
+                  ${tr('developedBy')}: ${APP_CONFIG.developer}
                 </p>
               </div>
               <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                ${StatCard(tr('dailyBackup'), '24/7', 'D', tr('autoBackups'))}
-                ${StatCard(tr('language'), state.lang === 'en' ? 'EN / HI' : 'HI / EN', 'A', tr('settings'))}
-                ${StatCard(tr('theme'), state.theme === 'dark' ? tr('dark') : tr('light'), 'T', tr('mobileTip'))}
+                ${StatCard(tr('dailyBackup'), '24/7', 'D')}
+                ${StatCard(tr('language'), state.lang === 'en' ? 'EN / HI' : 'HI / EN', 'A')}
+                ${StatCard(tr('theme'), state.theme === 'dark' ? tr('dark') : tr('light'), 'T')}
               </div>
             </section>
 
@@ -737,8 +875,6 @@
               <div class="max-w-md mx-auto">
                 <div class="text-sm uppercase tracking-[0.25em] text-blue-600 dark:text-blue-300 font-semibold">${APP_CONFIG.appName}</div>
                 <h2 class="text-3xl font-black mt-3">${tr('loginTitle')}</h2>
-                <p class="mt-2 text-slate-600 dark:text-slate-300">${tr('loginSub')}</p>
-                <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">${tr('signInDemo')}</p>
 
                 <form id="loginForm" class="space-y-4 mt-8">
                   <div>
@@ -772,7 +908,6 @@
           <div class="flex items-center justify-between gap-3 mb-5">
             <div>
               <h2 class="text-2xl font-bold">${state.editingId ? tr('update') : tr('addEntry')}</h2>
-              <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">${tr('dataSafety')}</p>
             </div>
             <div class="text-right">
               <div class="text-xs text-slate-500 dark:text-slate-400">${tr('selectedDay')}</div>
@@ -837,21 +972,77 @@
       `;
     }
 
+    function MilkEntryForm() {
+      const editing = state.editingMilkId ? state.milkEntries.find(e => e.id === state.editingMilkId) : null;
+      return `
+        <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d animate-fadeIn">
+          <div class="flex items-center justify-between gap-3 mb-5">
+            <div>
+              <h2 class="text-2xl font-bold">${state.editingMilkId ? tr('update') : tr('milkSection')}</h2>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-slate-500 dark:text-slate-400">${tr('selectedDay')}</div>
+              <div class="font-semibold">${formatDateNice(state.selectedDate, state.lang)}</div>
+            </div>
+          </div>
+
+          <form id="milkForm" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-sm mb-2">${tr('shop')}</label>
+              <select name="shop" class="soft-input w-full rounded-2xl px-4 py-3" required>
+                ${state.shops.map(shop => `<option ${editing?.shop===shop?'selected':''}>${escapeHtml(shop)}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm mb-2">${tr('date')}</label>
+              <input name="date" type="date" value="${editing?.date || state.selectedDate}" class="soft-input w-full rounded-2xl px-4 py-3" required />
+            </div>
+            <div>
+              <label class="block text-sm mb-2">${tr('person')}</label>
+              <input name="person" type="text" value="${escapeHtml(editing?.person || '')}" class="soft-input w-full rounded-2xl px-4 py-3" required />
+            </div>
+            <div>
+              <label class="block text-sm mb-2">${tr('milkType')}</label>
+              <select name="type" class="soft-input w-full rounded-2xl px-4 py-3" required>
+                <option value="give" ${editing?.type==='give'?'selected':''}>${tr('milkGive')}</option>
+                <option value="take" ${editing?.type==='take'?'selected':''}>${tr('milkTake')}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm mb-2">${tr('litres')}</label>
+              <input name="litres" type="number" step="0.01" min="0" value="${editing?.litres ?? ''}" class="soft-input w-full rounded-2xl px-4 py-3" required />
+            </div>
+            <div class="md:col-span-2 xl:col-span-3">
+              <label class="block text-sm mb-2">${tr('note')}</label>
+              <textarea name="note" rows="3" class="soft-input w-full rounded-2xl px-4 py-3">${escapeHtml(editing?.note || '')}</textarea>
+            </div>
+            <div class="md:col-span-2 xl:col-span-4 flex flex-wrap gap-3 pt-2">
+              <button class="btn-3d rounded-2xl px-5 py-3 text-white font-semibold bg-gradient-to-r from-emerald-500 via-green-500 to-lime-500">${state.editingMilkId ? tr('update') : tr('save')}</button>
+              ${state.editingMilkId ? `<button type="button" id="cancelMilkEditBtn" class="btn-3d rounded-2xl px-5 py-3 glass">${tr('cancel')}</button>` : ''}
+            </div>
+          </form>
+        </section>
+      `;
+    }
+
     function DashboardPage() {
       const todayEntries = state.entries.filter(e => e.date === todayStr());
       const currentMonthEntries = state.entries.filter(e => e.date.startsWith(monthStr()));
+      const currentMonthMilk = state.milkEntries.filter(e => e.date.startsWith(monthStr()));
+      const milkMonthTotals = milkTotals(currentMonthMilk);
       const shopBreakdown = summarizeBy(currentMonthEntries, 'shop');
       const personBreakdown = summarizeBy(currentMonthEntries, 'person');
       const itemBreakdown = summarizeBy(currentMonthEntries, 'product').slice(0, 6);
 
       return `
-        <main class="px-4 py-4 space-y-6">
+        <main class="px-4 py-4 space-y-6 page-fade">
           ${TopBar()}
 
-          <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
             ${StatCard(tr('totalToday'), fmtMoney(totalOf(todayEntries)), '₹', formatDateNice(todayStr(), state.lang))}
             ${StatCard(tr('monthTotal'), fmtMoney(totalOf(currentMonthEntries)), 'M', monthStr())}
             ${StatCard(tr('totalEntries'), String(state.entries.length), '#', tr('records'))}
+            ${StatCard(tr('netMilk'), fmtLitre(milkMonthTotals.net), 'L', state.selectedMonth)}
             ${StatCard(tr('backups'), String(state.backups.length), 'B', tr('backupList'))}
           </section>
 
@@ -895,19 +1086,19 @@
             <div>
               <div class="text-sm font-semibold mb-2">${tr('shopBreakdown')}</div>
               <div class="space-y-2">
-                ${shopBreakdown.length ? shopBreakdown.map(([k,v]) => rowBar(k,v, totalOf(getMonthEntries()))).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
+                ${shopBreakdown.length ? shopBreakdown.map(([k,v]) => rowBar(k,v, totalOf(getMonthEntries()), false)).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
               </div>
             </div>
             <div>
               <div class="text-sm font-semibold mb-2">${tr('amountByPerson')}</div>
               <div class="space-y-2">
-                ${personBreakdown.length ? personBreakdown.slice(0,6).map(([k,v]) => rowBar(k,v, totalOf(getMonthEntries()))).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
+                ${personBreakdown.length ? personBreakdown.slice(0,6).map(([k,v]) => rowBar(k,v, totalOf(getMonthEntries()), false)).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
               </div>
             </div>
             <div>
               <div class="text-sm font-semibold mb-2">${tr('itemBreakdown')}</div>
               <div class="space-y-2">
-                ${itemBreakdown.length ? itemBreakdown.map(([k,v]) => rowBar(k,v, totalOf(getMonthEntries()))).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
+                ${itemBreakdown.length ? itemBreakdown.map(([k,v]) => rowBar(k,v, totalOf(getMonthEntries()), false)).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
               </div>
             </div>
           </div>
@@ -915,13 +1106,56 @@
       `;
     }
 
-    function rowBar(label, value, total) {
+    function MilkSummaryPanel(entries) {
+      const byShop = summarizeMilkBy(entries, 'shop');
+      const byPerson = summarizeMilkBy(entries, 'person');
+      const totals = milkTotals(entries);
+      const totalMilk = totals.give + totals.take || 0;
+
+      return `
+        <section class="glass rounded-[2rem] p-5 shadow-soft card-3d">
+          <h3 class="text-2xl font-bold mb-4">${tr('summary')}</h3>
+          <div class="space-y-5">
+            <div class="grid grid-cols-1 gap-3">
+              <div class="rounded-2xl bg-white/50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-4">
+                <div class="text-xs text-slate-500 dark:text-slate-400">${tr('totalGiven')}</div>
+                <div class="mt-1 text-xl font-bold">${fmtLitre(totals.give)}</div>
+              </div>
+              <div class="rounded-2xl bg-white/50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-4">
+                <div class="text-xs text-slate-500 dark:text-slate-400">${tr('totalTaken')}</div>
+                <div class="mt-1 text-xl font-bold">${fmtLitre(totals.take)}</div>
+              </div>
+              <div class="rounded-2xl bg-white/50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-4">
+                <div class="text-xs text-slate-500 dark:text-slate-400">${tr('netMilk')}</div>
+                <div class="mt-1 text-xl font-bold">${fmtLitre(totals.net)}</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="text-sm font-semibold mb-2">${tr('shopBreakdown')}</div>
+              <div class="space-y-2">
+                ${byShop.length ? byShop.map(([k,v]) => rowBar(k,v, totalMilk, true)).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
+              </div>
+            </div>
+
+            <div>
+              <div class="text-sm font-semibold mb-2">${tr('amountByPerson')}</div>
+              <div class="space-y-2">
+                ${byPerson.length ? byPerson.slice(0, 8).map(([k,v]) => rowBar(k,v, totalMilk, true)).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function rowBar(label, value, total, isMilk = false) {
       const width = total ? Math.max(10, Math.round((value / total) * 100)) : 10;
       return `
         <div>
           <div class="flex justify-between gap-3 text-sm mb-1">
             <span class="truncate">${escapeHtml(label)}</span>
-            <span class="font-semibold">${fmtMoney(value)}</span>
+            <span class="font-semibold">${isMilk ? fmtLitre(value) : fmtMoney(value)}</span>
           </div>
           <div class="h-2.5 rounded-full bg-slate-200/70 dark:bg-slate-700/70 overflow-hidden">
             <div class="h-full rounded-full bg-gradient-to-r from-blue-500 to-violet-500" style="width:${width}%"></div>
@@ -956,9 +1190,6 @@
                 <button id="addShopBtn" class="btn-3d rounded-2xl px-4 py-2.5 text-white bg-gradient-to-r from-emerald-500 to-green-600">${tr('add')}</button>
               </div>
             </div>
-            <div class="text-sm text-slate-500 dark:text-slate-400">
-              ${tr('mobileTip')}
-            </div>
           </div>
         </section>
       `;
@@ -967,13 +1198,13 @@
     function LedgerPage() {
       const filtered = getEntriesFiltered();
       return `
-        <main class="px-4 py-4 space-y-6">
+        <main class="px-4 py-4 space-y-6 page-fade">
           ${TopBar()}
           <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d">
             <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
               <div>
                 <h2 class="text-2xl font-bold">${tr('allEntries')}</h2>
-                <p class="text-sm text-slate-500 dark:text-slate-400">${tr('dayWise')} / ${tr('monthWise')}</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">${tr('records')}: ${filtered.length}</p>
               </div>
               <div class="flex flex-wrap gap-2">
                 <button id="exportCsvBtn" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportCsv')}</button>
@@ -999,10 +1230,59 @@
       `;
     }
 
+    function MilkPage() {
+      const todayMilk = getTodayMilkEntries();
+      const monthMilk = getMonthMilkEntries();
+      const todayTotals = milkTotals(todayMilk);
+      const monthTotals = milkTotals(monthMilk);
+
+      return `
+        <main class="px-4 py-4 space-y-6 page-fade">
+          ${TopBar()}
+
+          <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            ${StatCard(tr('totalGiven'), fmtLitre(todayTotals.give), 'G', formatDateNice(state.selectedDate, state.lang))}
+            ${StatCard(tr('totalTaken'), fmtLitre(todayTotals.take), 'T', formatDateNice(state.selectedDate, state.lang))}
+            ${StatCard(tr('netMilk'), fmtLitre(monthTotals.net), 'L', state.selectedMonth)}
+            ${StatCard(tr('milkEntries'), String(state.milkEntries.length), '#', tr('records'))}
+          </section>
+
+          <section class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div class="xl:col-span-2 space-y-6">
+              ${MilkEntryForm()}
+
+              <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                  <div>
+                    <h3 class="text-2xl font-bold">${tr('milkEntries')}</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">${formatDateNice(state.selectedDate, state.lang)}</p>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <input id="selectedDateInput" type="date" value="${state.selectedDate}" class="soft-input rounded-2xl px-4 py-2.5" />
+                    <button id="exportMilkDayPdf" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportMilkPdfDay')}</button>
+                    <button id="exportMilkDayExcel" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportMilkExcelDay')}</button>
+                  </div>
+                </div>
+                ${renderMilkTable(todayMilk)}
+              </section>
+            </div>
+
+            <div class="space-y-6">
+              ${MilkSummaryPanel(monthMilk)}
+            </div>
+          </section>
+
+          ${BottomNav()}
+        </main>
+      `;
+    }
+
     function ReportsPage() {
       const monthEntries = getMonthEntries();
+      const monthMilk = getMonthMilkEntries();
+      const milkMonthTotals = milkTotals(monthMilk);
       return `
-        <main class="px-4 py-4 space-y-6">
+        <main class="px-4 py-4 space-y-6 page-fade">
           ${TopBar()}
           <section class="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div class="xl:col-span-2 glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d">
@@ -1015,20 +1295,33 @@
                   <input id="selectedMonthInput" type="month" value="${state.selectedMonth}" class="soft-input rounded-2xl px-4 py-2.5" />
                   <button id="exportMonthPdf" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportPdfMonth')}</button>
                   <button id="exportMonthExcel" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportExcelMonth')}</button>
+                  <button id="exportMilkMonthPdf" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportMilkPdfMonth')}</button>
+                  <button id="exportMilkMonthExcel" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportMilkExcelMonth')}</button>
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5">
                 ${StatCard(tr('monthTotal'), fmtMoney(totalOf(monthEntries)), '₹', state.selectedMonth)}
                 ${StatCard(tr('totalEntries'), String(monthEntries.length), '#', tr('records'))}
-                ${StatCard(tr('selectedMonth'), state.selectedMonth, 'M', tr('summary'))}
+                ${StatCard(tr('netMilk'), fmtLitre(milkMonthTotals.net), 'L', state.selectedMonth)}
+                ${StatCard(tr('milkEntries'), String(monthMilk.length), 'M', tr('records'))}
               </div>
 
-              ${renderEntriesTable(monthEntries)}
+              <div class="space-y-6">
+                <div>
+                  <h3 class="text-xl font-bold mb-3">${tr('allEntries')}</h3>
+                  ${renderEntriesTable(monthEntries)}
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold mb-3">${tr('milkEntries')}</h3>
+                  ${renderMilkTable(monthMilk)}
+                </div>
+              </div>
             </div>
 
-            <div>
+            <div class="space-y-6">
               ${SummaryPanel(summarizeBy(monthEntries, 'shop'), summarizeBy(monthEntries, 'person'), summarizeBy(monthEntries, 'product').slice(0, 8))}
+              ${MilkSummaryPanel(monthMilk)}
             </div>
           </section>
           ${BottomNav()}
@@ -1038,13 +1331,12 @@
 
     function BackupsPage() {
       return `
-        <main class="px-4 py-4 space-y-6">
+        <main class="px-4 py-4 space-y-6 page-fade">
           ${TopBar()}
           <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5">
               <div>
                 <h2 class="text-2xl font-bold">${tr('backups')}</h2>
-                <p class="text-sm text-slate-500 dark:text-slate-400">${tr('deviceBackup')}</p>
               </div>
               <div class="flex flex-wrap gap-2">
                 <button id="exportBackupFileBtn" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportBackup')}</button>
@@ -1068,6 +1360,7 @@
                     <th class="text-left px-4 py-3">${tr('backupType')}</th>
                     <th class="text-left px-4 py-3">${tr('summary')}</th>
                     <th class="text-left px-4 py-3">${tr('records')}</th>
+                    <th class="text-left px-4 py-3">${tr('milkEntries')}</th>
                     <th class="text-left px-4 py-3">${tr('createdAt')}</th>
                     <th class="text-left px-4 py-3">${tr('actions')}</th>
                   </tr>
@@ -1077,7 +1370,8 @@
                     <tr class="border-t border-slate-200/60 dark:border-slate-700/60">
                       <td class="px-4 py-3 capitalize">${escapeHtml(b.type)}</td>
                       <td class="px-4 py-3">${escapeHtml(b.label)}</td>
-                      <td class="px-4 py-3">${b.data.length}</td>
+                      <td class="px-4 py-3">${(b.data || []).length}</td>
+                      <td class="px-4 py-3">${(b.milkData || []).length}</td>
                       <td class="px-4 py-3">${new Date(b.createdAt).toLocaleString(state.lang === 'hi' ? 'hi-IN' : 'en-IN')}</td>
                       <td class="px-4 py-3">
                         <div class="flex gap-2 flex-wrap">
@@ -1088,7 +1382,7 @@
                     </tr>
                   `).join('') : `
                     <tr>
-                      <td colspan="5" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">${tr('noData')}</td>
+                      <td colspan="6" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">${tr('noData')}</td>
                     </tr>
                   `}
                 </tbody>
@@ -1118,7 +1412,7 @@
             </thead>
             <tbody>
               ${entries.length ? entries.map(e => `
-                <tr class="border-t border-slate-200/60 dark:border-slate-700/60 hover:bg-white/40 dark:hover:bg-slate-800/40">
+                <tr class="border-t border-slate-200/60 dark:border-slate-700/60 hover:bg-white/40 dark:hover:bg-slate-800/40 transition-colors">
                   <td class="px-4 py-3 whitespace-nowrap">${formatDateNice(e.date, state.lang)}</td>
                   <td class="px-4 py-3">${escapeHtml(e.shop)}</td>
                   <td class="px-4 py-3">${escapeHtml(e.person)}</td>
@@ -1138,6 +1432,50 @@
               `).join('') : `
                 <tr>
                   <td colspan="8" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">${tr('noData')}</td>
+                </tr>
+              `}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderMilkTable(entries) {
+      return `
+        <div class="overflow-x-auto table-scroll rounded-3xl border border-slate-200/60 dark:border-slate-700/60">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-100/80 dark:bg-slate-800/70">
+              <tr>
+                <th class="text-left px-4 py-3">${tr('date')}</th>
+                <th class="text-left px-4 py-3">${tr('shop')}</th>
+                <th class="text-left px-4 py-3">${tr('person')}</th>
+                <th class="text-left px-4 py-3">${tr('milkType')}</th>
+                <th class="text-left px-4 py-3">${tr('litres')}</th>
+                <th class="text-left px-4 py-3">${tr('note')}</th>
+                <th class="text-left px-4 py-3">${tr('actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${entries.length ? entries.map(e => `
+                <tr class="border-t border-slate-200/60 dark:border-slate-700/60 hover:bg-white/40 dark:hover:bg-slate-800/40 transition-colors">
+                  <td class="px-4 py-3 whitespace-nowrap">${formatDateNice(e.date, state.lang)}</td>
+                  <td class="px-4 py-3">${escapeHtml(e.shop)}</td>
+                  <td class="px-4 py-3">${escapeHtml(e.person)}</td>
+                  <td class="px-4 py-3">${e.type === 'give' ? tr('milkGive') : tr('milkTake')}</td>
+                  <td class="px-4 py-3 font-semibold">${fmtLitre(e.litres)}</td>
+                  <td class="px-4 py-3">
+                    <button data-open-milk="${e.id}" class="underline decoration-dotted underline-offset-4">${escapeHtml(e.note || '-')}</button>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex gap-2 flex-wrap">
+                      <button data-edit-milk="${e.id}" class="edit-milk-btn btn-3d rounded-xl px-3 py-2 text-white bg-gradient-to-r from-emerald-500 to-green-600">${tr('edit')}</button>
+                      <button data-delete-milk="${e.id}" class="delete-milk-btn btn-3d rounded-xl px-3 py-2 text-white bg-gradient-to-r from-rose-500 to-red-500">${tr('del')}</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('') : `
+                <tr>
+                  <td colspan="7" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">${tr('noData')}</td>
                 </tr>
               `}
             </tbody>
@@ -1175,6 +1513,33 @@
       `;
     }
 
+    function MilkModal() {
+      if (!state.modalMilkId) return '';
+      const e = state.milkEntries.find(x => x.id === state.modalMilkId);
+      if (!e) return '';
+      return `
+        <div class="fixed inset-0 z-[999] bg-slate-950/50 backdrop-blur-sm p-4 flex items-center justify-center modal-enter">
+          <div class="glass rounded-[2rem] p-6 w-full max-w-xl shadow-2xl">
+            <div class="flex items-center justify-between gap-3 mb-5">
+              <h3 class="text-2xl font-bold">${tr('milkSection')}</h3>
+              <button id="closeMilkModal" class="btn-3d rounded-2xl px-4 py-2 glass">${tr('close')}</button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              ${detailCell(tr('date'), formatDateNice(e.date, state.lang))}
+              ${detailCell(tr('shop'), e.shop)}
+              ${detailCell(tr('person'), e.person)}
+              ${detailCell(tr('milkType'), e.type === 'give' ? tr('milkGive') : tr('milkTake'))}
+              ${detailCell(tr('litres'), fmtLitre(e.litres))}
+              ${detailCell(tr('createdAt'), new Date(e.createdAt).toLocaleString(state.lang === 'hi' ? 'hi-IN' : 'en-IN'))}
+              <div class="sm:col-span-2">
+                ${detailCell(tr('note'), e.note || '-')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     function detailCell(label, value) {
       return `
         <div class="rounded-2xl bg-white/50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-4">
@@ -1184,9 +1549,6 @@
       `;
     }
 
-    // =============================
-    // RENDER
-    // =============================
     function render() {
       applyTheme();
       persist();
@@ -1207,6 +1569,9 @@
         case 'ledger':
           html = LedgerPage();
           break;
+        case 'milk':
+          html = MilkPage();
+          break;
         case 'reports':
           html = ReportsPage();
           break;
@@ -1216,13 +1581,11 @@
         default:
           html = DashboardPage();
       }
-      app.innerHTML = html + EntryModal();
+
+      app.innerHTML = html + EntryModal() + MilkModal();
       bindAuthedEvents();
     }
 
-    // =============================
-    // EVENTS
-    // =============================
     function bindLoginEvents() {
       $('#loginForm')?.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -1250,6 +1613,7 @@
         state.auth = null;
         render();
       });
+
       $('#langToggle')?.addEventListener('click', () => {
         state.lang = state.lang === 'en' ? 'hi' : 'en';
         render();
@@ -1258,6 +1622,7 @@
         state.theme = state.theme === 'dark' ? 'light' : 'dark';
         render();
       });
+
       $('#langEn')?.addEventListener('click', () => { state.lang = 'en'; render(); });
       $('#langHi')?.addEventListener('click', () => { state.lang = 'hi'; render(); });
       $('#themeLight')?.addEventListener('click', () => { state.theme = 'light'; render(); });
@@ -1266,6 +1631,7 @@
       $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
         state.page = btn.dataset.nav;
         state.editingId = null;
+        state.editingMilkId = null;
         render();
       }));
 
@@ -1273,6 +1639,7 @@
         state.selectedDate = e.target.value || todayStr();
         render();
       });
+
       $('#selectedMonthInput')?.addEventListener('change', (e) => {
         state.selectedMonth = e.target.value || monthStr();
         render();
@@ -1284,8 +1651,10 @@
           $('#addShopBtn')?.click();
         }
       });
+
       $('#addShopBtn')?.addEventListener('click', () => {
         const input = $('#newShopName');
+        if (!input) return;
         const name = input.value.trim();
         if (!name) return;
         if (!state.shops.includes(name)) state.shops.push(name);
@@ -1331,8 +1700,45 @@
         render();
       });
 
+      $('#milkForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+
+        const payload = {
+          shop: String(fd.get('shop') || '').trim(),
+          date: String(fd.get('date') || ''),
+          person: String(fd.get('person') || '').trim(),
+          type: String(fd.get('type') || 'give'),
+          litres: Number(fd.get('litres') || 0),
+          note: String(fd.get('note') || '').trim(),
+        };
+
+        if (!payload.shop || !payload.date || !payload.person || !payload.type || payload.litres <= 0) {
+          return toast(tr('fillRequired'), 'warning');
+        }
+
+        if (state.editingMilkId) {
+          const idx = state.milkEntries.findIndex(x => x.id === state.editingMilkId);
+          if (idx >= 0) {
+            state.milkEntries[idx] = { ...state.milkEntries[idx], ...payload, updatedAt: new Date().toISOString() };
+            toast(tr('milkUpdated'), 'success');
+          }
+          state.editingMilkId = null;
+        } else {
+          state.milkEntries.unshift({ id: uid(), ...payload, createdAt: new Date().toISOString() });
+          toast(tr('milkSaved'), 'success');
+        }
+        autoBackupIfNeeded(payload.date);
+        render();
+      });
+
       $('#cancelEditBtn')?.addEventListener('click', () => {
         state.editingId = null;
+        render();
+      });
+
+      $('#cancelMilkEditBtn')?.addEventListener('click', () => {
+        state.editingMilkId = null;
         render();
       });
 
@@ -1355,12 +1761,36 @@
         render();
       }));
 
+      $$('.edit-milk-btn').forEach(btn => btn.addEventListener('click', () => {
+        state.editingMilkId = btn.dataset.editMilk;
+        state.page = 'milk';
+        render();
+      }));
+
+      $$('.delete-milk-btn').forEach(btn => btn.addEventListener('click', () => {
+        if (!confirm(tr('confirmDeleteMilk'))) return;
+        state.milkEntries = state.milkEntries.filter(x => x.id !== btn.dataset.deleteMilk);
+        toast(tr('milkDeleted'), 'success');
+        render();
+      }));
+
       $$('[data-open-entry]').forEach(btn => btn.addEventListener('click', () => {
         state.modalEntryId = btn.dataset.openEntry;
         render();
       }));
+
+      $$('[data-open-milk]').forEach(btn => btn.addEventListener('click', () => {
+        state.modalMilkId = btn.dataset.openMilk;
+        render();
+      }));
+
       $('#closeEntryModal')?.addEventListener('click', () => {
         state.modalEntryId = null;
+        render();
+      });
+
+      $('#closeMilkModal')?.addEventListener('click', () => {
+        state.modalMilkId = null;
         render();
       });
 
@@ -1368,6 +1798,7 @@
       $('#filterShopSelect')?.addEventListener('change', (e) => { state.filterShop = e.target.value; render(); });
       $('#fromDateInput')?.addEventListener('change', (e) => { state.fromDate = e.target.value; render(); });
       $('#toDateInput')?.addEventListener('change', (e) => { state.toDate = e.target.value; render(); });
+
       $('#clearFiltersBtn')?.addEventListener('click', () => {
         state.search = '';
         state.filterShop = 'all';
@@ -1376,11 +1807,16 @@
         render();
       });
 
-      $('#exportDayExcel')?.addEventListener('click', () => exportExcel(getTodayEntries(), `day-report-${state.selectedDate}.xlsx`));
-      $('#exportMonthExcel')?.addEventListener('click', () => exportExcel(getMonthEntries(), `month-report-${state.selectedMonth}.xlsx`));
-      $('#exportCsvBtn')?.addEventListener('click', () => exportCSV(getEntriesFiltered(), `ledger-${todayStr()}.csv`));
-      $('#exportDayPdf')?.addEventListener('click', () => exportPdf(getTodayEntries(), `${APP_CONFIG.appName} - Day Report (${state.selectedDate})`, `day-report-${state.selectedDate}.pdf`));
-      $('#exportMonthPdf')?.addEventListener('click', () => exportPdf(getMonthEntries(), `${APP_CONFIG.appName} - Month Report (${state.selectedMonth})`, `month-report-${state.selectedMonth}.pdf`));
+      $('#exportDayExcel')?.addEventListener('click', () => exportExcel(getTodayEntries(), `day-report-${state.selectedDate}.xlsx`, 'ledger'));
+      $('#exportMonthExcel')?.addEventListener('click', () => exportExcel(getMonthEntries(), `month-report-${state.selectedMonth}.xlsx`, 'ledger'));
+      $('#exportCsvBtn')?.addEventListener('click', () => exportCSV(getEntriesFiltered(), `ledger-${todayStr()}.csv`, 'ledger'));
+      $('#exportDayPdf')?.addEventListener('click', () => exportPdf(getTodayEntries(), `${APP_CONFIG.appName} - Day Report (${state.selectedDate})`, `day-report-${state.selectedDate}.pdf`, 'ledger'));
+      $('#exportMonthPdf')?.addEventListener('click', () => exportPdf(getMonthEntries(), `${APP_CONFIG.appName} - Month Report (${state.selectedMonth})`, `month-report-${state.selectedMonth}.pdf`, 'ledger'));
+
+      $('#exportMilkDayExcel')?.addEventListener('click', () => exportExcel(getTodayMilkEntries(), `milk-day-report-${state.selectedDate}.xlsx`, 'milk'));
+      $('#exportMilkMonthExcel')?.addEventListener('click', () => exportExcel(getMonthMilkEntries(), `milk-month-report-${state.selectedMonth}.xlsx`, 'milk'));
+      $('#exportMilkDayPdf')?.addEventListener('click', () => exportPdf(getTodayMilkEntries(), `${APP_CONFIG.appName} - Milk Day Report (${state.selectedDate})`, `milk-day-report-${state.selectedDate}.pdf`, 'milk'));
+      $('#exportMilkMonthPdf')?.addEventListener('click', () => exportPdf(getMonthMilkEntries(), `${APP_CONFIG.appName} - Milk Month Report (${state.selectedMonth})`, `milk-month-report-${state.selectedMonth}.pdf`, 'milk'));
 
       $('#backupNowBtn')?.addEventListener('click', () => {
         const snapshot = {
@@ -1389,7 +1825,8 @@
           type: 'manual',
           label: todayStr(),
           createdAt: new Date().toISOString(),
-          data: [...state.entries]
+          data: [...state.entries],
+          milkData: [...state.milkEntries]
         };
         state.backups.unshift(snapshot);
         state.backups = state.backups.slice(0, 100);
@@ -1398,6 +1835,7 @@
       });
 
       $('#exportBackupFileBtn')?.addEventListener('click', exportBackupFile);
+
       $('#importBackupInput')?.addEventListener('change', async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -1405,6 +1843,7 @@
           const text = await file.text();
           const data = JSON.parse(text);
           if (Array.isArray(data.entries)) state.entries = data.entries;
+          if (Array.isArray(data.milkEntries)) state.milkEntries = data.milkEntries;
           if (Array.isArray(data.backups)) state.backups = data.backups;
           if (Array.isArray(data.shops)) state.shops = data.shops;
           toast(tr('backupImported'), 'success');
@@ -1417,9 +1856,15 @@
       $$('.restore-backup').forEach(btn => btn.addEventListener('click', () => {
         const backup = state.backups.find(b => b.id === btn.dataset.restoreBackup);
         if (!backup) return;
-        const map = new Map(state.entries.map(e => [e.id, e]));
-        backup.data.forEach(e => map.set(e.id, e));
-        state.entries = [...map.values()].sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+
+        const ledgerMap = new Map(state.entries.map(e => [e.id, e]));
+        (backup.data || []).forEach(e => ledgerMap.set(e.id, e));
+        state.entries = [...ledgerMap.values()].sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+
+        const milkMap = new Map(state.milkEntries.map(e => [e.id, e]));
+        (backup.milkData || []).forEach(e => milkMap.set(e.id, e));
+        state.milkEntries = [...milkMap.values()].sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+
         toast(tr('backupRestored'), 'success');
         render();
       }));
@@ -1431,9 +1876,6 @@
       }));
     }
 
-    // =============================
-    // STARTUP
-    // =============================
     function firstRunSetup() {
       if (!readLS(KEYS.theme, null)) {
         state.theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -1441,8 +1883,30 @@
       applyTheme();
     }
 
+    function runSplashThenApp() {
+      const splash = $('#splash');
+      const app = $('#app');
+
+      setTimeout(() => {
+        if (app) {
+          app.classList.remove('opacity-0');
+          app.classList.add('opacity-100');
+        }
+
+        if (splash) {
+          splash.classList.add('hide');
+          splash.style.pointerEvents = 'none';
+
+          setTimeout(() => {
+            splash.remove();
+          }, 600);
+        }
+      }, 3000);
+    }
+
     firstRunSetup();
     render();
+    runSplashThenApp();
   </script>
 </body>
 </html>
