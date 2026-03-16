@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Masoi Village Dukan</title>
+  <meta name="theme-color" content="#0f172a" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          boxShadow: {
+            glass: '0 20px 50px rgba(15, 23, 42, 0.18)',
+            soft: '0 10px 30px rgba(2, 6, 23, 0.12)',
+            floaty: '0 25px 60px rgba(59, 130, 246, 0.18)',
+          },
+          animation: {
+            floaty: 'floaty 6s ease-in-out infinite',
+            fadeIn: 'fadeIn 0.35s ease',
+          },
+          keyframes: {
+            floaty: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-8px)' },
+            },
+            fadeIn: {
+              from: { opacity: 0, transform: 'translateY(8px)' },
+              to: { opacity: 1, transform: 'translateY(0)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    :root {
+      --bg1: #eef4ff;
+      --bg2: #fff7ed;
+      --card: rgba(255,255,255,0.72);
+      --card-border: rgba(255,255,255,0.65);
+      --text: #0f172a;
+      --muted: #475569;
+      --accent: #2563eb;
+      --accent-2: #7c3aed;
+      --success: #15803d;
+      --danger: #dc2626;
+      --warning: #d97706;
+    }
+    .dark {
+      --bg1: #020617;
+      --bg2: #0f172a;
+      --card: rgba(15,23,42,0.72);
+      --card-border: rgba(148,163,184,0.14);
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --accent: #60a5fa;
+      --accent-2: #a78bfa;
+      --success: #4ade80;
+      --danger: #f87171;
+      --warning: #fbbf24;
+    }
+    html {
+      scroll-behavior: smooth;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(96,165,250,.18), transparent 24%),
+        radial-gradient(circle at top right, rgba(167,139,250,.14), transparent 20%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .glass {
+      background: var(--card);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 30px rgba(15,23,42,.08);
+    }
+    .soft-input {
+      border: 1px solid rgba(148,163,184,.28);
+      background: rgba(255,255,255,.7);
+      color: #0f172a;
+      transition: .2s ease;
+    }
+    .dark .soft-input {
+      background: rgba(15,23,42,.72);
+      color: #f8fafc;
+      border-color: rgba(148,163,184,.18);
+    }
+    .soft-input:focus {
+      outline: none;
+      border-color: rgba(59,130,246,.65);
+      box-shadow: 0 0 0 4px rgba(59,130,246,.12);
+    }
+    .btn-3d {
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+      box-shadow: 0 12px 24px rgba(37,99,235,.18), inset 0 1px 0 rgba(255,255,255,.35);
+    }
+    .btn-3d:hover { transform: translateY(-2px); }
+    .btn-3d:active { transform: translateY(1px) scale(.99); }
+    .card-3d {
+      transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .card-3d:hover {
+      transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateY(-2px);
+      box-shadow: 0 24px 60px rgba(2,6,23,.12);
+    }
+    .hidden-file-input { display: none; }
+    .safe-area {
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+    .sticky-bottom-nav {
+      position: sticky;
+      bottom: 0;
+      z-index: 40;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .table-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
+    .table-scroll::-webkit-scrollbar-thumb { background: rgba(148,163,184,.45); border-radius: 999px; }
+    .modal-enter { animation: fadeIn .2s ease; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; }
+      .glass { background: white !important; border: 1px solid #ddd !important; box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="min-h-screen"></div>
+
+  <script>
+    // =============================
+    // CONFIGURATION
+    // Change these credentials if needed.
+    // =============================
+    const APP_CONFIG = {
+      appName: 'Masoi Village Dukan',
+      allowedUsers: [
+        { email: 'neetu@masoi.com', password: '123456' },
+        { email: 'yashvant@masoi.com', password: 'yashvant0101' }
+      ],
+      shops: ['Raju Ki Dukan', 'Barhu Ki Dukan'],
+      currency: '₹'
+    };
+
+    // =============================
+    // STORAGE KEYS
+    // =============================
+    const KEYS = {
+      auth: 'masoi_auth',
+      lang: 'masoi_lang',
+      theme: 'masoi_theme',
+      data: 'masoi_entries',
+      backups: 'masoi_backups',
+      prefs: 'masoi_prefs'
+    };
+
+    // =============================
+    // TRANSLATIONS
+    // =============================
+    const T = {
+      en: {
+        appTitle: 'Masoi Village Dukan',
+        appTag: 'Village shop purchase ledger',
+        loginTitle: 'Welcome back',
+        loginSub: 'Login to manage daily purchases safely on this device.',
+        email: 'Email',
+        password: 'Password',
+        login: 'Login',
+        logout: 'Logout',
+        invalidLogin: 'Invalid email or password.',
+        dashboard: 'Dashboard',
+        addEntry: 'Add Entry',
+        todayEntries: 'Today Entries',
+        allEntries: 'All Entries',
+        backups: 'Backups',
+        reports: 'Reports',
+        settings: 'Settings',
+        shop: 'Shop',
+        date: 'Date',
+        person: 'Person Name',
+        product: 'Product Name',
+        quantity: 'Quantity',
+        unit: 'Unit',
+        price: 'Price',
+        note: 'Note',
+        save: 'Save Entry',
+        update: 'Update Entry',
+        cancel: 'Cancel',
+        search: 'Search',
+        filterShop: 'Filter Shop',
+        fromDate: 'From Date',
+        toDate: 'To Date',
+        totalToday: 'Today Total',
+        monthTotal: 'Month Total',
+        totalEntries: 'Total Entries',
+        exportPdfDay: 'Export Day PDF',
+        exportPdfMonth: 'Export Month PDF',
+        exportExcelDay: 'Export Day Excel',
+        exportExcelMonth: 'Export Month Excel',
+        exportCsv: 'Export CSV',
+        manualBackup: 'Create Backup',
+        restoreBackup: 'Restore Backup',
+        importBackup: 'Import Backup File',
+        exportBackup: 'Download Backup File',
+        noData: 'No data found.',
+        edit: 'Edit',
+        del: 'Delete',
+        confirmDelete: 'Are you sure you want to delete this entry?',
+        language: 'Language',
+        theme: 'Theme',
+        dark: 'Dark',
+        light: 'Light',
+        summary: 'Summary',
+        unitPiece: 'Piece',
+        unitKg: 'Kg',
+        unitGram: 'Gram',
+        unitLitre: 'Litre',
+        unitMl: 'ml',
+        unitPack: 'Pack',
+        unitDozen: 'Dozen',
+        unitCustom: 'Custom',
+        customUnit: 'Custom Unit',
+        monthWise: 'Month-wise',
+        dayWise: 'Day-wise',
+        weekly: 'Weekly',
+        addShop: 'Add Shop',
+        newShopName: 'New shop name',
+        add: 'Add',
+        shopAdded: 'Shop added successfully.',
+        fillRequired: 'Please fill all required fields.',
+        saved: 'Entry saved successfully.',
+        updated: 'Entry updated successfully.',
+        deleted: 'Entry deleted successfully.',
+        backupCreated: 'Backup created successfully.',
+        backupRestored: 'Backup restored successfully.',
+        backupImported: 'Backup imported successfully.',
+        downloaded: 'Downloaded successfully.',
+        mobileTip: 'Tip: Open in mobile browser and use “Add to Home Screen” for app-like use.',
+        totalPrice: 'Total Price',
+        actions: 'Actions',
+        clearFilters: 'Clear Filters',
+        backupType: 'Backup Type',
+        autoBackups: 'Automatic backups',
+        day: 'Day',
+        week: 'Week',
+        month: 'Month',
+        createdAt: 'Created At',
+        restore: 'Restore',
+        download: 'Download',
+        importData: 'Import Data',
+        exportData: 'Export Data',
+        records: 'Records',
+        selectedMonth: 'Selected Month',
+        selectedDay: 'Selected Day',
+        signInDemo: 'Use configured credentials from code',
+        itemBreakdown: 'Item Breakdown',
+        shopBreakdown: 'Shop Breakdown',
+        amountByPerson: 'Amount by Person',
+        home: 'Home',
+        ledger: 'Ledger',
+        dataSafety: 'Data is stored in local storage on this device.',
+        deviceBackup: 'You can also export backups for safer storage.',
+        dailyBackup: 'Daily backup',
+        weeklyBackup: 'Weekly backup',
+        monthlyBackup: 'Monthly backup',
+        backupList: 'Saved backups',
+        close: 'Close',
+        entryDetails: 'Entry Details'
+      },
+      hi: {
+        appTitle: 'मसोई विलेज दुकान',
+        appTag: 'गाँव की दुकान खरीद रजिस्टर',
+        loginTitle: 'फिर से स्वागत है',
+        loginSub: 'इस डिवाइस पर सुरक्षित रूप से रोज़ की खरीदारी मैनेज करने के लिए लॉगिन करें।',
+        email: 'ईमेल',
+        password: 'पासवर्ड',
+        login: 'लॉगिन',
+        logout: 'लॉगआउट',
+        invalidLogin: 'ईमेल या पासवर्ड गलत है।',
+        dashboard: 'डैशबोर्ड',
+        addEntry: 'नई एंट्री',
+        todayEntries: 'आज की एंट्री',
+        allEntries: 'सभी एंट्री',
+        backups: 'बैकअप',
+        reports: 'रिपोर्ट',
+        settings: 'सेटिंग्स',
+        shop: 'दुकान',
+        date: 'तारीख',
+        person: 'व्यक्ति का नाम',
+        product: 'सामान का नाम',
+        quantity: 'मात्रा',
+        unit: 'यूनिट',
+        price: 'कीमत',
+        note: 'नोट',
+        save: 'एंट्री सेव करें',
+        update: 'एंट्री अपडेट करें',
+        cancel: 'रद्द करें',
+        search: 'खोजें',
+        filterShop: 'दुकान फ़िल्टर',
+        fromDate: 'कब से',
+        toDate: 'कब तक',
+        totalToday: 'आज का कुल',
+        monthTotal: 'महीने का कुल',
+        totalEntries: 'कुल एंट्री',
+        exportPdfDay: 'दिन का PDF',
+        exportPdfMonth: 'महीने का PDF',
+        exportExcelDay: 'दिन का Excel',
+        exportExcelMonth: 'महीने का Excel',
+        exportCsv: 'CSV एक्सपोर्ट',
+        manualBackup: 'बैकअप बनाएं',
+        restoreBackup: 'बैकअप वापस लाएँ',
+        importBackup: 'बैकअप फ़ाइल इम्पोर्ट करें',
+        exportBackup: 'बैकअप फ़ाइल डाउनलोड करें',
+        noData: 'कोई डेटा नहीं मिला।',
+        edit: 'एडिट',
+        del: 'डिलीट',
+        confirmDelete: 'क्या आप इस एंट्री को हटाना चाहते हैं?',
+        language: 'भाषा',
+        theme: 'थीम',
+        dark: 'डार्क',
+        light: 'लाइट',
+        summary: 'सारांश',
+        unitPiece: 'पीस',
+        unitKg: 'किलो',
+        unitGram: 'ग्राम',
+        unitLitre: 'लीटर',
+        unitMl: 'एमएल',
+        unitPack: 'पैक',
+        unitDozen: 'दर्जन',
+        unitCustom: 'अन्य',
+        customUnit: 'कस्टम यूनिट',
+        monthWise: 'महीना अनुसार',
+        dayWise: 'दिन अनुसार',
+        weekly: 'साप्ताहिक',
+        addShop: 'दुकान जोड़ें',
+        newShopName: 'नई दुकान का नाम',
+        add: 'जोड़ें',
+        shopAdded: 'दुकान सफलतापूर्वक जुड़ गई।',
+        fillRequired: 'कृपया सभी जरूरी जानकारी भरें।',
+        saved: 'एंट्री सफलतापूर्वक सेव हुई।',
+        updated: 'एंट्री सफलतापूर्वक अपडेट हुई।',
+        deleted: 'एंट्री सफलतापूर्वक हटाई गई।',
+        backupCreated: 'बैकअप सफलतापूर्वक बन गया।',
+        backupRestored: 'बैकअप सफलतापूर्वक वापस लाया गया।',
+        backupImported: 'बैकअप सफलतापूर्वक इम्पोर्ट हुआ।',
+        downloaded: 'सफलतापूर्वक डाउनलोड हुआ।',
+        mobileTip: 'टिप: मोबाइल ब्राउज़र में खोलें और “Add to Home Screen” से ऐप जैसा इस्तेमाल करें।',
+        totalPrice: 'कुल कीमत',
+        actions: 'एक्शन',
+        clearFilters: 'फ़िल्टर हटाएँ',
+        backupType: 'बैकअप प्रकार',
+        autoBackups: 'ऑटो बैकअप',
+        day: 'दिन',
+        week: 'हफ्ता',
+        month: 'महीना',
+        createdAt: 'बनने का समय',
+        restore: 'वापस लाएँ',
+        download: 'डाउनलोड',
+        importData: 'डेटा इम्पोर्ट',
+        exportData: 'डेटा एक्सपोर्ट',
+        records: 'रिकॉर्ड',
+        selectedMonth: 'चुना गया महीना',
+        selectedDay: 'चुना गया दिन',
+        signInDemo: 'कोड में दिए गए लॉगिन का उपयोग करें',
+        itemBreakdown: 'सामान अनुसार',
+        shopBreakdown: 'दुकान अनुसार',
+        amountByPerson: 'व्यक्ति अनुसार खर्च',
+        home: 'होम',
+        ledger: 'लेजर',
+        dataSafety: 'डेटा इसी डिवाइस के लोकल स्टोरेज में सेव होता है।',
+        deviceBackup: 'अधिक सुरक्षा के लिए आप बैकअप फ़ाइल भी डाउनलोड कर सकते हैं।',
+        dailyBackup: 'डेली बैकअप',
+        weeklyBackup: 'वीकली बैकअप',
+        monthlyBackup: 'मंथली बैकअप',
+        backupList: 'सेव किए गए बैकअप',
+        close: 'बंद करें',
+        entryDetails: 'एंट्री विवरण'
+      }
+    };
+
+    // =============================
+    // HELPERS
+    // =============================
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+    const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const todayStr = () => new Date().toISOString().slice(0, 10);
+    const monthStr = (d = new Date()) => d.toISOString().slice(0, 7);
+    const weekKey = (dateStr) => {
+      const d = new Date(dateStr + 'T00:00:00');
+      const onejan = new Date(d.getFullYear(), 0, 1);
+      const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
+      return `${d.getFullYear()}-W${String(week).padStart(2, '0')}`;
+    };
+    const fmtMoney = (n) => `${APP_CONFIG.currency}${Number(n || 0).toFixed(2)}`;
+    const formatDateNice = (str, lang) => new Date(str + 'T00:00:00').toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    const saveLS = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+    const readLS = (k, fallback) => {
+      try {
+        const v = localStorage.getItem(k);
+        return v ? JSON.parse(v) : fallback;
+      } catch {
+        return fallback;
+      }
+    };
+    const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+
+    // =============================
+    // APP STATE
+    // =============================
+    const state = {
+      lang: readLS(KEYS.lang, 'en'),
+      theme: readLS(KEYS.theme, 'dark'),
+      auth: readLS(KEYS.auth, null),
+      entries: readLS(KEYS.data, []),
+      backups: readLS(KEYS.backups, []),
+      shops: readLS('masoi_shops', APP_CONFIG.shops),
+      page: 'dashboard',
+      search: '',
+      filterShop: 'all',
+      fromDate: '',
+      toDate: '',
+      selectedDate: todayStr(),
+      selectedMonth: monthStr(),
+      editingId: null,
+      customUnitEnabled: false,
+      modalEntryId: null,
+    };
+
+    // =============================
+    // TEXT HELPERS
+    // =============================
+    function tr(key) {
+      return T[state.lang][key] || key;
+    }
+
+    function applyTheme() {
+      document.documentElement.classList.toggle('dark', state.theme === 'dark');
+      saveLS(KEYS.theme, state.theme);
+    }
+
+    function persist() {
+      saveLS(KEYS.data, state.entries);
+      saveLS(KEYS.backups, state.backups);
+      saveLS('masoi_shops', state.shops);
+      saveLS(KEYS.lang, state.lang);
+      saveLS(KEYS.theme, state.theme);
+      saveLS(KEYS.auth, state.auth);
+    }
+
+    function toast(message, type = 'info') {
+      let wrap = $('#toast-wrap');
+      if (!wrap) {
+        wrap = document.createElement('div');
+        wrap.id = 'toast-wrap';
+        wrap.className = 'fixed top-4 right-4 z-[9999] space-y-3 max-w-sm';
+        document.body.appendChild(wrap);
+      }
+      const colors = {
+        info: 'from-blue-500 to-indigo-500',
+        success: 'from-green-500 to-emerald-500',
+        error: 'from-red-500 to-pink-500',
+        warning: 'from-amber-500 to-orange-500'
+      };
+      const el = document.createElement('div');
+      el.className = `text-white rounded-2xl px-4 py-3 shadow-2xl bg-gradient-to-r ${colors[type] || colors.info} animate-fadeIn`;
+      el.textContent = message;
+      wrap.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-6px)';
+        el.style.transition = '.25s';
+        setTimeout(() => el.remove(), 250);
+      }, 2400);
+    }
+
+    function getEntriesFiltered() {
+      return state.entries.filter(e => {
+        const q = state.search.trim().toLowerCase();
+        const matchQ = !q || [e.shop, e.person, e.product, e.note, e.unit].some(v => String(v || '').toLowerCase().includes(q));
+        const matchShop = state.filterShop === 'all' || e.shop === state.filterShop;
+        const matchFrom = !state.fromDate || e.date >= state.fromDate;
+        const matchTo = !state.toDate || e.date <= state.toDate;
+        return matchQ && matchShop && matchFrom && matchTo;
+      }).sort((a, b) => (b.date + b.createdAt).localeCompare(a.date + a.createdAt));
+    }
+
+    function getTodayEntries() {
+      return state.entries.filter(e => e.date === state.selectedDate).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    }
+
+    function getMonthEntries() {
+      return state.entries.filter(e => e.date.startsWith(state.selectedMonth)).sort((a, b) => (a.date + a.createdAt).localeCompare(b.date + b.createdAt));
+    }
+
+    function totalOf(entries) {
+      return entries.reduce((sum, e) => sum + Number(e.price || 0), 0);
+    }
+
+    function summarizeBy(entries, key) {
+      const map = new Map();
+      entries.forEach(e => map.set(e[key], (map.get(e[key]) || 0) + Number(e.price || 0)));
+      return [...map.entries()].sort((a,b) => b[1]-a[1]);
+    }
+
+    function autoBackupIfNeeded(entryDate) {
+      const now = new Date().toISOString();
+      const dailyId = `day:${entryDate}`;
+      const weeklyId = `week:${weekKey(entryDate)}`;
+      const monthlyId = `month:${entryDate.slice(0,7)}`;
+
+      const existingIds = new Set(state.backups.map(b => b.ref));
+      const dataByDay = state.entries.filter(e => e.date === entryDate);
+      const dataByWeek = state.entries.filter(e => weekKey(e.date) === weekKey(entryDate));
+      const dataByMonth = state.entries.filter(e => e.date.startsWith(entryDate.slice(0,7)));
+
+      if (!existingIds.has(dailyId) && dataByDay.length) {
+        state.backups.unshift({ id: uid(), ref: dailyId, type: 'day', label: entryDate, createdAt: now, data: dataByDay });
+      }
+      if (!existingIds.has(weeklyId) && dataByWeek.length) {
+        state.backups.unshift({ id: uid(), ref: weeklyId, type: 'week', label: weekKey(entryDate), createdAt: now, data: dataByWeek });
+      }
+      if (!existingIds.has(monthlyId) && dataByMonth.length) {
+        state.backups.unshift({ id: uid(), ref: monthlyId, type: 'month', label: entryDate.slice(0,7), createdAt: now, data: dataByMonth });
+      }
+
+      // keep backups manageable
+      state.backups = state.backups.slice(0, 100);
+    }
+
+    // =============================
+    // EXPORTS
+    // =============================
+    function entryRows(entries) {
+      return entries.map((e, i) => ({
+        '#': i + 1,
+        Date: e.date,
+        Shop: e.shop,
+        Person: e.person,
+        Product: e.product,
+        Quantity: e.quantity,
+        Unit: e.unit,
+        Price: Number(e.price),
+        Note: e.note || '',
+        CreatedAt: e.createdAt
+      }));
+    }
+
+    function downloadBlob(filename, blob) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(a.href);
+        a.remove();
+      }, 300);
+      toast(tr('downloaded'), 'success');
+    }
+
+    function exportExcel(entries, filename) {
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(entryRows(entries));
+      XLSX.utils.book_append_sheet(wb, ws, 'Ledger');
+      const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      downloadBlob(filename, new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+    }
+
+    function exportCSV(entries, filename) {
+      const ws = XLSX.utils.json_to_sheet(entryRows(entries));
+      const csv = XLSX.utils.sheet_to_csv(ws);
+      downloadBlob(filename, new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+    }
+
+    async function exportPdf(entries, title, filename) {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'pt', 'a4');
+      const margin = 40;
+      let y = 50;
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(18);
+      pdf.text(title, margin, y);
+      y += 22;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(10);
+      pdf.text(`Generated: ${new Date().toLocaleString()}`, margin, y);
+      y += 20;
+      pdf.text(`Total Records: ${entries.length}`, margin, y);
+      y += 16;
+      pdf.text(`Total Amount: ${fmtMoney(totalOf(entries))}`, margin, y);
+      y += 26;
+
+      const headers = ['Date', 'Shop', 'Person', 'Product', 'Qty', 'Unit', 'Price'];
+      const rows = entries.map(e => [e.date, e.shop, e.person, e.product, String(e.quantity), e.unit, fmtMoney(e.price)]);
+
+      const pageWidth = pdf.internal.pageSize.getWidth() - margin * 2;
+      const colWidths = [60, 78, 70, 100, 36, 40, 60];
+      const rowHeight = 18;
+
+      function drawRow(values, isHeader = false) {
+        let x = margin;
+        pdf.setFont('helvetica', isHeader ? 'bold' : 'normal');
+        values.forEach((v, idx) => {
+          pdf.rect(x, y - 12, colWidths[idx], rowHeight);
+          pdf.text(String(v).slice(0, 18), x + 4, y);
+          x += colWidths[idx];
+        });
+        y += rowHeight;
+        if (y > 760) {
+          pdf.addPage();
+          y = 50;
+        }
+      }
+
+      drawRow(headers, true);
+      rows.forEach(r => drawRow(r));
+      pdf.save(filename);
+      toast(tr('downloaded'), 'success');
+    }
+
+    function exportBackupFile() {
+      const payload = {
+        app: APP_CONFIG.appName,
+        exportedAt: new Date().toISOString(),
+        entries: state.entries,
+        backups: state.backups,
+        shops: state.shops
+      };
+      downloadBlob(`masoi-backup-${todayStr()}.json`, new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+    }
+
+    // =============================
+    // UI BUILDERS
+    // =============================
+    function StatCard(title, value, icon, sub = '') {
+      return `
+        <div class="glass card-3d rounded-3xl p-5 shadow-soft animate-fadeIn">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-sm text-slate-500 dark:text-slate-300">${escapeHtml(title)}</div>
+              <div class="text-2xl sm:text-3xl font-bold mt-2 tracking-tight">${escapeHtml(value)}</div>
+              ${sub ? `<div class="text-xs mt-2 text-slate-500 dark:text-slate-400">${escapeHtml(sub)}</div>` : ''}
+            </div>
+            <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-500 text-white flex items-center justify-center shadow-lg">${icon}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function TopBar() {
+      return `
+        <header class="no-print sticky top-0 z-50 px-4 pt-4">
+          <div class="glass rounded-3xl px-4 py-3 shadow-glass">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div class="flex items-center gap-3">
+                <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-500 to-violet-500 text-white grid place-items-center font-bold shadow-floaty animate-floaty">M</div>
+                <div>
+                  <div class="text-xl font-bold leading-none">${tr('appTitle')}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">${tr('appTag')}</div>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button id="langToggle" class="btn-3d rounded-2xl px-3 py-2 text-sm bg-white/70 dark:bg-slate-800/80 glass">${state.lang === 'en' ? 'हिंदी' : 'English'}</button>
+                <button id="themeToggle" class="btn-3d rounded-2xl px-3 py-2 text-sm bg-white/70 dark:bg-slate-800/80 glass">${state.theme === 'dark' ? tr('light') : tr('dark')}</button>
+                <button id="logoutBtn" class="btn-3d rounded-2xl px-4 py-2 text-sm text-white bg-gradient-to-r from-rose-500 to-red-500">${tr('logout')}</button>
+              </div>
+            </div>
+          </div>
+        </header>
+      `;
+    }
+
+    function BottomNav() {
+      const tabs = [
+        ['dashboard', tr('home')],
+        ['add', tr('addEntry')],
+        ['ledger', tr('ledger')],
+        ['reports', tr('reports')],
+        ['backups', tr('backups')],
+      ];
+      return `
+        <div class="no-print sticky-bottom-nav safe-area px-4 pb-4 mt-6">
+          <div class="glass rounded-3xl px-2 py-2 shadow-soft">
+            <div class="grid grid-cols-5 gap-1 text-center text-xs sm:text-sm">
+              ${tabs.map(([key, label]) => `
+                <button data-nav="${key}" class="nav-btn rounded-2xl px-2 py-3 ${state.page === key ? 'bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg' : 'text-slate-600 dark:text-slate-200'}">
+                  ${escapeHtml(label)}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function LoginPage() {
+      return `
+        <main class="min-h-screen flex items-center justify-center p-4">
+          <div class="w-full max-w-5xl grid lg:grid-cols-2 gap-6 items-stretch">
+            <section class="glass rounded-[2rem] p-8 shadow-glass card-3d flex flex-col justify-between">
+              <div>
+                <div class="inline-flex items-center gap-2 rounded-full px-4 py-2 bg-white/60 dark:bg-slate-800/70 text-sm shadow-soft">
+                  <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                  ${tr('appTitle')}
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-black tracking-tight mt-6 leading-tight">
+                  ${tr('appTag')}
+                </h1>
+                <p class="mt-4 text-slate-600 dark:text-slate-300 text-base sm:text-lg">
+                  ${tr('dataSafety')}<br>${tr('deviceBackup')}
+                </p>
+              </div>
+              <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                ${StatCard(tr('dailyBackup'), '24/7', 'D', tr('autoBackups'))}
+                ${StatCard(tr('language'), state.lang === 'en' ? 'EN / HI' : 'HI / EN', 'A', tr('settings'))}
+                ${StatCard(tr('theme'), state.theme === 'dark' ? tr('dark') : tr('light'), 'T', tr('mobileTip'))}
+              </div>
+            </section>
+
+            <section class="glass rounded-[2rem] p-8 shadow-glass card-3d">
+              <div class="max-w-md mx-auto">
+                <div class="text-sm uppercase tracking-[0.25em] text-blue-600 dark:text-blue-300 font-semibold">${APP_CONFIG.appName}</div>
+                <h2 class="text-3xl font-black mt-3">${tr('loginTitle')}</h2>
+                <p class="mt-2 text-slate-600 dark:text-slate-300">${tr('loginSub')}</p>
+                <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">${tr('signInDemo')}</p>
+
+                <form id="loginForm" class="space-y-4 mt-8">
+                  <div>
+                    <label class="block text-sm mb-2">${tr('email')}</label>
+                    <input name="email" type="email" class="soft-input w-full rounded-2xl px-4 py-3" placeholder="admin@masoi.com" required />
+                  </div>
+                  <div>
+                    <label class="block text-sm mb-2">${tr('password')}</label>
+                    <input name="password" type="password" class="soft-input w-full rounded-2xl px-4 py-3" placeholder="******" required />
+                  </div>
+                  <button class="btn-3d w-full rounded-2xl px-5 py-3 text-white font-semibold bg-gradient-to-r from-blue-600 via-indigo-500 to-violet-500">${tr('login')}</button>
+                </form>
+
+                <div class="mt-6 flex gap-2">
+                  <button id="langToggle" class="btn-3d rounded-2xl px-4 py-2 glass">${state.lang === 'en' ? 'हिंदी' : 'English'}</button>
+                  <button id="themeToggle" class="btn-3d rounded-2xl px-4 py-2 glass">${state.theme === 'dark' ? tr('light') : tr('dark')}</button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+      `;
+    }
+
+    function AddEntryForm() {
+      const editing = state.editingId ? state.entries.find(e => e.id === state.editingId) : null;
+      const selectedUnit = editing?.unit || 'Kg';
+      const isCustom = editing && !['Piece','Kg','Gram','Litre','ml','Pack','Dozen','पीस','किलो','ग्राम','लीटर','एमएल','पैक','दर्जन'].includes(editing.unit);
+      return `
+        <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d animate-fadeIn">
+          <div class="flex items-center justify-between gap-3 mb-5">
+            <div>
+              <h2 class="text-2xl font-bold">${state.editingId ? tr('update') : tr('addEntry')}</h2>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">${tr('dataSafety')}</p>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-slate-500 dark:text-slate-400">${tr('selectedDay')}</div>
+              <div class="font-semibold">${formatDateNice(state.selectedDate, state.lang)}</div>
+            </div>
+          </div>
+
+          <form id="entryForm" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-sm mb-2">${tr('shop')}</label>
+              <select name="shop" class="soft-input w-full rounded-2xl px-4 py-3" required>
+                ${state.shops.map(shop => `<option ${editing?.shop===shop?'selected':''}>${escapeHtml(shop)}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm mb-2">${tr('date')}</label>
+              <input name="date" type="date" value="${editing?.date || state.selectedDate}" class="soft-input w-full rounded-2xl px-4 py-3" required />
+            </div>
+            <div>
+              <label class="block text-sm mb-2">${tr('person')}</label>
+              <input name="person" type="text" value="${escapeHtml(editing?.person || '')}" class="soft-input w-full rounded-2xl px-4 py-3" required />
+            </div>
+            <div>
+              <label class="block text-sm mb-2">${tr('product')}</label>
+              <input name="product" type="text" value="${escapeHtml(editing?.product || '')}" class="soft-input w-full rounded-2xl px-4 py-3" required />
+            </div>
+            <div>
+              <label class="block text-sm mb-2">${tr('quantity')}</label>
+              <input name="quantity" type="number" step="0.01" min="0" value="${editing?.quantity || ''}" class="soft-input w-full rounded-2xl px-4 py-3" required />
+            </div>
+            <div>
+              <label class="block text-sm mb-2">${tr('unit')}</label>
+              <select id="unitSelect" name="unit" class="soft-input w-full rounded-2xl px-4 py-3" required>
+                <option value="Piece" ${selectedUnit==='Piece'?'selected':''}>${tr('unitPiece')}</option>
+                <option value="Kg" ${selectedUnit==='Kg'?'selected':''}>${tr('unitKg')}</option>
+                <option value="Gram" ${selectedUnit==='Gram'?'selected':''}>${tr('unitGram')}</option>
+                <option value="Litre" ${selectedUnit==='Litre'?'selected':''}>${tr('unitLitre')}</option>
+                <option value="ml" ${selectedUnit==='ml'?'selected':''}>${tr('unitMl')}</option>
+                <option value="Pack" ${selectedUnit==='Pack'?'selected':''}>${tr('unitPack')}</option>
+                <option value="Dozen" ${selectedUnit==='Dozen'?'selected':''}>${tr('unitDozen')}</option>
+                <option value="custom" ${isCustom?'selected':''}>${tr('unitCustom')}</option>
+              </select>
+            </div>
+            <div id="customUnitWrap" class="${isCustom ? '' : 'hidden'}">
+              <label class="block text-sm mb-2">${tr('customUnit')}</label>
+              <input name="customUnit" type="text" value="${isCustom ? escapeHtml(editing.unit) : ''}" class="soft-input w-full rounded-2xl px-4 py-3" />
+            </div>
+            <div>
+              <label class="block text-sm mb-2">${tr('price')}</label>
+              <input name="price" type="number" step="0.01" min="0" value="${editing?.price || ''}" class="soft-input w-full rounded-2xl px-4 py-3" required />
+            </div>
+            <div class="md:col-span-2 xl:col-span-4">
+              <label class="block text-sm mb-2">${tr('note')}</label>
+              <textarea name="note" rows="3" class="soft-input w-full rounded-2xl px-4 py-3">${escapeHtml(editing?.note || '')}</textarea>
+            </div>
+            <div class="md:col-span-2 xl:col-span-4 flex flex-wrap gap-3 pt-2">
+              <button class="btn-3d rounded-2xl px-5 py-3 text-white font-semibold bg-gradient-to-r from-blue-600 via-indigo-500 to-violet-500">${state.editingId ? tr('update') : tr('save')}</button>
+              ${state.editingId ? `<button type="button" id="cancelEditBtn" class="btn-3d rounded-2xl px-5 py-3 glass">${tr('cancel')}</button>` : ''}
+            </div>
+          </form>
+        </section>
+      `;
+    }
+
+    function DashboardPage() {
+      const todayEntries = state.entries.filter(e => e.date === todayStr());
+      const currentMonthEntries = state.entries.filter(e => e.date.startsWith(monthStr()));
+      const shopBreakdown = summarizeBy(currentMonthEntries, 'shop');
+      const personBreakdown = summarizeBy(currentMonthEntries, 'person');
+      const itemBreakdown = summarizeBy(currentMonthEntries, 'product').slice(0, 6);
+
+      return `
+        <main class="px-4 py-4 space-y-6">
+          ${TopBar()}
+
+          <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            ${StatCard(tr('totalToday'), fmtMoney(totalOf(todayEntries)), '₹', formatDateNice(todayStr(), state.lang))}
+            ${StatCard(tr('monthTotal'), fmtMoney(totalOf(currentMonthEntries)), 'M', monthStr())}
+            ${StatCard(tr('totalEntries'), String(state.entries.length), '#', tr('records'))}
+            ${StatCard(tr('backups'), String(state.backups.length), 'B', tr('backupList'))}
+          </section>
+
+          <section class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div class="xl:col-span-2 space-y-6">
+              ${AddEntryForm()}
+
+              <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                  <div>
+                    <h3 class="text-2xl font-bold">${tr('todayEntries')}</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">${formatDateNice(state.selectedDate, state.lang)}</p>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <input id="selectedDateInput" type="date" value="${state.selectedDate}" class="soft-input rounded-2xl px-4 py-2.5" />
+                    <button id="exportDayPdf" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportPdfDay')}</button>
+                    <button id="exportDayExcel" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportExcelDay')}</button>
+                  </div>
+                </div>
+                ${renderEntriesTable(getTodayEntries())}
+              </section>
+            </div>
+
+            <div class="space-y-6">
+              ${SummaryPanel(shopBreakdown, personBreakdown, itemBreakdown)}
+              ${QuickActionsCard()}
+            </div>
+          </section>
+
+          ${BottomNav()}
+        </main>
+      `;
+    }
+
+    function SummaryPanel(shopBreakdown, personBreakdown, itemBreakdown) {
+      return `
+        <section class="glass rounded-[2rem] p-5 shadow-soft card-3d">
+          <h3 class="text-2xl font-bold mb-4">${tr('summary')}</h3>
+
+          <div class="space-y-5">
+            <div>
+              <div class="text-sm font-semibold mb-2">${tr('shopBreakdown')}</div>
+              <div class="space-y-2">
+                ${shopBreakdown.length ? shopBreakdown.map(([k,v]) => rowBar(k,v, totalOf(getMonthEntries()))).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
+              </div>
+            </div>
+            <div>
+              <div class="text-sm font-semibold mb-2">${tr('amountByPerson')}</div>
+              <div class="space-y-2">
+                ${personBreakdown.length ? personBreakdown.slice(0,6).map(([k,v]) => rowBar(k,v, totalOf(getMonthEntries()))).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
+              </div>
+            </div>
+            <div>
+              <div class="text-sm font-semibold mb-2">${tr('itemBreakdown')}</div>
+              <div class="space-y-2">
+                ${itemBreakdown.length ? itemBreakdown.map(([k,v]) => rowBar(k,v, totalOf(getMonthEntries()))).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function rowBar(label, value, total) {
+      const width = total ? Math.max(10, Math.round((value / total) * 100)) : 10;
+      return `
+        <div>
+          <div class="flex justify-between gap-3 text-sm mb-1">
+            <span class="truncate">${escapeHtml(label)}</span>
+            <span class="font-semibold">${fmtMoney(value)}</span>
+          </div>
+          <div class="h-2.5 rounded-full bg-slate-200/70 dark:bg-slate-700/70 overflow-hidden">
+            <div class="h-full rounded-full bg-gradient-to-r from-blue-500 to-violet-500" style="width:${width}%"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function QuickActionsCard() {
+      return `
+        <section class="glass rounded-[2rem] p-5 shadow-soft card-3d">
+          <h3 class="text-2xl font-bold mb-4">${tr('settings')}</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm mb-2">${tr('language')}</label>
+              <div class="flex gap-2">
+                <button id="langEn" class="btn-3d rounded-2xl px-4 py-2 ${state.lang==='en'?'bg-gradient-to-r from-blue-600 to-violet-600 text-white':'glass'}">English</button>
+                <button id="langHi" class="btn-3d rounded-2xl px-4 py-2 ${state.lang==='hi'?'bg-gradient-to-r from-blue-600 to-violet-600 text-white':'glass'}">हिंदी</button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm mb-2">${tr('theme')}</label>
+              <div class="flex gap-2">
+                <button id="themeLight" class="btn-3d rounded-2xl px-4 py-2 ${state.theme==='light'?'bg-gradient-to-r from-blue-600 to-violet-600 text-white':'glass'}">${tr('light')}</button>
+                <button id="themeDark" class="btn-3d rounded-2xl px-4 py-2 ${state.theme==='dark'?'bg-gradient-to-r from-blue-600 to-violet-600 text-white':'glass'}">${tr('dark')}</button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm mb-2">${tr('addShop')}</label>
+              <div class="flex gap-2">
+                <input id="newShopName" class="soft-input flex-1 rounded-2xl px-4 py-2.5" placeholder="${tr('newShopName')}" />
+                <button id="addShopBtn" class="btn-3d rounded-2xl px-4 py-2.5 text-white bg-gradient-to-r from-emerald-500 to-green-600">${tr('add')}</button>
+              </div>
+            </div>
+            <div class="text-sm text-slate-500 dark:text-slate-400">
+              ${tr('mobileTip')}
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function LedgerPage() {
+      const filtered = getEntriesFiltered();
+      return `
+        <main class="px-4 py-4 space-y-6">
+          ${TopBar()}
+          <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d">
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
+              <div>
+                <h2 class="text-2xl font-bold">${tr('allEntries')}</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">${tr('dayWise')} / ${tr('monthWise')}</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button id="exportCsvBtn" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportCsv')}</button>
+                <button id="backupNowBtn" class="btn-3d rounded-2xl px-4 py-2.5 text-white bg-gradient-to-r from-amber-500 to-orange-500">${tr('manualBackup')}</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3 mb-4">
+              <input id="searchInput" class="soft-input rounded-2xl px-4 py-3" placeholder="${tr('search')}" value="${escapeHtml(state.search)}" />
+              <select id="filterShopSelect" class="soft-input rounded-2xl px-4 py-3">
+                <option value="all">${tr('filterShop')}</option>
+                ${state.shops.map(s => `<option value="${escapeHtml(s)}" ${state.filterShop===s?'selected':''}>${escapeHtml(s)}</option>`).join('')}
+              </select>
+              <input id="fromDateInput" type="date" class="soft-input rounded-2xl px-4 py-3" value="${state.fromDate}" />
+              <input id="toDateInput" type="date" class="soft-input rounded-2xl px-4 py-3" value="${state.toDate}" />
+              <button id="clearFiltersBtn" class="btn-3d rounded-2xl px-4 py-3 glass">${tr('clearFilters')}</button>
+            </div>
+
+            ${renderEntriesTable(filtered)}
+          </section>
+          ${BottomNav()}
+        </main>
+      `;
+    }
+
+    function ReportsPage() {
+      const monthEntries = getMonthEntries();
+      return `
+        <main class="px-4 py-4 space-y-6">
+          ${TopBar()}
+          <section class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div class="xl:col-span-2 glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d">
+              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+                <div>
+                  <h2 class="text-2xl font-bold">${tr('reports')}</h2>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">${tr('monthWise')}</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <input id="selectedMonthInput" type="month" value="${state.selectedMonth}" class="soft-input rounded-2xl px-4 py-2.5" />
+                  <button id="exportMonthPdf" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportPdfMonth')}</button>
+                  <button id="exportMonthExcel" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportExcelMonth')}</button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                ${StatCard(tr('monthTotal'), fmtMoney(totalOf(monthEntries)), '₹', state.selectedMonth)}
+                ${StatCard(tr('totalEntries'), String(monthEntries.length), '#', tr('records'))}
+                ${StatCard(tr('selectedMonth'), state.selectedMonth, 'M', tr('summary'))}
+              </div>
+
+              ${renderEntriesTable(monthEntries)}
+            </div>
+
+            <div>
+              ${SummaryPanel(summarizeBy(monthEntries, 'shop'), summarizeBy(monthEntries, 'person'), summarizeBy(monthEntries, 'product').slice(0, 8))}
+            </div>
+          </section>
+          ${BottomNav()}
+        </main>
+      `;
+    }
+
+    function BackupsPage() {
+      return `
+        <main class="px-4 py-4 space-y-6">
+          ${TopBar()}
+          <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5">
+              <div>
+                <h2 class="text-2xl font-bold">${tr('backups')}</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">${tr('deviceBackup')}</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button id="exportBackupFileBtn" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportBackup')}</button>
+                <label class="btn-3d rounded-2xl px-4 py-2.5 glass cursor-pointer">
+                  ${tr('importBackup')}
+                  <input id="importBackupInput" type="file" accept="application/json" class="hidden-file-input" />
+                </label>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              ${StatCard(tr('dailyBackup'), String(state.backups.filter(b=>b.type==='day').length), 'D', tr('backupList'))}
+              ${StatCard(tr('weeklyBackup'), String(state.backups.filter(b=>b.type==='week').length), 'W', tr('backupList'))}
+              ${StatCard(tr('monthlyBackup'), String(state.backups.filter(b=>b.type==='month').length), 'M', tr('backupList'))}
+            </div>
+
+            <div class="overflow-x-auto table-scroll rounded-3xl border border-slate-200/60 dark:border-slate-700/60">
+              <table class="min-w-full text-sm">
+                <thead class="bg-slate-100/80 dark:bg-slate-800/70">
+                  <tr>
+                    <th class="text-left px-4 py-3">${tr('backupType')}</th>
+                    <th class="text-left px-4 py-3">${tr('summary')}</th>
+                    <th class="text-left px-4 py-3">${tr('records')}</th>
+                    <th class="text-left px-4 py-3">${tr('createdAt')}</th>
+                    <th class="text-left px-4 py-3">${tr('actions')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${state.backups.length ? state.backups.map(b => `
+                    <tr class="border-t border-slate-200/60 dark:border-slate-700/60">
+                      <td class="px-4 py-3 capitalize">${escapeHtml(b.type)}</td>
+                      <td class="px-4 py-3">${escapeHtml(b.label)}</td>
+                      <td class="px-4 py-3">${b.data.length}</td>
+                      <td class="px-4 py-3">${new Date(b.createdAt).toLocaleString(state.lang === 'hi' ? 'hi-IN' : 'en-IN')}</td>
+                      <td class="px-4 py-3">
+                        <div class="flex gap-2 flex-wrap">
+                          <button data-restore-backup="${b.id}" class="restore-backup btn-3d rounded-xl px-3 py-2 text-white bg-gradient-to-r from-emerald-500 to-green-600">${tr('restore')}</button>
+                          <button data-download-backup="${b.id}" class="download-backup btn-3d rounded-xl px-3 py-2 glass">${tr('download')}</button>
+                        </div>
+                      </td>
+                    </tr>
+                  `).join('') : `
+                    <tr>
+                      <td colspan="5" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">${tr('noData')}</td>
+                    </tr>
+                  `}
+                </tbody>
+              </table>
+            </div>
+          </section>
+          ${BottomNav()}
+        </main>
+      `;
+    }
+
+    function renderEntriesTable(entries) {
+      return `
+        <div class="overflow-x-auto table-scroll rounded-3xl border border-slate-200/60 dark:border-slate-700/60">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-100/80 dark:bg-slate-800/70">
+              <tr>
+                <th class="text-left px-4 py-3">${tr('date')}</th>
+                <th class="text-left px-4 py-3">${tr('shop')}</th>
+                <th class="text-left px-4 py-3">${tr('person')}</th>
+                <th class="text-left px-4 py-3">${tr('product')}</th>
+                <th class="text-left px-4 py-3">${tr('quantity')}</th>
+                <th class="text-left px-4 py-3">${tr('unit')}</th>
+                <th class="text-left px-4 py-3">${tr('price')}</th>
+                <th class="text-left px-4 py-3">${tr('actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${entries.length ? entries.map(e => `
+                <tr class="border-t border-slate-200/60 dark:border-slate-700/60 hover:bg-white/40 dark:hover:bg-slate-800/40">
+                  <td class="px-4 py-3 whitespace-nowrap">${formatDateNice(e.date, state.lang)}</td>
+                  <td class="px-4 py-3">${escapeHtml(e.shop)}</td>
+                  <td class="px-4 py-3">${escapeHtml(e.person)}</td>
+                  <td class="px-4 py-3">
+                    <button data-open-entry="${e.id}" class="underline decoration-dotted underline-offset-4">${escapeHtml(e.product)}</button>
+                  </td>
+                  <td class="px-4 py-3">${escapeHtml(e.quantity)}</td>
+                  <td class="px-4 py-3">${escapeHtml(e.unit)}</td>
+                  <td class="px-4 py-3 font-semibold">${fmtMoney(e.price)}</td>
+                  <td class="px-4 py-3">
+                    <div class="flex gap-2 flex-wrap">
+                      <button data-edit="${e.id}" class="edit-btn btn-3d rounded-xl px-3 py-2 text-white bg-gradient-to-r from-blue-600 to-indigo-600">${tr('edit')}</button>
+                      <button data-delete="${e.id}" class="delete-btn btn-3d rounded-xl px-3 py-2 text-white bg-gradient-to-r from-rose-500 to-red-500">${tr('del')}</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('') : `
+                <tr>
+                  <td colspan="8" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">${tr('noData')}</td>
+                </tr>
+              `}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function EntryModal() {
+      if (!state.modalEntryId) return '';
+      const e = state.entries.find(x => x.id === state.modalEntryId);
+      if (!e) return '';
+      return `
+        <div class="fixed inset-0 z-[999] bg-slate-950/50 backdrop-blur-sm p-4 flex items-center justify-center modal-enter">
+          <div class="glass rounded-[2rem] p-6 w-full max-w-xl shadow-2xl">
+            <div class="flex items-center justify-between gap-3 mb-5">
+              <h3 class="text-2xl font-bold">${tr('entryDetails')}</h3>
+              <button id="closeEntryModal" class="btn-3d rounded-2xl px-4 py-2 glass">${tr('close')}</button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              ${detailCell(tr('date'), formatDateNice(e.date, state.lang))}
+              ${detailCell(tr('shop'), e.shop)}
+              ${detailCell(tr('person'), e.person)}
+              ${detailCell(tr('product'), e.product)}
+              ${detailCell(tr('quantity'), String(e.quantity))}
+              ${detailCell(tr('unit'), e.unit)}
+              ${detailCell(tr('price'), fmtMoney(e.price))}
+              ${detailCell(tr('createdAt'), new Date(e.createdAt).toLocaleString(state.lang === 'hi' ? 'hi-IN' : 'en-IN'))}
+              <div class="sm:col-span-2">
+                ${detailCell(tr('note'), e.note || '-')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function detailCell(label, value) {
+      return `
+        <div class="rounded-2xl bg-white/50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-4">
+          <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">${escapeHtml(label)}</div>
+          <div class="font-semibold">${escapeHtml(value)}</div>
+        </div>
+      `;
+    }
+
+    // =============================
+    // RENDER
+    // =============================
+    function render() {
+      applyTheme();
+      persist();
+
+      const app = $('#app');
+      if (!state.auth) {
+        app.innerHTML = LoginPage();
+        bindLoginEvents();
+        return;
+      }
+
+      let html = '';
+      switch (state.page) {
+        case 'add':
+        case 'dashboard':
+          html = DashboardPage();
+          break;
+        case 'ledger':
+          html = LedgerPage();
+          break;
+        case 'reports':
+          html = ReportsPage();
+          break;
+        case 'backups':
+          html = BackupsPage();
+          break;
+        default:
+          html = DashboardPage();
+      }
+      app.innerHTML = html + EntryModal();
+      bindAuthedEvents();
+    }
+
+    // =============================
+    // EVENTS
+    // =============================
+    function bindLoginEvents() {
+      $('#loginForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const email = String(fd.get('email') || '').trim().toLowerCase();
+        const password = String(fd.get('password') || '');
+        const ok = APP_CONFIG.allowedUsers.find(u => u.email.toLowerCase() === email && u.password === password);
+        if (!ok) return toast(tr('invalidLogin'), 'error');
+        state.auth = { email: ok.email, loggedAt: new Date().toISOString() };
+        render();
+      });
+
+      $('#langToggle')?.addEventListener('click', () => {
+        state.lang = state.lang === 'en' ? 'hi' : 'en';
+        render();
+      });
+      $('#themeToggle')?.addEventListener('click', () => {
+        state.theme = state.theme === 'dark' ? 'light' : 'dark';
+        render();
+      });
+    }
+
+    function bindAuthedEvents() {
+      $('#logoutBtn')?.addEventListener('click', () => {
+        state.auth = null;
+        render();
+      });
+      $('#langToggle')?.addEventListener('click', () => {
+        state.lang = state.lang === 'en' ? 'hi' : 'en';
+        render();
+      });
+      $('#themeToggle')?.addEventListener('click', () => {
+        state.theme = state.theme === 'dark' ? 'light' : 'dark';
+        render();
+      });
+      $('#langEn')?.addEventListener('click', () => { state.lang = 'en'; render(); });
+      $('#langHi')?.addEventListener('click', () => { state.lang = 'hi'; render(); });
+      $('#themeLight')?.addEventListener('click', () => { state.theme = 'light'; render(); });
+      $('#themeDark')?.addEventListener('click', () => { state.theme = 'dark'; render(); });
+
+      $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
+        state.page = btn.dataset.nav;
+        state.editingId = null;
+        render();
+      }));
+
+      $('#selectedDateInput')?.addEventListener('change', (e) => {
+        state.selectedDate = e.target.value || todayStr();
+        render();
+      });
+      $('#selectedMonthInput')?.addEventListener('change', (e) => {
+        state.selectedMonth = e.target.value || monthStr();
+        render();
+      });
+
+      $('#newShopName')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          $('#addShopBtn')?.click();
+        }
+      });
+      $('#addShopBtn')?.addEventListener('click', () => {
+        const input = $('#newShopName');
+        const name = input.value.trim();
+        if (!name) return;
+        if (!state.shops.includes(name)) state.shops.push(name);
+        input.value = '';
+        toast(tr('shopAdded'), 'success');
+        render();
+      });
+
+      $('#entryForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const unitRaw = fd.get('unit');
+        const customUnit = String(fd.get('customUnit') || '').trim();
+        const unit = unitRaw === 'custom' ? customUnit : unitRaw;
+
+        const payload = {
+          shop: String(fd.get('shop') || '').trim(),
+          date: String(fd.get('date') || ''),
+          person: String(fd.get('person') || '').trim(),
+          product: String(fd.get('product') || '').trim(),
+          quantity: Number(fd.get('quantity') || 0),
+          unit: String(unit || '').trim(),
+          price: Number(fd.get('price') || 0),
+          note: String(fd.get('note') || '').trim(),
+        };
+
+        if (!payload.shop || !payload.date || !payload.person || !payload.product || !payload.quantity || !payload.unit || payload.price < 0) {
+          return toast(tr('fillRequired'), 'warning');
+        }
+
+        if (state.editingId) {
+          const idx = state.entries.findIndex(x => x.id === state.editingId);
+          if (idx >= 0) {
+            state.entries[idx] = { ...state.entries[idx], ...payload, updatedAt: new Date().toISOString() };
+            toast(tr('updated'), 'success');
+          }
+          state.editingId = null;
+        } else {
+          state.entries.unshift({ id: uid(), ...payload, createdAt: new Date().toISOString() });
+          toast(tr('saved'), 'success');
+        }
+        autoBackupIfNeeded(payload.date);
+        render();
+      });
+
+      $('#cancelEditBtn')?.addEventListener('click', () => {
+        state.editingId = null;
+        render();
+      });
+
+      $('#unitSelect')?.addEventListener('change', (e) => {
+        const wrap = $('#customUnitWrap');
+        if (!wrap) return;
+        wrap.classList.toggle('hidden', e.target.value !== 'custom');
+      });
+
+      $$('.edit-btn').forEach(btn => btn.addEventListener('click', () => {
+        state.editingId = btn.dataset.edit;
+        state.page = 'dashboard';
+        render();
+      }));
+
+      $$('.delete-btn').forEach(btn => btn.addEventListener('click', () => {
+        if (!confirm(tr('confirmDelete'))) return;
+        state.entries = state.entries.filter(x => x.id !== btn.dataset.delete);
+        toast(tr('deleted'), 'success');
+        render();
+      }));
+
+      $$('[data-open-entry]').forEach(btn => btn.addEventListener('click', () => {
+        state.modalEntryId = btn.dataset.openEntry;
+        render();
+      }));
+      $('#closeEntryModal')?.addEventListener('click', () => {
+        state.modalEntryId = null;
+        render();
+      });
+
+      $('#searchInput')?.addEventListener('input', (e) => { state.search = e.target.value; render(); });
+      $('#filterShopSelect')?.addEventListener('change', (e) => { state.filterShop = e.target.value; render(); });
+      $('#fromDateInput')?.addEventListener('change', (e) => { state.fromDate = e.target.value; render(); });
+      $('#toDateInput')?.addEventListener('change', (e) => { state.toDate = e.target.value; render(); });
+      $('#clearFiltersBtn')?.addEventListener('click', () => {
+        state.search = '';
+        state.filterShop = 'all';
+        state.fromDate = '';
+        state.toDate = '';
+        render();
+      });
+
+      $('#exportDayExcel')?.addEventListener('click', () => exportExcel(getTodayEntries(), `day-report-${state.selectedDate}.xlsx`));
+      $('#exportMonthExcel')?.addEventListener('click', () => exportExcel(getMonthEntries(), `month-report-${state.selectedMonth}.xlsx`));
+      $('#exportCsvBtn')?.addEventListener('click', () => exportCSV(getEntriesFiltered(), `ledger-${todayStr()}.csv`));
+      $('#exportDayPdf')?.addEventListener('click', () => exportPdf(getTodayEntries(), `${APP_CONFIG.appName} - Day Report (${state.selectedDate})`, `day-report-${state.selectedDate}.pdf`));
+      $('#exportMonthPdf')?.addEventListener('click', () => exportPdf(getMonthEntries(), `${APP_CONFIG.appName} - Month Report (${state.selectedMonth})`, `month-report-${state.selectedMonth}.pdf`));
+
+      $('#backupNowBtn')?.addEventListener('click', () => {
+        const snapshot = {
+          id: uid(),
+          ref: `manual:${new Date().toISOString()}`,
+          type: 'manual',
+          label: todayStr(),
+          createdAt: new Date().toISOString(),
+          data: [...state.entries]
+        };
+        state.backups.unshift(snapshot);
+        state.backups = state.backups.slice(0, 100);
+        toast(tr('backupCreated'), 'success');
+        render();
+      });
+
+      $('#exportBackupFileBtn')?.addEventListener('click', exportBackupFile);
+      $('#importBackupInput')?.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          const text = await file.text();
+          const data = JSON.parse(text);
+          if (Array.isArray(data.entries)) state.entries = data.entries;
+          if (Array.isArray(data.backups)) state.backups = data.backups;
+          if (Array.isArray(data.shops)) state.shops = data.shops;
+          toast(tr('backupImported'), 'success');
+          render();
+        } catch {
+          toast('Invalid backup file.', 'error');
+        }
+      });
+
+      $$('.restore-backup').forEach(btn => btn.addEventListener('click', () => {
+        const backup = state.backups.find(b => b.id === btn.dataset.restoreBackup);
+        if (!backup) return;
+        const map = new Map(state.entries.map(e => [e.id, e]));
+        backup.data.forEach(e => map.set(e.id, e));
+        state.entries = [...map.values()].sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+        toast(tr('backupRestored'), 'success');
+        render();
+      }));
+
+      $$('.download-backup').forEach(btn => btn.addEventListener('click', () => {
+        const backup = state.backups.find(b => b.id === btn.dataset.downloadBackup);
+        if (!backup) return;
+        downloadBlob(`backup-${backup.type}-${backup.label}.json`, new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }));
+      }));
+    }
+
+    // =============================
+    // STARTUP
+    // =============================
+    function firstRunSetup() {
+      if (!readLS(KEYS.theme, null)) {
+        state.theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      applyTheme();
+    }
+
+    firstRunSetup();
+    render();
+  </script>
+</body>
+</html>
