@@ -209,22 +209,22 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 10px;
       min-width: 0;
       flex: 1 1 auto;
     }
 
     .brand-logo {
-      width: 54px;
-      height: 54px;
-      flex: 0 0 54px;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
       border-radius: 22px;
       background: linear-gradient(135deg, #2563eb, #7c3aed);
       color: #fff;
       display: grid;
       place-items: center;
       font-weight: 900;
-      font-size: 24px;
+      font-size: 18px;
       box-shadow: 0 22px 48px rgba(59, 130, 246, 0.24);
       transform: translateZ(24px);
       position: relative;
@@ -245,7 +245,7 @@
     }
 
     .brand-title {
-      font-size: 22px;
+      font-size: 16px;
       font-weight: 900;
       line-height: 1.05;
       letter-spacing: -0.02em;
@@ -255,7 +255,7 @@
     }
 
     .brand-sub {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--muted);
       margin-top: 4px;
       display: flex;
@@ -274,7 +274,7 @@
     }
 
     .btn {
-      min-height: 44px;
+      min-height: 40px;
       border-radius: 18px;
       padding: 10px 16px;
       background: var(--soft);
@@ -325,8 +325,8 @@
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
+      gap: 6px;
+      padding: 6px 10px;
       border-radius: 999px;
       background: var(--soft);
       border: 1px solid var(--line);
@@ -1090,9 +1090,9 @@
     .offline-chip {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       border-radius: 999px;
-      padding: 8px 12px;
+      padding: 6px 10px;
       background: var(--soft);
       border: 1px solid var(--line);
       font-size: 12px;
@@ -1212,6 +1212,65 @@
       font-weight: 900;
       letter-spacing: -0.04em;
       overflow-wrap: anywhere;
+    }
+
+    .milk-card-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .milk-entry-card {
+      border-radius: 22px;
+      padding: 16px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      display: grid;
+      gap: 12px;
+    }
+
+    .milk-entry-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .milk-entry-name {
+      font-size: 16px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .milk-entry-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .milk-entry-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--line);
+      font-size: 12px;
+      font-weight: 700;
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .milk-entry-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .page-stack {
+      display: grid;
+      gap: 16px;
     }
 
     .note-strong {
@@ -1349,7 +1408,7 @@
       }
 
       .brand-title {
-        font-size: 18px;
+        font-size: 14px;
       }
 
       .brand-logo {
@@ -2423,7 +2482,9 @@
         ["add", "+", tr("addEntry")],
         ["ledger", "≡", tr("ledger")],
         ["milk", "◔", tr("milk")],
-        ["reports", "◫", tr("reports")],
+        ["summary", "◫", tr("summary")],
+        ["settings", "⚙", tr("settings")],
+        ["reports", "▣", tr("reports")],
         ["backups", "⎘", tr("backups")]
       ];
 
@@ -2704,42 +2765,33 @@
 
     function renderMilkTable(entries) {
       return `
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>${tr("date")}</th>
-                <th>${tr("shop")}</th>
-                <th>${tr("person")}</th>
-                <th>${tr("author")}</th>
-                <th>${tr("milkType")}</th>
-                <th>${tr("litres")}</th>
-                <th>${tr("note")}</th>
-                <th>${tr("actions")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${entries.length ? entries.map(e => `
-                <tr>
-                  <td>${formatDateNice(e.date, state.lang)}</td>
-                  <td>${escapeHtml(e.shop)}</td>
-                  <td>${escapeHtml(e.person)}</td>
-                  <td>${escapeHtml(e.author || "-")}</td>
-                  <td>${e.type === "give" ? tr("milkGive") : tr("milkTake")}</td>
-                  <td><strong>${fmtLitre(e.litres)}</strong></td>
-                  <td><button class="text-link-btn" data-open-milk="${e.id}">${escapeHtml(e.note || "-")}</button></td>
-                  <td>
-                    <div class="table-actions">
-                      <button class="btn btn-success tiny-btn" data-edit-milk="${e.id}">${tr("edit")}</button>
-                      <button class="btn btn-danger tiny-btn" data-delete-milk="${e.id}">${tr("del")}</button>
-                    </div>
-                  </td>
-                </tr>
-              `).join("") : `
-                <tr><td colspan="8"><div class="empty-box">${tr("noData")}</div></td></tr>
-              `}
-            </tbody>
-          </table>
+        <div class="milk-card-list">
+          ${entries.length ? entries.map(e => `
+            <div class="milk-entry-card">
+              <div class="milk-entry-top">
+                <div>
+                  <div class="milk-entry-name">${escapeHtml(e.person)}</div>
+                  <div class="tiny-note" style="margin-top:4px;">${formatDateNice(e.date, state.lang)} • ${escapeHtml(e.shop)}</div>
+                </div>
+                <span class="milk-entry-chip">${e.type === "give" ? tr("milkGive") : tr("milkTake")}</span>
+              </div>
+
+              <div class="milk-entry-meta">
+                ${detailBox(tr("author"), e.author || "-")}
+                ${detailBox(tr("litres"), fmtLitre(e.litres))}
+                ${detailBox(tr("shop"), e.shop)}
+                ${detailBox(tr("note"), e.note || "-")}
+              </div>
+
+              <div class="milk-entry-actions">
+                <button class="btn btn-success tiny-btn" data-edit-milk="${e.id}">${tr("edit")}</button>
+                <button class="btn btn-danger tiny-btn" data-delete-milk="${e.id}">${tr("del")}</button>
+                <button class="btn tiny-btn" data-open-milk="${e.id}">${tr("entryDetails")}</button>
+              </div>
+            </div>
+          `).join("") : `
+            <div class="empty-box glass">${tr("noData")}</div>
+          `}
         </div>
       `;
     }
@@ -2860,14 +2912,47 @@
       `;
     }
 
+
+    function summaryPage() {
+      const monthEntries = getMonthEntries();
+      const monthMilk = getMonthMilkEntries();
+      return `
+        ${topBar()}
+        <main class="page">
+          <div class="container">
+            <div class="page-stack">
+              ${summaryPanel(
+                summarizeBy(monthEntries, "shop"),
+                summarizeBy(monthEntries, "person"),
+                summarizeBy(monthEntries, "product").slice(0, 8)
+              )}
+              ${milkSummaryPanel(monthMilk)}
+            </div>
+          </div>
+        </main>
+        ${bottomNav()}
+      `;
+    }
+
+    function settingsPage() {
+      return `
+        ${topBar()}
+        <main class="page">
+          <div class="container">
+            <div class="page-stack">
+              ${settingsCard()}
+            </div>
+          </div>
+        </main>
+        ${bottomNav()}
+      `;
+    }
+
     function dashboardPage() {
       const todayEntries = state.entries.filter(e => e.date === todayStr());
       const currentMonthEntries = state.entries.filter(e => e.date.startsWith(monthStr()));
       const currentMonthMilk = state.milkEntries.filter(e => e.date.startsWith(monthStr()));
       const milkMonthTotals = milkTotals(currentMonthMilk);
-      const shopBreakdown = summarizeBy(currentMonthEntries, "shop");
-      const personBreakdown = summarizeBy(currentMonthEntries, "person");
-      const itemBreakdown = summarizeBy(currentMonthEntries, "product").slice(0, 6);
 
       return `
         ${topBar()}
@@ -2881,31 +2966,9 @@
               ${statCard(tr("backups"), String(state.backups.length), "B", tr("backupList"))}
             </section>
 
-            <section class="content-cols" style="margin-top:18px;">
-              <div style="display:grid; gap:16px;">
-                ${addEntryForm()}
-
-                <section class="glass section card-3d">
-                  <div class="toolbar">
-                    <div>
-                      <h3 class="section-title">${tr("todayEntries")}</h3>
-                      <div class="section-sub">${formatDateNice(state.selectedDate, state.lang)}</div>
-                    </div>
-                    <div class="toolbar-right">
-                      <input id="selectedDateInput" type="date" value="${state.selectedDate}" class="soft-input" />
-                      <button id="exportDayPdf" class="btn">${tr("printPdf")}</button>
-                      <button id="exportDayExcel" class="btn">${tr("exportExcelDay")}</button>
-                    </div>
-                  </div>
-                  ${renderEntriesTable(getTodayEntries())}
-                </section>
-              </div>
-
-              <div class="summary-stack">
-                ${summaryPanel(shopBreakdown, personBreakdown, itemBreakdown)}
-                ${settingsCard()}
-              </div>
-            </section>
+            <div class="page-stack" style="margin-top:18px;">
+              ${addEntryForm()}
+            </div>
           </div>
         </main>
         ${bottomNav()}
@@ -2940,6 +3003,21 @@
                 <input id="toDateInput" type="date" class="soft-input" value="${state.toDate}" />
                 <button id="clearFiltersBtn" class="btn" style="grid-column: span 1;">${tr("clearFilters")}</button>
               </div>
+
+              <section class="glass section card-3d" style="margin-bottom:16px;">
+                <div class="toolbar">
+                  <div>
+                    <h3 class="section-title">${tr("todayEntries")}</h3>
+                    <div class="section-sub">${formatDateNice(state.selectedDate, state.lang)}</div>
+                  </div>
+                  <div class="toolbar-right">
+                    <input id="selectedDateInput" type="date" value="${state.selectedDate}" class="soft-input" />
+                    <button id="exportDayPdf" class="btn">${tr("printPdf")}</button>
+                    <button id="exportDayExcel" class="btn">${tr("exportExcelDay")}</button>
+                  </div>
+                </div>
+                ${renderEntriesTable(getTodayEntries())}
+              </section>
 
               ${renderEntriesTable(filtered)}
             </section>
@@ -3199,6 +3277,12 @@
           break;
         case "milk":
           html = milkPage();
+          break;
+        case "summary":
+          html = summaryPage();
+          break;
+        case "settings":
+          html = settingsPage();
           break;
         case "reports":
           html = reportsPage();
