@@ -1419,8 +1419,27 @@
         font-size: 20px;
       }
 
+      .bottom-nav {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+        padding: 8px;
+      }
+
       .nav-item {
-        min-width: 74px;
+        min-width: 0;
+        border-radius: 18px;
+        padding: 8px 4px 9px;
+      }
+
+      .nav-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 12px;
+        font-size: 15px;
+      }
+
+      .nav-text {
+        font-size: 10px;
       }
 
       .flash-strip {
@@ -1471,14 +1490,26 @@
         justify-content: center;
       }
 
+      .bottom-nav {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+        padding: 6px;
+      }
+
       .nav-item {
-        min-width: 70px;
-        padding-left: 8px;
-        padding-right: 8px;
+        min-width: 0;
+        padding: 7px 2px 8px;
+      }
+
+      .nav-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 10px;
+        font-size: 14px;
       }
 
       .nav-text {
-        font-size: 10px;
+        font-size: 9px;
       }
     }
 
@@ -2305,7 +2336,7 @@
             <table border="1">
               <tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join("")}</tr>
               ${rows.map(r => `<tr>${headers.map(h => `<td>${escapeHtml(r[h])}</td>`).join("")}</tr>`).join("")}
-            </table>
+            <!-- removed table -->
           </body>
         </html>
       `;
@@ -2345,7 +2376,7 @@
             <tbody>
               ${rows.map(r => `<tr>${headers.map(h => `<td style="border:1px solid #ddd;padding:8px;vertical-align:top;">${escapeHtml(r[h])}</td>`).join("")}</tr>`).join("")}
             </tbody>
-          </table>
+          <!-- removed table -->
         `
         : `<div style="padding:24px 0;color:#666;">${escapeHtml(tr("noData"))}</div>`;
 
@@ -2724,7 +2755,7 @@
     function renderEntriesTable(entries) {
       return `
         <div class="table-wrap">
-          <table>
+          <!-- removed table -->
             <thead>
               <tr>
                 <th>${tr("date")}</th>
@@ -2758,11 +2789,12 @@
                 <tr><td colspan="8"><div class="empty-box">${tr("noData")}</div></td></tr>
               `}
             </tbody>
-          </table>
+          <!-- removed table -->
         </div>
       `;
     }
 
+    
     function renderMilkTable(entries) {
       return `
         <div class="milk-card-list">
@@ -3159,7 +3191,7 @@
               </section>
 
               <div class="table-wrap">
-                <table>
+                <!-- removed table -->
                   <thead>
                     <tr>
                       <th>${tr("backupType")}</th>
@@ -3189,7 +3221,7 @@
                       <tr><td colspan="6"><div class="empty-box">${tr("noData")}</div></td></tr>
                     `}
                   </tbody>
-                </table>
+                <!-- removed table -->
               </div>
             </section>
           </div>
