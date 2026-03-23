@@ -4,13 +4,15 @@
   <meta charset="UTF-8" />
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1"
   />
   <title>Masoi Village Dukan</title>
   <meta name="theme-color" content="#0f172a" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Masoi Dukan" />
+  <meta name="format-detection" content="telephone=no" />
 
   <style>
     :root {
@@ -35,6 +37,11 @@
       --radius-xl: 22px;
       --radius-2xl: 28px;
       --radius-3xl: 34px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --app-height: 100vh;
     }
 
     .dark {
@@ -59,11 +66,14 @@
 
     * {
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     html {
       scroll-behavior: smooth;
-      -webkit-tap-highlight-color: transparent;
+      height: 100%;
+      width: 100%;
+      overflow-x: hidden;
     }
 
     body {
@@ -75,8 +85,15 @@
         radial-gradient(circle at top right, rgba(167, 139, 250, 0.14), transparent 20%),
         linear-gradient(135deg, var(--bg1), var(--bg2));
       min-height: 100vh;
+      min-height: 100dvh;
+      width: 100%;
       overflow-x: hidden;
+      overflow-y: auto;
       transition: background 0.35s ease, color 0.25s ease;
+      overscroll-behavior-y: none;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      touch-action: manipulation;
     }
 
     a {
@@ -91,11 +108,24 @@
       font: inherit;
     }
 
+    input,
+    select,
+    textarea {
+      font-size: 16px;
+    }
+
     button {
       cursor: pointer;
       border: 0;
       background: none;
       color: inherit;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    img, svg, canvas {
+      max-width: 100%;
+      height: auto;
     }
 
     .hidden {
@@ -104,19 +134,26 @@
 
     .app-shell {
       min-height: 100vh;
+      min-height: 100dvh;
+      width: 100%;
       opacity: 1 !important;
       visibility: visible !important;
       pointer-events: auto !important;
+      padding-bottom: calc(var(--safe-bottom) + 6px);
     }
 
     .page {
       padding: 16px;
+      padding-left: max(16px, var(--safe-left));
+      padding-right: max(16px, var(--safe-right));
+      padding-bottom: calc(16px + var(--safe-bottom));
       animation: fadeIn 0.32s ease;
     }
 
     .container {
       max-width: 1480px;
       margin: 0 auto;
+      width: 100%;
     }
 
     .glass {
@@ -144,6 +181,11 @@
       top: 0;
       z-index: 50;
       padding: 16px 16px 0;
+      padding-top: max(16px, var(--safe-top));
+      padding-left: max(16px, var(--safe-left));
+      padding-right: max(16px, var(--safe-right));
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
     .topbar-inner {
@@ -153,6 +195,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
+      width: 100%;
     }
 
     .brand {
@@ -160,11 +203,13 @@
       align-items: center;
       gap: 14px;
       min-width: 0;
+      flex: 1 1 auto;
     }
 
     .brand-logo {
       width: 54px;
       height: 54px;
+      flex: 0 0 54px;
       border-radius: 22px;
       background: linear-gradient(135deg, #2563eb, #7c3aed);
       color: #fff;
@@ -188,6 +233,7 @@
 
     .brand-meta {
       min-width: 0;
+      flex: 1 1 auto;
     }
 
     .brand-title {
@@ -216,6 +262,7 @@
       gap: 10px;
       align-items: center;
       justify-content: flex-end;
+      min-width: 0;
     }
 
     .btn {
@@ -227,6 +274,7 @@
       transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease, background 0.22s ease;
       box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255,255,255,0.2);
       position: relative;
+      max-width: 100%;
     }
 
     .btn:hover {
@@ -276,6 +324,7 @@
       border: 1px solid var(--line);
       font-size: 12px;
       color: var(--muted);
+      max-width: 100%;
     }
 
     .dot {
@@ -284,11 +333,14 @@
       border-radius: 50%;
       background: #22c55e;
       box-shadow: 0 0 0 7px rgba(34, 197, 94, 0.12);
+      flex: 0 0 auto;
     }
 
     .section {
       border-radius: var(--radius-3xl);
       padding: 20px;
+      width: 100%;
+      overflow: hidden;
     }
 
     .section-title {
@@ -296,6 +348,7 @@
       font-weight: 900;
       letter-spacing: -0.03em;
       margin: 0;
+      overflow-wrap: anywhere;
     }
 
     .section-sub {
@@ -308,6 +361,7 @@
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 16px;
+      width: 100%;
     }
 
     .stat-card {
@@ -315,6 +369,7 @@
       padding: 18px;
       position: relative;
       overflow: hidden;
+      min-width: 0;
     }
 
     .stat-card::after {
@@ -347,6 +402,7 @@
       font-weight: 900;
       letter-spacing: -0.03em;
       line-height: 1;
+      overflow-wrap: anywhere;
     }
 
     .stat-sub {
@@ -358,6 +414,7 @@
     .stat-icon {
       width: 52px;
       height: 52px;
+      flex: 0 0 52px;
       border-radius: 20px;
       display: grid;
       place-items: center;
@@ -373,16 +430,19 @@
       grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
       gap: 18px;
       align-items: start;
+      width: 100%;
     }
 
     .form-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px;
+      width: 100%;
     }
 
     .form-field {
       min-width: 0;
+      width: 100%;
     }
 
     .field-label {
@@ -403,6 +463,9 @@
       padding: 12px 14px;
       transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, background 0.22s ease;
       outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      max-width: 100%;
     }
 
     .soft-input::placeholder {
@@ -427,6 +490,7 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 14px;
+      width: 100%;
     }
 
     .toolbar-right {
@@ -434,13 +498,17 @@
       gap: 10px;
       flex-wrap: wrap;
       align-items: center;
+      min-width: 0;
     }
 
     .table-wrap {
       overflow: auto;
+      -webkit-overflow-scrolling: touch;
       border-radius: 26px;
       border: 1px solid var(--line);
       background: rgba(255,255,255,0.06);
+      width: 100%;
+      max-width: 100%;
     }
 
     .table-wrap::-webkit-scrollbar {
@@ -495,11 +563,13 @@
     .summary-stack {
       display: grid;
       gap: 16px;
+      width: 100%;
     }
 
     .summary-box {
       border-radius: 28px;
       padding: 18px;
+      overflow: hidden;
     }
 
     .summary-head {
@@ -507,6 +577,7 @@
       font-weight: 900;
       margin: 0 0 14px;
       letter-spacing: -0.03em;
+      overflow-wrap: anywhere;
     }
 
     .bar-row + .bar-row {
@@ -520,6 +591,12 @@
       align-items: center;
       font-size: 13px;
       margin-bottom: 7px;
+      min-width: 0;
+    }
+
+    .bar-top span,
+    .bar-top strong {
+      overflow-wrap: anywhere;
     }
 
     .bar-track {
@@ -562,8 +639,10 @@
       position: sticky;
       bottom: 0;
       z-index: 40;
-      padding: 0 16px 16px;
+      padding: 0 16px calc(16px + var(--safe-bottom));
       margin-top: 16px;
+      padding-left: max(16px, var(--safe-left));
+      padding-right: max(16px, var(--safe-right));
     }
 
     .bottom-nav {
@@ -574,7 +653,9 @@
       gap: 12px;
       flex-wrap: nowrap;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       box-shadow: var(--navGlow);
+      width: 100%;
     }
 
     .bottom-nav::-webkit-scrollbar {
@@ -594,6 +675,7 @@
       transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.22s ease;
       position: relative;
       overflow: hidden;
+      flex: 0 0 auto;
     }
 
     .nav-item::before {
@@ -629,6 +711,7 @@
       place-items: center;
       font-size: 17px;
       background: rgba(255,255,255,0.12);
+      flex: 0 0 auto;
     }
 
     .nav-text {
@@ -645,6 +728,10 @@
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       padding: 16px;
+      padding-top: max(16px, var(--safe-top));
+      padding-bottom: max(16px, var(--safe-bottom));
+      padding-left: max(16px, var(--safe-left));
+      padding-right: max(16px, var(--safe-right));
       display: flex;
       align-items: center;
       justify-content: center;
@@ -654,6 +741,9 @@
     .modal {
       width: 100%;
       max-width: 760px;
+      max-height: calc(100vh - 32px - var(--safe-top) - var(--safe-bottom));
+      max-height: calc(100dvh - 32px - var(--safe-top) - var(--safe-bottom));
+      overflow: auto;
       border-radius: 34px;
       padding: 22px;
     }
@@ -669,6 +759,7 @@
       padding: 14px;
       background: var(--soft);
       border: 1px solid var(--line);
+      min-width: 0;
     }
 
     .detail-label {
@@ -682,16 +773,17 @@
       font-size: 14px;
       font-weight: 700;
       word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     .toast-wrap {
       position: fixed;
-      right: 16px;
-      top: 16px;
+      right: max(16px, var(--safe-right));
+      top: max(16px, var(--safe-top));
       z-index: 99999;
       display: grid;
       gap: 10px;
-      max-width: 360px;
+      max-width: min(360px, calc(100vw - 32px));
     }
 
     .toast {
@@ -724,10 +816,11 @@
     .flash-strip {
       position: fixed;
       left: 50%;
-      bottom: 104px;
+      bottom: calc(104px + var(--safe-bottom));
       transform: translateX(-50%) translateY(20px);
       z-index: 99998;
       max-width: min(92vw, 760px);
+      width: calc(100% - 24px);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.26s ease, transform 0.26s ease;
@@ -832,9 +925,14 @@
 
     .login-wrap {
       min-height: 100vh;
+      min-height: 100dvh;
       display: grid;
       align-items: center;
       padding: 16px;
+      padding-top: max(16px, var(--safe-top));
+      padding-bottom: max(16px, var(--safe-bottom));
+      padding-left: max(16px, var(--safe-left));
+      padding-right: max(16px, var(--safe-right));
     }
 
     .login-grid {
@@ -851,6 +949,8 @@
       border-radius: 38px;
       padding: 28px;
       min-height: 620px;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .hero-panel {
@@ -871,6 +971,7 @@
       font-size: 12px;
       font-weight: 800;
       width: fit-content;
+      max-width: 100%;
     }
 
     .hero-title {
@@ -880,6 +981,7 @@
       margin: 16px 0 0;
       font-weight: 900;
       max-width: 720px;
+      overflow-wrap: anywhere;
     }
 
     .hero-text {
@@ -900,12 +1002,14 @@
       border-radius: 28px;
       padding: 18px;
       min-height: 120px;
+      min-width: 0;
     }
 
     .hero-mini .big {
       font-size: 28px;
       font-weight: 900;
       margin-top: 10px;
+      overflow-wrap: anywhere;
     }
 
     .login-panel {
@@ -917,6 +1021,7 @@
     .login-card {
       width: 100%;
       max-width: 460px;
+      min-width: 0;
     }
 
     .muted {
@@ -941,6 +1046,7 @@
       border: 1px solid var(--line);
       padding: 8px 12px;
       border-radius: 999px;
+      max-width: 100%;
     }
 
     .file-input {
@@ -951,6 +1057,8 @@
       text-decoration: underline;
       text-underline-offset: 4px;
       font-weight: 700;
+      text-align: left;
+      display: inline;
     }
 
     .offline-chip {
@@ -963,6 +1071,7 @@
       border: 1px solid var(--line);
       font-size: 12px;
       font-weight: 700;
+      max-width: 100%;
     }
 
     .offline-dot {
@@ -971,6 +1080,7 @@
       border-radius: 50%;
       background: #22c55e;
       box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.11);
+      flex: 0 0 auto;
     }
 
     .header-right-meta {
@@ -978,6 +1088,8 @@
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
+      justify-content: flex-end;
+      min-width: 0;
     }
 
     .empty-box {
@@ -998,6 +1110,7 @@
       padding: 16px;
       background: var(--soft);
       border: 1px solid var(--line);
+      min-width: 0;
     }
 
     .minicard .label {
@@ -1011,10 +1124,19 @@
       margin-top: 8px;
       font-weight: 900;
       letter-spacing: -0.04em;
+      overflow-wrap: anywhere;
     }
 
     .note-strong {
       font-weight: 800;
+    }
+
+    body.is-standalone .topbar {
+      padding-top: max(10px, var(--safe-top));
+    }
+
+    body.is-standalone .bottom-nav-wrap {
+      padding-bottom: calc(10px + var(--safe-bottom));
     }
 
     @keyframes spin {
@@ -1070,7 +1192,8 @@
         align-items: stretch;
       }
 
-      .top-actions {
+      .top-actions,
+      .header-right-meta {
         justify-content: flex-start;
       }
 
@@ -1083,14 +1206,30 @@
     @media (max-width: 640px) {
       .page {
         padding: 12px;
+        padding-left: max(12px, var(--safe-left));
+        padding-right: max(12px, var(--safe-right));
+        padding-bottom: calc(12px + var(--safe-bottom));
       }
 
       .topbar {
         padding: 12px 12px 0;
+        padding-top: max(12px, var(--safe-top));
+        padding-left: max(12px, var(--safe-left));
+        padding-right: max(12px, var(--safe-right));
       }
 
       .bottom-nav-wrap {
-        padding: 0 12px 12px;
+        padding: 0 12px calc(12px + var(--safe-bottom));
+        padding-left: max(12px, var(--safe-left));
+        padding-right: max(12px, var(--safe-right));
+      }
+
+      .section,
+      .summary-box,
+      .hero-panel,
+      .login-panel,
+      .modal {
+        border-radius: 24px;
       }
 
       .stats-wrap {
@@ -1099,6 +1238,15 @@
 
       .form-grid {
         grid-template-columns: 1fr;
+      }
+
+      .toolbar-right {
+        width: 100%;
+      }
+
+      .toolbar-right > * {
+        flex: 1 1 calc(50% - 10px);
+        min-width: 140px;
       }
 
       .hero-title {
@@ -1116,6 +1264,7 @@
       .brand-logo {
         width: 48px;
         height: 48px;
+        flex-basis: 48px;
         border-radius: 18px;
         font-size: 20px;
       }
@@ -1125,7 +1274,70 @@
       }
 
       .flash-strip {
-        bottom: 96px;
+        bottom: calc(96px + var(--safe-bottom));
+      }
+
+      .toast-wrap {
+        left: 12px;
+        right: 12px;
+        max-width: none;
+      }
+
+      .toast {
+        width: 100%;
+      }
+
+      .hero-panel,
+      .login-panel {
+        padding: 20px;
+      }
+
+      .topbar-inner {
+        border-radius: 24px;
+        padding: 14px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .toolbar-right > * {
+        flex: 1 1 100%;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .top-actions,
+      .header-right-meta {
+        width: 100%;
+      }
+
+      .header-right-meta > * {
+        width: 100%;
+      }
+
+      .badge,
+      .offline-chip,
+      .pill-note,
+      .hero-kicker {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .nav-item {
+        min-width: 70px;
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+
+      .nav-text {
+        font-size: 10px;
+      }
+    }
+
+    @media (display-mode: standalone) {
+      body {
+        min-height: 100dvh;
       }
     }
 
@@ -1320,7 +1532,9 @@
         offlineReady: "Offline Ready",
         user: "User",
         printPdf: "Print / Save PDF",
-        installHint: "For app-like use: open in Chrome, use Add to Home Screen or Install App.",
+        installHint: "For app-like use: open in Chrome and use Add to Home Screen or Install App.",
+        installHintAndroid: "Android: open in Chrome > menu > Add to Home screen / Install app.",
+        installHintIOS: "iPhone: open in Safari > Share > Add to Home Screen.",
         reminderEn: "Did you save today's transactions?",
         reminderHi: "क्या आपने आज की लेन-देन सेव की?",
         exportDone: "Export is ready.",
@@ -1457,6 +1671,8 @@
         user: "यूज़र",
         printPdf: "प्रिंट / PDF सेव",
         installHint: "ऐप जैसा चलाने के लिए Chrome में Add to Home Screen या Install App इस्तेमाल करें।",
+        installHintAndroid: "Android: Chrome में खोलें > menu > Add to Home screen / Install app.",
+        installHintIOS: "iPhone: Safari में खोलें > Share > Add to Home Screen.",
         reminderEn: "Did you save today's transactions?",
         reminderHi: "क्या आपने आज की लेन-देन सेव की?",
         exportDone: "एक्सपोर्ट तैयार है।",
@@ -1513,6 +1729,16 @@
       return `${d.getFullYear()}-W${String(week).padStart(2, "0")}`;
     };
 
+    function setRealViewportHeight() {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--app-height", `${window.innerHeight}px`);
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
+    }
+
+    function isStandaloneMode() {
+      return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    }
+
     const state = {
       lang: readLS(KEYS.lang, "en"),
       theme: readLS(KEYS.theme, null) || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
@@ -1555,6 +1781,7 @@
 
     function applyTheme() {
       document.documentElement.classList.toggle("dark", state.theme === "dark");
+      document.body.classList.toggle("is-standalone", isStandaloneMode());
       const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute("content", state.theme === "dark" ? "#020617" : "#0f172a");
     }
@@ -1600,31 +1827,48 @@
 
     function setInstallableMeta() {
       try {
+        const iconSvg = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 192 192">
+            <defs>
+              <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0%" stop-color="#2563eb"/>
+                <stop offset="100%" stop-color="#7c3aed"/>
+              </linearGradient>
+            </defs>
+            <rect width="192" height="192" rx="42" fill="url(#g)"/>
+            <text x="50%" y="56%" text-anchor="middle" font-size="92" font-family="Arial, sans-serif" font-weight="900" fill="white">M</text>
+          </svg>
+        `.trim();
+
+        const iconDataUrl = "data:image/svg+xml;base64," + btoa(iconSvg);
+
+        let appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
+        if (!appleIcon) {
+          appleIcon = document.createElement("link");
+          appleIcon.rel = "apple-touch-icon";
+          document.head.appendChild(appleIcon);
+        }
+        appleIcon.href = iconDataUrl;
+
         const manifest = {
           name: APP_CONFIG.appName,
           short_name: APP_CONFIG.shortName,
           start_url: "./",
+          scope: "./",
           display: "standalone",
           background_color: "#0f172a",
           theme_color: "#0f172a",
           orientation: "portrait-primary",
           icons: [
             {
-              src:
-                "data:image/svg+xml;base64," +
-                btoa(`
-                  <svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
-                    <defs>
-                      <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
-                        <stop offset="0%" stop-color="#2563eb"/>
-                        <stop offset="100%" stop-color="#7c3aed"/>
-                      </linearGradient>
-                    </defs>
-                    <rect width="192" height="192" rx="42" fill="url(#g)"/>
-                    <text x="50%" y="56%" text-anchor="middle" font-size="92" font-family="Arial, sans-serif" font-weight="900" fill="white">M</text>
-                  </svg>
-                `),
+              src: iconDataUrl,
               sizes: "192x192",
+              type: "image/svg+xml",
+              purpose: "any maskable"
+            },
+            {
+              src: iconDataUrl,
+              sizes: "512x512",
               type: "image/svg+xml",
               purpose: "any maskable"
             }
@@ -1855,7 +2099,7 @@
       downloadBlob(filename, new Blob([csv], { type: "text/csv;charset=utf-8;" }));
     }
 
-    function exportExcel(entries, filename, mode = "ledger") {
+    function exportExcel(entries, filename, mode = "milk") {
       const rows = mode === "milk" ? milkRows(entries) : entryRows(entries);
       if (!rows.length) {
         toast(tr("noData"), "warning");
@@ -1923,6 +2167,7 @@
         <html>
           <head>
             <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             <title>${escapeHtml(title)}</title>
           </head>
           <body style="font-family:Arial,sans-serif;padding:26px;color:#111;">
@@ -2115,6 +2360,8 @@
                 </div>
 
                 <div class="install-tip">${tr("installHint")}</div>
+                <div class="install-tip">${tr("installHintAndroid")}</div>
+                <div class="install-tip">${tr("installHintIOS")}</div>
               </div>
             </section>
           </div>
@@ -2785,6 +3032,8 @@
       let html = "";
       switch (state.page) {
         case "add":
+          html = `${topBar()}<main class="page"><div class="container">${addEntryForm()}</div></main>${bottomNav()}`;
+          break;
         case "dashboard":
           html = dashboardPage();
           break;
@@ -2831,7 +3080,9 @@
           toast(tr("appInstalled"), "success");
           return;
         }
-        toast(tr("installHint"), "info");
+
+        const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+        toast(isIOS ? tr("installHintIOS") : tr("installHintAndroid"), "info");
       });
     }
 
@@ -3044,6 +3295,14 @@
         render();
       });
 
+      $(".modal-backdrop")?.addEventListener("click", (e) => {
+        if (e.target.classList.contains("modal-backdrop")) {
+          state.modalEntryId = null;
+          state.modalMilkId = null;
+          render();
+        }
+      });
+
       $("#searchInput")?.addEventListener("input", (e) => {
         state.search = e.target.value;
         render();
@@ -3158,12 +3417,17 @@
             toast(tr("appLoaded"), "success");
           }, 650);
         }
-      }, 3000);
+      }, 1800);
     }
 
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       state.installPromptEvent = e;
+    });
+
+    window.addEventListener("appinstalled", () => {
+      state.installPromptEvent = null;
+      toast(tr("appInstalled"), "success");
     });
 
     window.addEventListener("online", () => {
@@ -3176,7 +3440,20 @@
       render();
     });
 
+    window.addEventListener("resize", () => {
+      setRealViewportHeight();
+      applyTheme();
+    });
+
+    window.addEventListener("orientationchange", () => {
+      setTimeout(() => {
+        setRealViewportHeight();
+        applyTheme();
+      }, 150);
+    });
+
     document.addEventListener("DOMContentLoaded", () => {
+      setRealViewportHeight();
       setInstallableMeta();
       applyTheme();
       render();
