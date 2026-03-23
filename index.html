@@ -2,590 +2,1715 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
   <title>Masoi Village Dukan</title>
   <meta name="theme-color" content="#0f172a" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          boxShadow: {
-            glass: '0 20px 50px rgba(15, 23, 42, 0.18)',
-            soft: '0 10px 30px rgba(2, 6, 23, 0.12)',
-            floaty: '0 25px 60px rgba(59, 130, 246, 0.18)',
-          },
-          animation: {
-            floaty: 'floaty 6s ease-in-out infinite',
-            fadeIn: 'fadeIn 0.35s ease',
-            pulseSoft: 'pulseSoft 2s ease-in-out infinite',
-            splashOut: 'splashOut .5s ease forwards',
-          },
-          keyframes: {
-            floaty: {
-              '0%, 100%': { transform: 'translateY(0px)' },
-              '50%': { transform: 'translateY(-8px)' },
-            },
-            fadeIn: {
-              from: { opacity: 0, transform: 'translateY(8px)' },
-              to: { opacity: 1, transform: 'translateY(0)' },
-            },
-            pulseSoft: {
-              '0%, 100%': { opacity: 1, transform: 'scale(1)' },
-              '50%': { opacity: .92, transform: 'scale(1.02)' },
-            },
-            splashOut: {
-              from: { opacity: 1, transform: 'scale(1)', visibility: 'visible' },
-              to: { opacity: 0, transform: 'scale(1.02)', visibility: 'hidden' }
-            }
-          },
-        },
-      },
-    };
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Masoi Dukan" />
 
   <style>
     :root {
       --bg1: #eef4ff;
       --bg2: #fff7ed;
-      --card: rgba(255,255,255,0.72);
-      --card-border: rgba(255,255,255,0.65);
+      --card: rgba(255, 255, 255, 0.72);
+      --card-border: rgba(255, 255, 255, 0.65);
       --text: #0f172a;
       --muted: #475569;
       --accent: #2563eb;
-      --accent-2: #7c3aed;
+      --accent2: #7c3aed;
       --success: #15803d;
       --danger: #dc2626;
       --warning: #d97706;
+      --white: #ffffff;
+      --line: rgba(148, 163, 184, 0.26);
+      --soft: rgba(255, 255, 255, 0.5);
+      --soft2: rgba(255, 255, 255, 0.8);
+      --shadow1: 0 20px 55px rgba(15, 23, 42, 0.12);
+      --shadow2: 0 30px 80px rgba(59, 130, 246, 0.16);
+      --navGlow: 0 8px 24px rgba(59, 130, 246, 0.22);
+      --radius-xl: 22px;
+      --radius-2xl: 28px;
+      --radius-3xl: 34px;
     }
+
     .dark {
       --bg1: #020617;
       --bg2: #0f172a;
-      --card: rgba(15,23,42,0.72);
-      --card-border: rgba(148,163,184,0.14);
+      --card: rgba(15, 23, 42, 0.72);
+      --card-border: rgba(148, 163, 184, 0.12);
       --text: #f8fafc;
       --muted: #cbd5e1;
       --accent: #60a5fa;
-      --accent-2: #a78bfa;
+      --accent2: #a78bfa;
       --success: #4ade80;
       --danger: #f87171;
       --warning: #fbbf24;
+      --line: rgba(148, 163, 184, 0.18);
+      --soft: rgba(15, 23, 42, 0.56);
+      --soft2: rgba(15, 23, 42, 0.78);
+      --shadow1: 0 20px 55px rgba(2, 6, 23, 0.36);
+      --shadow2: 0 30px 80px rgba(96, 165, 250, 0.16);
+      --navGlow: 0 8px 28px rgba(96, 165, 250, 0.18);
     }
-    * { box-sizing: border-box; }
+
+    * {
+      box-sizing: border-box;
+    }
+
     html {
       scroll-behavior: smooth;
       -webkit-tap-highlight-color: transparent;
     }
+
     body {
+      margin: 0;
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(96,165,250,.18), transparent 24%),
-        radial-gradient(circle at top right, rgba(167,139,250,.14), transparent 20%),
-        linear-gradient(135deg, var(--bg1), var(--bg2));
       color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 24%),
+        radial-gradient(circle at top right, rgba(167, 139, 250, 0.14), transparent 20%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
       min-height: 100vh;
-      transition: background .35s ease, color .25s ease;
       overflow-x: hidden;
+      transition: background 0.35s ease, color 0.25s ease;
     }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      background: none;
+      color: inherit;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+    }
+
+    .page {
+      padding: 16px;
+      animation: fadeIn 0.32s ease;
+    }
+
+    .container {
+      max-width: 1480px;
+      margin: 0 auto;
+    }
+
     .glass {
       background: var(--card);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       border: 1px solid var(--card-border);
-      box-shadow: 0 10px 30px rgba(15,23,42,.08);
-      transition: background .25s ease, border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+      box-shadow: var(--shadow1);
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease;
     }
+
+    .card-3d {
+      transform-style: preserve-3d;
+      transform: perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(0);
+      will-change: transform;
+    }
+
+    .card-3d:hover {
+      transform: perspective(1200px) rotateX(2deg) rotateY(-2deg) translateY(-3px);
+      box-shadow: var(--shadow2);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 16px 16px 0;
+    }
+
+    .topbar-inner {
+      border-radius: 32px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 54px;
+      height: 54px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 24px;
+      box-shadow: 0 22px 48px rgba(59, 130, 246, 0.24);
+      transform: translateZ(24px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-logo::before {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.22);
+    }
+
+    .brand-meta {
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      min-height: 44px;
+      border-radius: 18px;
+      padding: 10px 16px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease, background 0.22s ease;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255,255,255,0.2);
+      position: relative;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      filter: saturate(1.04);
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border: 0;
+      box-shadow: 0 16px 30px rgba(37, 99, 235, 0.24);
+    }
+
+    .btn-success {
+      color: #fff;
+      background: linear-gradient(135deg, #10b981, #65a30d);
+      border: 0;
+      box-shadow: 0 16px 30px rgba(16, 185, 129, 0.24);
+    }
+
+    .btn-danger {
+      color: #fff;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      border: 0;
+      box-shadow: 0 16px 30px rgba(239, 68, 68, 0.24);
+    }
+
+    .btn-warn {
+      color: #fff;
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      border: 0;
+      box-shadow: 0 16px 30px rgba(245, 158, 11, 0.24);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 7px rgba(34, 197, 94, 0.12);
+    }
+
+    .section {
+      border-radius: var(--radius-3xl);
+      padding: 20px;
+    }
+
+    .section-title {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      margin: 0;
+    }
+
+    .section-sub {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .stats-wrap {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card {
+      border-radius: 30px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      right: -36px;
+      top: -36px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.28), transparent 65%);
+      pointer-events: none;
+    }
+
+    .stat-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .stat-value {
+      margin-top: 10px;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .stat-sub {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 20px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      box-shadow: 0 20px 48px rgba(37, 99, 235, 0.22);
+      font-weight: 900;
+      transform: translateZ(22px);
+    }
+
+    .content-cols {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .form-field {
+      min-width: 0;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
     .soft-input {
-      border: 1px solid rgba(148,163,184,.28);
-      background: rgba(255,255,255,.7);
-      color: #0f172a;
-      transition: .2s ease;
-    }
-    .dark .soft-input {
-      background: rgba(15,23,42,.72);
-      color: #f8fafc;
-      border-color: rgba(148,163,184,.18);
-    }
-    .soft-input:focus {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--soft2);
+      color: var(--text);
+      padding: 12px 14px;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, background 0.22s ease;
       outline: none;
-      border-color: rgba(59,130,246,.65);
-      box-shadow: 0 0 0 4px rgba(59,130,246,.12);
+    }
+
+    .soft-input::placeholder {
+      color: color-mix(in srgb, var(--muted) 72%, transparent);
+    }
+
+    .soft-input:focus {
+      border-color: rgba(59, 130, 246, 0.58);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
       transform: translateY(-1px);
     }
-    .btn-3d {
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease, filter .15s ease;
-      box-shadow: 0 12px 24px rgba(37,99,235,.18), inset 0 1px 0 rgba(255,255,255,.35);
-      will-change: transform;
+
+    textarea.soft-input {
+      min-height: 110px;
+      resize: vertical;
     }
-    .btn-3d:hover { transform: translateY(-2px); filter: saturate(1.05); }
-    .btn-3d:active { transform: translateY(1px) scale(.99); }
-    .card-3d {
-      transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
-      transition: transform .25s ease, box-shadow .25s ease;
-      will-change: transform;
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
     }
-    .card-3d:hover {
-      transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateY(-2px);
-      box-shadow: 0 24px 60px rgba(2,6,23,.12);
+
+    .toolbar-right {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
     }
-    .hidden-file-input { display: none; }
-    .safe-area {
-      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+
+    .table-wrap {
+      overflow: auto;
+      border-radius: 26px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
     }
-    .sticky-bottom-nav {
+
+    .table-wrap::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .table-wrap::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.45);
+      border-radius: 999px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 820px;
+    }
+
+    thead tr {
+      background: rgba(148, 163, 184, 0.12);
+    }
+
+    th, td {
+      text-align: left;
+      padding: 14px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    tbody tr {
+      transition: background 0.16s ease, transform 0.16s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tiny-btn {
+      padding: 8px 12px;
+      border-radius: 14px;
+      min-height: 34px;
+      font-size: 12px;
+    }
+
+    .summary-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .summary-box {
+      border-radius: 28px;
+      padding: 18px;
+    }
+
+    .summary-head {
+      font-size: 22px;
+      font-weight: 900;
+      margin: 0 0 14px;
+      letter-spacing: -0.03em;
+    }
+
+    .bar-row + .bar-row {
+      margin-top: 12px;
+    }
+
+    .bar-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    .bar-track {
+      height: 11px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(148, 163, 184, 0.16);
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #2563eb, #7c3aed);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.18);
+    }
+
+    .tiny-note {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .settings-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .segment {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .segment .btn.active {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #fff;
+      border: 0;
+    }
+
+    .bottom-nav-wrap {
       position: sticky;
       bottom: 0;
       z-index: 40;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      padding: 0 16px 16px;
+      margin-top: 16px;
     }
-    .table-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
-    .table-scroll::-webkit-scrollbar-thumb { background: rgba(148,163,184,.45); border-radius: 999px; }
-    .modal-enter { animation: fadeIn .2s ease; }
-    .page-fade { animation: fadeIn .3s ease; }
-    #splash {
+
+    .bottom-nav {
+      border-radius: 34px;
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      box-shadow: var(--navGlow);
+    }
+
+    .bottom-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-item {
+      min-width: 78px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 10px 11px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02));
+      border: 1px solid var(--line);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.22s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-item::before {
+      content: "";
+      position: absolute;
+      inset: -50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.16), transparent 55%);
+      opacity: 0;
+      transition: opacity 0.22s ease;
+    }
+
+    .nav-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 32px rgba(37, 99, 235, 0.16);
+    }
+
+    .nav-item:hover::before {
+      opacity: 1;
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #fff;
+      border: 0;
+      box-shadow: 0 22px 42px rgba(37, 99, 235, 0.24);
+    }
+
+    .nav-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .nav-text {
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .modal-backdrop {
       position: fixed;
       inset: 0;
+      z-index: 999;
+      background: rgba(2, 6, 23, 0.56);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 760px;
+      border-radius: 34px;
+      padding: 22px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .detail-box {
+      border-radius: 22px;
+      padding: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .detail-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      font-weight: 700;
+    }
+
+    .detail-value {
+      font-size: 14px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .toast-wrap {
+      position: fixed;
+      right: 16px;
+      top: 16px;
       z-index: 99999;
+      display: grid;
+      gap: 10px;
+      max-width: 360px;
+    }
+
+    .toast {
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 20px;
+      box-shadow: 0 22px 50px rgba(2, 6, 23, 0.22);
+      animation: fadeIn 0.22s ease;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .toast.info {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+    }
+
+    .toast.success {
+      background: linear-gradient(135deg, #10b981, #65a30d);
+    }
+
+    .toast.error {
+      background: linear-gradient(135deg, #ef4444, #e11d48);
+    }
+
+    .toast.warning {
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+    }
+
+    .flash-strip {
+      position: fixed;
+      left: 50%;
+      bottom: 104px;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 99998;
+      max-width: min(92vw, 760px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.26s ease, transform 0.26s ease;
+    }
+
+    .flash-strip.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .flash-inner {
+      border-radius: 999px;
+      padding: 12px 18px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      text-align: center;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      box-shadow: 0 26px 55px rgba(37, 99, 235, 0.28);
+    }
+
+    .splash {
+      position: fixed;
+      inset: 0;
+      z-index: 100000;
       display: grid;
       place-items: center;
       background:
         radial-gradient(circle at top left, rgba(96,165,250,.24), transparent 24%),
         radial-gradient(circle at top right, rgba(167,139,250,.18), transparent 20%),
         linear-gradient(135deg, #020617, #0f172a);
-      color: white;
+      transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
       opacity: 1;
       visibility: visible;
-      transition: opacity .5s ease, visibility .5s ease, transform .5s ease;
     }
-    #splash.hide {
+
+    .splash.hide {
       opacity: 0;
       visibility: hidden;
       transform: scale(1.02);
       pointer-events: none;
     }
+
+    .splash-core {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      display: grid;
+      place-items: center;
+    }
+
+    .splash-ring {
+      position: absolute;
+      inset: 14px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.12);
+      box-shadow: inset 0 0 40px rgba(255,255,255,0.05);
+    }
+
+    .splash-orbit {
+      position: absolute;
+      inset: 0;
+      animation: spin 2.4s linear infinite;
+    }
+
+    .splash-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 18px;
+      height: 18px;
+      margin: -9px 0 0 -9px;
+      transform: translate(92px, 0);
+      border-radius: 50%;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      box-shadow: 0 0 24px rgba(96,165,250,.8);
+    }
+
+    .splash-logo {
+      width: 110px;
+      height: 110px;
+      border-radius: 34px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      box-shadow: 0 24px 60px rgba(37,99,235,.34), inset 0 1px 0 rgba(255,255,255,.24);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 54px;
+      font-weight: 900;
+      position: relative;
+      overflow: hidden;
+      animation: floaty 2.2s ease-in-out infinite;
+    }
+
+    .splash-logo::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    .login-wrap {
+      min-height: 100vh;
+      display: grid;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .login-grid {
+      max-width: 1220px;
+      width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+      gap: 18px;
+    }
+
+    .hero-panel,
+    .login-panel {
+      border-radius: 38px;
+      padding: 28px;
+      min-height: 620px;
+    }
+
+    .hero-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      width: fit-content;
+    }
+
+    .hero-title {
+      font-size: 62px;
+      line-height: 0.98;
+      letter-spacing: -0.05em;
+      margin: 16px 0 0;
+      font-weight: 900;
+      max-width: 720px;
+    }
+
+    .hero-text {
+      margin-top: 14px;
+      font-size: 17px;
+      color: var(--muted);
+      max-width: 680px;
+    }
+
+    .hero-badges {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .hero-mini {
+      border-radius: 28px;
+      padding: 18px;
+      min-height: 120px;
+    }
+
+    .hero-mini .big {
+      font-size: 28px;
+      font-weight: 900;
+      margin-top: 10px;
+    }
+
+    .login-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 460px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .install-tip {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .pill-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--soft);
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .text-link-btn {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      font-weight: 700;
+    }
+
+    .offline-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .offline-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.11);
+    }
+
+    .header-right-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .empty-box {
+      padding: 26px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .two-col-inline {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .minicard {
+      border-radius: 24px;
+      padding: 16px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .minicard .label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .minicard .value {
+      font-size: 24px;
+      margin-top: 8px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .note-strong {
+      font-weight: 800;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1320px) {
+      .stats-wrap {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .content-cols {
+        grid-template-columns: 1fr;
+      }
+
+      .login-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-panel,
+      .login-panel {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .stats-wrap {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .hero-badges {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .top-actions {
+        justify-content: flex-start;
+      }
+
+      .detail-grid,
+      .two-col-inline {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 12px;
+      }
+
+      .topbar {
+        padding: 12px 12px 0;
+      }
+
+      .bottom-nav-wrap {
+        padding: 0 12px 12px;
+      }
+
+      .stats-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-title {
+        font-size: 42px;
+      }
+
+      .section-title {
+        font-size: 24px;
+      }
+
+      .brand-title {
+        font-size: 18px;
+      }
+
+      .brand-logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 18px;
+        font-size: 20px;
+      }
+
+      .nav-item {
+        min-width: 74px;
+      }
+
+      .flash-strip {
+        bottom: 96px;
+      }
+    }
+
     @media print {
-      .no-print { display: none !important; }
-      body { background: white !important; }
-      .glass { background: white !important; border: 1px solid #ddd !important; box-shadow: none !important; }
+      .no-print,
+      .flash-strip,
+      .toast-wrap,
+      .splash {
+        display: none !important;
+      }
+
+      body {
+        background: #fff !important;
+        color: #000 !important;
+      }
+
+      .glass {
+        background: #fff !important;
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="splash">
-    <div class="text-center animate-pulseSoft px-6">
-      <div class="h-20 w-20 mx-auto rounded-[2rem] bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-500 grid place-items-center text-3xl font-black shadow-floaty">M</div>
-      <h1 class="mt-6 text-3xl sm:text-4xl font-black tracking-tight">Masoi Village Dukan</h1>
-      <p class="mt-3 text-lg sm:text-xl text-slate-200">Developer: Aayush Singh</p>
+  <div id="splash" class="splash">
+    <div class="splash-core">
+      <div class="splash-ring"></div>
+      <div class="splash-ring" style="inset:28px; opacity:.55;"></div>
+      <div class="splash-orbit">
+        <div class="splash-dot"></div>
+      </div>
+      <div class="splash-logo">M</div>
     </div>
   </div>
 
-  <div id="app" class="min-h-screen opacity-0 transition-opacity duration-500"></div>
+  <div id="flashStrip" class="flash-strip">
+    <div id="flashInner" class="flash-inner"></div>
+  </div>
+
+  <div id="app" class="app-shell"></div>
 
   <script>
     const APP_CONFIG = {
-      appName: 'Masoi Village Dukan',
-      developer: 'Aayush Singh',
+      appName: "Masoi Village Dukan",
+      shortName: "Masoi Dukan",
+      developer: "Aayush Singh",
       allowedUsers: [
-        { email: 'neetu@masoi.com', password: '123456' },
-        { email: 'yashvant@masoi.com', password: 'yashvant0101' }
+        { email: "neetu@masoi.com", password: "123456", name: "Neetu" },
+        { email: "yashvant@masoi.com", password: "yashvant0101", name: "Yashvant" }
       ],
-      shops: ['Raju Ki Dukan', 'Barhu Ki Dukan', 'null'],
-      currency: '₹'
+      shops: ["Raju Ki Dukan", "Barhu Ki Dukan", "null"],
+      currency: "₹"
     };
 
     const KEYS = {
-      auth: 'masoi_auth',
-      lang: 'masoi_lang',
-      theme: 'masoi_theme',
-      data: 'masoi_entries',
-      milkData: 'masoi_milk_entries',
-      backups: 'masoi_backups',
-      prefs: 'masoi_prefs'
+      auth: "masoi_auth",
+      lang: "masoi_lang",
+      theme: "masoi_theme",
+      data: "masoi_entries",
+      milkData: "masoi_milk_entries",
+      backups: "masoi_backups",
+      shops: "masoi_shops",
+      appcache: "masoi_static_cache_v2",
+      reminderAlt: "masoi_reminder_alt"
     };
 
     const T = {
       en: {
-        appTitle: 'Masoi Village Dukan',
-        loginTitle: 'Welcome back',
-        email: 'Email',
-        password: 'Password',
-        login: 'Login',
-        logout: 'Logout',
-        invalidLogin: 'Invalid email or password.',
-        dashboard: 'Dashboard',
-        addEntry: 'Add Entry',
-        todayEntries: 'Today Entries',
-        allEntries: 'All Entries',
-        backups: 'Backups',
-        reports: 'Reports',
-        settings: 'Settings',
-        shop: 'Shop',
-        date: 'Date',
-        person: 'Person Name',
-        product: 'Product Name',
-        quantity: 'Quantity',
-        unit: 'Unit',
-        price: 'Price',
-        note: 'Note',
-        save: 'Save Entry',
-        update: 'Update Entry',
-        cancel: 'Cancel',
-        search: 'Search',
-        filterShop: 'Filter Shop',
-        fromDate: 'From Date',
-        toDate: 'To Date',
-        totalToday: 'Today Total',
-        monthTotal: 'Month Total',
-        totalEntries: 'Total Entries',
-        exportPdfDay: 'Export Day PDF',
-        exportPdfMonth: 'Export Month PDF',
-        exportExcelDay: 'Export Day Excel',
-        exportExcelMonth: 'Export Month Excel',
-        exportCsv: 'Export CSV',
-        manualBackup: 'Create Backup',
-        restoreBackup: 'Restore Backup',
-        importBackup: 'Import Backup File',
-        exportBackup: 'Download Backup File',
-        noData: 'No data found.',
-        edit: 'Edit',
-        del: 'Delete',
-        confirmDelete: 'Are you sure you want to delete this entry?',
-        language: 'Language',
-        theme: 'Theme',
-        dark: 'Dark',
-        light: 'Light',
-        summary: 'Summary',
-        unitPiece: 'Piece',
-        unitKg: 'Kg',
-        unitGram: 'Gram',
-        unitLitre: 'Litre',
-        unitMl: 'ml',
-        unitPack: 'Pack',
-        unitDozen: 'Dozen',
-        unitCustom: 'Custom',
-        customUnit: 'Custom Unit',
-        monthWise: 'Month-wise',
-        dayWise: 'Day-wise',
-        weekly: 'Weekly',
-        addShop: 'Add Shop',
-        newShopName: 'New shop name',
-        add: 'Add',
-        shopAdded: 'Shop added successfully.',
-        fillRequired: 'Please fill all required fields.',
-        saved: 'Entry saved successfully.',
-        updated: 'Entry updated successfully.',
-        deleted: 'Entry deleted successfully.',
-        backupCreated: 'Backup created successfully.',
-        backupRestored: 'Backup restored successfully.',
-        backupImported: 'Backup imported successfully.',
-        downloaded: 'Downloaded successfully.',
-        totalPrice: 'Total Price',
-        actions: 'Actions',
-        clearFilters: 'Clear Filters',
-        backupType: 'Backup Type',
-        autoBackups: 'Automatic backups',
-        day: 'Day',
-        week: 'Week',
-        month: 'Month',
-        createdAt: 'Created At',
-        restore: 'Restore',
-        download: 'Download',
-        records: 'Records',
-        selectedMonth: 'Selected Month',
-        selectedDay: 'Selected Day',
-        itemBreakdown: 'Item Breakdown',
-        shopBreakdown: 'Shop Breakdown',
-        amountByPerson: 'Amount by Person',
-        home: 'Home',
-        ledger: 'Ledger',
-        dailyBackup: 'Daily backup',
-        weeklyBackup: 'Weekly backup',
-        monthlyBackup: 'Monthly backup',
-        backupList: 'Saved backups',
-        close: 'Close',
-        entryDetails: 'Entry Details',
-        milk: 'Milk',
-        milkSection: 'Milk Record',
-        milkEntries: 'Milk Entries',
-        milkToday: 'Today Milk',
-        milkMonth: 'Month Milk',
-        litres: 'Litres',
-        litresShort: 'L',
-        milkType: 'Type',
-        milkGive: 'Giving',
-        milkTake: 'Taking',
-        totalGiven: 'Total Giving',
-        totalTaken: 'Total Taking',
-        netMilk: 'Net Milk',
-        exportMilkPdfDay: 'Milk Day PDF',
-        exportMilkPdfMonth: 'Milk Month PDF',
-        exportMilkExcelDay: 'Milk Day Excel',
-        exportMilkExcelMonth: 'Milk Month Excel',
-        confirmDeleteMilk: 'Are you sure you want to delete this milk entry?',
-        milkSaved: 'Milk entry saved successfully.',
-        milkUpdated: 'Milk entry updated successfully.',
-        milkDeleted: 'Milk entry deleted successfully.',
-        developedBy: 'Developer'
+        appTitle: "Masoi Village Dukan",
+        loginTitle: "Welcome back",
+        email: "Email",
+        password: "Password",
+        login: "Login",
+        logout: "Logout",
+        invalidLogin: "Invalid email or password.",
+        dashboard: "Dashboard",
+        addEntry: "Add Entry",
+        todayEntries: "Today Entries",
+        allEntries: "All Entries",
+        backups: "Backups",
+        reports: "Reports",
+        settings: "Settings",
+        shop: "Shop",
+        date: "Date",
+        person: "Person Name",
+        product: "Product Name",
+        quantity: "Quantity",
+        unit: "Unit",
+        price: "Price",
+        note: "Note",
+        save: "Save Entry",
+        update: "Update Entry",
+        cancel: "Cancel",
+        search: "Search",
+        filterShop: "Filter Shop",
+        fromDate: "From Date",
+        toDate: "To Date",
+        totalToday: "Today Total",
+        monthTotal: "Month Total",
+        totalEntries: "Total Entries",
+        exportPdfDay: "Export Day PDF",
+        exportPdfMonth: "Export Month PDF",
+        exportExcelDay: "Export Day Excel",
+        exportExcelMonth: "Export Month Excel",
+        exportCsv: "Export CSV",
+        manualBackup: "Create Backup",
+        restoreBackup: "Restore Backup",
+        importBackup: "Import Backup File",
+        exportBackup: "Download Backup File",
+        noData: "No data found.",
+        edit: "Edit",
+        del: "Delete",
+        confirmDelete: "Are you sure you want to delete this entry?",
+        language: "Language",
+        theme: "Theme",
+        dark: "Dark",
+        light: "Light",
+        summary: "Summary",
+        unitPiece: "Piece",
+        unitKg: "Kg",
+        unitGram: "Gram",
+        unitLitre: "Litre",
+        unitMl: "ml",
+        unitPack: "Pack",
+        unitDozen: "Dozen",
+        unitCustom: "Custom",
+        customUnit: "Custom Unit",
+        monthWise: "Month-wise",
+        dayWise: "Day-wise",
+        weekly: "Weekly",
+        addShop: "Add Shop",
+        newShopName: "New shop name",
+        add: "Add",
+        shopAdded: "Shop added successfully.",
+        fillRequired: "Please fill all required fields.",
+        saved: "Entry saved successfully.",
+        updated: "Entry updated successfully.",
+        deleted: "Entry deleted successfully.",
+        backupCreated: "Backup created successfully.",
+        backupRestored: "Backup restored successfully.",
+        backupImported: "Backup imported successfully.",
+        downloaded: "Downloaded successfully.",
+        totalPrice: "Total Price",
+        actions: "Actions",
+        clearFilters: "Clear Filters",
+        backupType: "Backup Type",
+        autoBackups: "Automatic backups",
+        day: "Day",
+        week: "Week",
+        month: "Month",
+        createdAt: "Created At",
+        restore: "Restore",
+        download: "Download",
+        records: "Records",
+        selectedMonth: "Selected Month",
+        selectedDay: "Selected Day",
+        itemBreakdown: "Item Breakdown",
+        shopBreakdown: "Shop Breakdown",
+        amountByPerson: "Amount by Person",
+        home: "Home",
+        ledger: "Ledger",
+        dailyBackup: "Daily backup",
+        weeklyBackup: "Weekly backup",
+        monthlyBackup: "Monthly backup",
+        backupList: "Saved backups",
+        close: "Close",
+        entryDetails: "Entry Details",
+        milk: "Milk",
+        milkSection: "Milk Record",
+        milkEntries: "Milk Entries",
+        milkToday: "Today Milk",
+        milkMonth: "Month Milk",
+        litres: "Litres",
+        litresShort: "L",
+        milkType: "Type",
+        milkGive: "Giving",
+        milkTake: "Taking",
+        totalGiven: "Total Giving",
+        totalTaken: "Total Taking",
+        netMilk: "Net Milk",
+        exportMilkPdfDay: "Milk Day PDF",
+        exportMilkPdfMonth: "Milk Month PDF",
+        exportMilkExcelDay: "Milk Day Excel",
+        exportMilkExcelMonth: "Milk Month Excel",
+        confirmDeleteMilk: "Are you sure you want to delete this milk entry?",
+        milkSaved: "Milk entry saved successfully.",
+        milkUpdated: "Milk entry updated successfully.",
+        milkDeleted: "Milk entry deleted successfully.",
+        developedBy: "Developer",
+        installApp: "Install App",
+        offlineReady: "Offline Ready",
+        user: "User",
+        printPdf: "Print / Save PDF",
+        installHint: "For app-like use: open in Chrome, use Add to Home Screen or Install App.",
+        reminderEn: "Did you save today's transactions?",
+        reminderHi: "क्या आपने आज की लेन-देन सेव की?",
+        exportDone: "Export is ready.",
+        appInstalled: "App shortcut created where supported.",
+        importError: "Invalid backup file.",
+        online: "Online",
+        offline: "Offline",
+        appLoaded: "App loaded successfully."
       },
       hi: {
-        appTitle: 'मसोई विलेज दुकान',
-        loginTitle: 'फिर से स्वागत है',
-        email: 'ईमेल',
-        password: 'पासवर्ड',
-        login: 'लॉगिन',
-        logout: 'लॉगआउट',
-        invalidLogin: 'ईमेल या पासवर्ड गलत है।',
-        dashboard: 'डैशबोर्ड',
-        addEntry: 'नई एंट्री',
-        todayEntries: 'आज की एंट्री',
-        allEntries: 'सभी एंट्री',
-        backups: 'बैकअप',
-        reports: 'रिपोर्ट',
-        settings: 'सेटिंग्स',
-        shop: 'दुकान',
-        date: 'तारीख',
-        person: 'व्यक्ति का नाम',
-        product: 'सामान का नाम',
-        quantity: 'मात्रा',
-        unit: 'यूनिट',
-        price: 'कीमत',
-        note: 'नोट',
-        save: 'एंट्री सेव करें',
-        update: 'एंट्री अपडेट करें',
-        cancel: 'रद्द करें',
-        search: 'खोजें',
-        filterShop: 'दुकान फ़िल्टर',
-        fromDate: 'कब से',
-        toDate: 'कब तक',
-        totalToday: 'आज का कुल',
-        monthTotal: 'महीने का कुल',
-        totalEntries: 'कुल एंट्री',
-        exportPdfDay: 'दिन का PDF',
-        exportPdfMonth: 'महीने का PDF',
-        exportExcelDay: 'दिन का Excel',
-        exportExcelMonth: 'महीने का Excel',
-        exportCsv: 'CSV एक्सपोर्ट',
-        manualBackup: 'बैकअप बनाएं',
-        restoreBackup: 'बैकअप वापस लाएँ',
-        importBackup: 'बैकअप फ़ाइल इम्पोर्ट करें',
-        exportBackup: 'बैकअप फ़ाइल डाउनलोड करें',
-        noData: 'कोई डेटा नहीं मिला।',
-        edit: 'एडिट',
-        del: 'डिलीट',
-        confirmDelete: 'क्या आप इस एंट्री को हटाना चाहते हैं?',
-        language: 'भाषा',
-        theme: 'थीम',
-        dark: 'डार्क',
-        light: 'लाइट',
-        summary: 'सारांश',
-        unitPiece: 'पीस',
-        unitKg: 'किलो',
-        unitGram: 'ग्राम',
-        unitLitre: 'लीटर',
-        unitMl: 'एमएल',
-        unitPack: 'पैक',
-        unitDozen: 'दर्जन',
-        unitCustom: 'अन्य',
-        customUnit: 'कस्टम यूनिट',
-        monthWise: 'महीना अनुसार',
-        dayWise: 'दिन अनुसार',
-        weekly: 'साप्ताहिक',
-        addShop: 'दुकान जोड़ें',
-        newShopName: 'नई दुकान का नाम',
-        add: 'जोड़ें',
-        shopAdded: 'दुकान सफलतापूर्वक जुड़ गई।',
-        fillRequired: 'कृपया सभी जरूरी जानकारी भरें।',
-        saved: 'एंट्री सफलतापूर्वक सेव हुई।',
-        updated: 'एंट्री सफलतापूर्वक अपडेट हुई।',
-        deleted: 'एंट्री सफलतापूर्वक हटाई गई।',
-        backupCreated: 'बैकअप सफलतापूर्वक बन गया।',
-        backupRestored: 'बैकअप सफलतापूर्वक वापस लाया गया।',
-        backupImported: 'बैकअप सफलतापूर्वक इम्पोर्ट हुआ।',
-        downloaded: 'सफलतापूर्वक डाउनलोड हुआ।',
-        totalPrice: 'कुल कीमत',
-        actions: 'एक्शन',
-        clearFilters: 'फ़िल्टर हटाएँ',
-        backupType: 'बैकअप प्रकार',
-        autoBackups: 'ऑटो बैकअप',
-        day: 'दिन',
-        week: 'हफ्ता',
-        month: 'महीना',
-        createdAt: 'बनने का समय',
-        restore: 'वापस लाएँ',
-        download: 'डाउनलोड',
-        records: 'रिकॉर्ड',
-        selectedMonth: 'चुना गया महीना',
-        selectedDay: 'चुना गया दिन',
-        itemBreakdown: 'सामान अनुसार',
-        shopBreakdown: 'दुकान अनुसार',
-        amountByPerson: 'व्यक्ति अनुसार खर्च',
-        home: 'होम',
-        ledger: 'लेजर',
-        dailyBackup: 'डेली बैकअप',
-        weeklyBackup: 'वीकली बैकअप',
-        monthlyBackup: 'मंथली बैकअप',
-        backupList: 'सेव किए गए बैकअप',
-        close: 'बंद करें',
-        entryDetails: 'एंट्री विवरण',
-        milk: 'दूध',
-        milkSection: 'दूध रिकॉर्ड',
-        milkEntries: 'दूध एंट्री',
-        milkToday: 'आज का दूध',
-        milkMonth: 'महीने का दूध',
-        litres: 'लीटर',
-        litresShort: 'L',
-        milkType: 'प्रकार',
-        milkGive: 'देना',
-        milkTake: 'लेना',
-        totalGiven: 'कुल दिया',
-        totalTaken: 'कुल लिया',
-        netMilk: 'शुद्ध दूध',
-        exportMilkPdfDay: 'दूध दिन PDF',
-        exportMilkPdfMonth: 'दूध महीना PDF',
-        exportMilkExcelDay: 'दूध दिन Excel',
-        exportMilkExcelMonth: 'दूध महीना Excel',
-        confirmDeleteMilk: 'क्या आप इस दूध एंट्री को हटाना चाहते हैं?',
-        milkSaved: 'दूध एंट्री सफलतापूर्वक सेव हुई।',
-        milkUpdated: 'दूध एंट्री सफलतापूर्वक अपडेट हुई।',
-        milkDeleted: 'दूध एंट्री सफलतापूर्वक हटाई गई।',
-        developedBy: 'डेवलपर'
+        appTitle: "मसोई विलेज दुकान",
+        loginTitle: "फिर से स्वागत है",
+        email: "ईमेल",
+        password: "पासवर्ड",
+        login: "लॉगिन",
+        logout: "लॉगआउट",
+        invalidLogin: "ईमेल या पासवर्ड गलत है।",
+        dashboard: "डैशबोर्ड",
+        addEntry: "नई एंट्री",
+        todayEntries: "आज की एंट्री",
+        allEntries: "सभी एंट्री",
+        backups: "बैकअप",
+        reports: "रिपोर्ट",
+        settings: "सेटिंग्स",
+        shop: "दुकान",
+        date: "तारीख",
+        person: "व्यक्ति का नाम",
+        product: "सामान का नाम",
+        quantity: "मात्रा",
+        unit: "यूनिट",
+        price: "कीमत",
+        note: "नोट",
+        save: "एंट्री सेव करें",
+        update: "एंट्री अपडेट करें",
+        cancel: "रद्द करें",
+        search: "खोजें",
+        filterShop: "दुकान फ़िल्टर",
+        fromDate: "कब से",
+        toDate: "कब तक",
+        totalToday: "आज का कुल",
+        monthTotal: "महीने का कुल",
+        totalEntries: "कुल एंट्री",
+        exportPdfDay: "दिन का PDF",
+        exportPdfMonth: "महीने का PDF",
+        exportExcelDay: "दिन का Excel",
+        exportExcelMonth: "महीने का Excel",
+        exportCsv: "CSV एक्सपोर्ट",
+        manualBackup: "बैकअप बनाएं",
+        restoreBackup: "बैकअप वापस लाएँ",
+        importBackup: "बैकअप फ़ाइल इम्पोर्ट करें",
+        exportBackup: "बैकअप फ़ाइल डाउनलोड करें",
+        noData: "कोई डेटा नहीं मिला।",
+        edit: "एडिट",
+        del: "डिलीट",
+        confirmDelete: "क्या आप इस एंट्री को हटाना चाहते हैं?",
+        language: "भाषा",
+        theme: "थीम",
+        dark: "डार्क",
+        light: "लाइट",
+        summary: "सारांश",
+        unitPiece: "पीस",
+        unitKg: "किलो",
+        unitGram: "ग्राम",
+        unitLitre: "लीटर",
+        unitMl: "एमएल",
+        unitPack: "पैक",
+        unitDozen: "दर्जन",
+        unitCustom: "अन्य",
+        customUnit: "कस्टम यूनिट",
+        monthWise: "महीना अनुसार",
+        dayWise: "दिन अनुसार",
+        weekly: "साप्ताहिक",
+        addShop: "दुकान जोड़ें",
+        newShopName: "नई दुकान का नाम",
+        add: "जोड़ें",
+        shopAdded: "दुकान सफलतापूर्वक जुड़ गई।",
+        fillRequired: "कृपया सभी जरूरी जानकारी भरें।",
+        saved: "एंट्री सफलतापूर्वक सेव हुई।",
+        updated: "एंट्री सफलतापूर्वक अपडेट हुई।",
+        deleted: "एंट्री सफलतापूर्वक हटाई गई।",
+        backupCreated: "बैकअप सफलतापूर्वक बन गया।",
+        backupRestored: "बैकअप सफलतापूर्वक वापस लाया गया।",
+        backupImported: "बैकअप सफलतापूर्वक इम्पोर्ट हुआ।",
+        downloaded: "सफलतापूर्वक डाउनलोड हुआ।",
+        totalPrice: "कुल कीमत",
+        actions: "एक्शन",
+        clearFilters: "फ़िल्टर हटाएँ",
+        backupType: "बैकअप प्रकार",
+        autoBackups: "ऑटो बैकअप",
+        day: "दिन",
+        week: "हफ्ता",
+        month: "महीना",
+        createdAt: "बनने का समय",
+        restore: "वापस लाएँ",
+        download: "डाउनलोड",
+        records: "रिकॉर्ड",
+        selectedMonth: "चुना गया महीना",
+        selectedDay: "चुना गया दिन",
+        itemBreakdown: "सामान अनुसार",
+        shopBreakdown: "दुकान अनुसार",
+        amountByPerson: "व्यक्ति अनुसार खर्च",
+        home: "होम",
+        ledger: "लेजर",
+        dailyBackup: "डेली बैकअप",
+        weeklyBackup: "वीकली बैकअप",
+        monthlyBackup: "मंथली बैकअप",
+        backupList: "सेव किए गए बैकअप",
+        close: "बंद करें",
+        entryDetails: "एंट्री विवरण",
+        milk: "दूध",
+        milkSection: "दूध रिकॉर्ड",
+        milkEntries: "दूध एंट्री",
+        milkToday: "आज का दूध",
+        milkMonth: "महीने का दूध",
+        litres: "लीटर",
+        litresShort: "L",
+        milkType: "प्रकार",
+        milkGive: "देना",
+        milkTake: "लेना",
+        totalGiven: "कुल दिया",
+        totalTaken: "कुल लिया",
+        netMilk: "शुद्ध दूध",
+        exportMilkPdfDay: "दूध दिन PDF",
+        exportMilkPdfMonth: "दूध महीना PDF",
+        exportMilkExcelDay: "दूध दिन Excel",
+        exportMilkExcelMonth: "दूध महीना Excel",
+        confirmDeleteMilk: "क्या आप इस दूध एंट्री को हटाना चाहते हैं?",
+        milkSaved: "दूध एंट्री सफलतापूर्वक सेव हुई।",
+        milkUpdated: "दूध एंट्री सफलतापूर्वक अपडेट हुई।",
+        milkDeleted: "दूध एंट्री सफलतापूर्वक हटाई गई।",
+        developedBy: "डेवलपर",
+        installApp: "ऐप इंस्टॉल",
+        offlineReady: "ऑफलाइन तैयार",
+        user: "यूज़र",
+        printPdf: "प्रिंट / PDF सेव",
+        installHint: "ऐप जैसा चलाने के लिए Chrome में Add to Home Screen या Install App इस्तेमाल करें।",
+        reminderEn: "Did you save today's transactions?",
+        reminderHi: "क्या आपने आज की लेन-देन सेव की?",
+        exportDone: "एक्सपोर्ट तैयार है।",
+        appInstalled: "जहाँ सपोर्ट होगा वहाँ ऐप शॉर्टकट बन जाएगा।",
+        importError: "बैकअप फ़ाइल सही नहीं है।",
+        online: "ऑनलाइन",
+        offline: "ऑफलाइन",
+        appLoaded: "ऐप सफलतापूर्वक लोड हो गया।"
       }
     };
 
     const $ = (sel, root = document) => root.querySelector(sel);
     const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
     const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
-    const todayStr = () => new Date().toISOString().slice(0, 10);
-    const monthStr = (d = new Date()) => d.toISOString().slice(0, 7);
-    const weekKey = (dateStr) => {
-      const d = new Date(dateStr + 'T00:00:00');
-      const onejan = new Date(d.getFullYear(), 0, 1);
-      const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
-      return `${d.getFullYear()}-W${String(week).padStart(2, '0')}`;
+    const todayStr = () => {
+      const d = new Date();
+      const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0, 10);
+    };
+    const monthStr = (d = new Date()) => {
+      const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0, 7);
+    };
+    const dateInputValue = (d = new Date()) => {
+      const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0, 10);
     };
     const fmtMoney = (n) => `${APP_CONFIG.currency}${Number(n || 0).toFixed(2)}`;
     const fmtLitre = (n) => `${Number(n || 0).toFixed(2)} L`;
-    const formatDateNice = (str, lang) => new Date(str + 'T00:00:00').toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
     const saveLS = (k, v) => localStorage.setItem(k, JSON.stringify(v));
     const readLS = (k, fallback) => {
       try {
-        const v = localStorage.getItem(k);
-        return v ? JSON.parse(v) : fallback;
+        const val = localStorage.getItem(k);
+        return val ? JSON.parse(val) : fallback;
       } catch {
         return fallback;
       }
     };
-    const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    const formatDateNice = (str, lang) => {
+      if (!str) return "-";
+      const d = new Date(str + "T00:00:00");
+      return d.toLocaleDateString(lang === "hi" ? "hi-IN" : "en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+    };
+    const weekKey = (dateStr) => {
+      const d = new Date(dateStr + "T00:00:00");
+      const firstDay = new Date(d.getFullYear(), 0, 1);
+      const pastDays = Math.floor((d - firstDay) / 86400000);
+      const week = Math.ceil((pastDays + firstDay.getDay() + 1) / 7);
+      return `${d.getFullYear()}-W${String(week).padStart(2, "0")}`;
+    };
 
     const state = {
-      lang: readLS(KEYS.lang, 'en'),
-      theme: readLS(KEYS.theme, 'dark'),
+      lang: readLS(KEYS.lang, "en"),
+      theme: readLS(KEYS.theme, null) || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
       auth: readLS(KEYS.auth, null),
       entries: readLS(KEYS.data, []),
       milkEntries: readLS(KEYS.milkData, []),
       backups: readLS(KEYS.backups, []),
-      shops: readLS('masoi_shops', APP_CONFIG.shops),
-      page: 'dashboard',
-      search: '',
-      filterShop: 'all',
-      fromDate: '',
-      toDate: '',
-      selectedDate: todayStr(),
+      shops: readLS(KEYS.shops, APP_CONFIG.shops),
+      page: "dashboard",
+      search: "",
+      filterShop: "all",
+      fromDate: "",
+      toDate: "",
+      selectedDate: dateInputValue(),
       selectedMonth: monthStr(),
       editingId: null,
       editingMilkId: null,
       modalEntryId: null,
       modalMilkId: null,
+      installPromptEvent: null,
+      flashTimer: null,
+      reminderAlt: readLS(KEYS.reminderAlt, "en"),
+      online: navigator.onLine
     };
 
     function tr(key) {
       return T[state.lang][key] || key;
     }
 
-    function applyTheme() {
-      document.documentElement.classList.toggle('dark', state.theme === 'dark');
-      saveLS(KEYS.theme, state.theme);
-    }
-
     function persist() {
-      saveLS(KEYS.data, state.entries);
-      saveLS(KEYS.milkData, state.milkEntries);
-      saveLS(KEYS.backups, state.backups);
-      saveLS('masoi_shops', state.shops);
       saveLS(KEYS.lang, state.lang);
       saveLS(KEYS.theme, state.theme);
       saveLS(KEYS.auth, state.auth);
+      saveLS(KEYS.data, state.entries);
+      saveLS(KEYS.milkData, state.milkEntries);
+      saveLS(KEYS.backups, state.backups);
+      saveLS(KEYS.shops, state.shops);
+      saveLS(KEYS.reminderAlt, state.reminderAlt);
     }
 
-    function toast(message, type = 'info') {
-      let wrap = $('#toast-wrap');
+    function applyTheme() {
+      document.documentElement.classList.toggle("dark", state.theme === "dark");
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", state.theme === "dark" ? "#020617" : "#0f172a");
+    }
+
+    function toast(message, type = "info") {
+      let wrap = $("#toastWrap");
       if (!wrap) {
-        wrap = document.createElement('div');
-        wrap.id = 'toast-wrap';
-        wrap.className = 'fixed top-4 right-4 z-[9999] space-y-3 max-w-sm';
+        wrap = document.createElement("div");
+        wrap.id = "toastWrap";
+        wrap.className = "toast-wrap";
         document.body.appendChild(wrap);
       }
-      const colors = {
-        info: 'from-blue-500 to-indigo-500',
-        success: 'from-green-500 to-emerald-500',
-        error: 'from-red-500 to-pink-500',
-        warning: 'from-amber-500 to-orange-500'
-      };
-      const el = document.createElement('div');
-      el.className = `text-white rounded-2xl px-4 py-3 shadow-2xl bg-gradient-to-r ${colors[type] || colors.info} animate-fadeIn`;
+      const el = document.createElement("div");
+      el.className = `toast ${type}`;
       el.textContent = message;
       wrap.appendChild(el);
       setTimeout(() => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(-6px)';
-        el.style.transition = '.25s';
-        setTimeout(() => el.remove(), 250);
+        el.style.opacity = "0";
+        el.style.transform = "translateY(-6px)";
+        el.style.transition = "0.24s ease";
+        setTimeout(() => el.remove(), 240);
       }, 2400);
+    }
+
+    function showFlashReminder() {
+      const strip = $("#flashStrip");
+      const inner = $("#flashInner");
+      if (!strip || !inner || !state.auth) return;
+      const nextText = state.reminderAlt === "en" ? tr("reminderEn") : tr("reminderHi");
+      inner.textContent = nextText;
+      strip.classList.add("show");
+      state.reminderAlt = state.reminderAlt === "en" ? "hi" : "en";
+      persist();
+      setTimeout(() => strip.classList.remove("show"), 3000);
+    }
+
+    function startReminderCycle() {
+      if (state.flashTimer) clearInterval(state.flashTimer);
+      if (!state.auth) return;
+      setTimeout(showFlashReminder, 2500);
+      state.flashTimer = setInterval(showFlashReminder, 10 * 60 * 1000);
+    }
+
+    function setInstallableMeta() {
+      try {
+        const manifest = {
+          name: APP_CONFIG.appName,
+          short_name: APP_CONFIG.shortName,
+          start_url: "./",
+          display: "standalone",
+          background_color: "#0f172a",
+          theme_color: "#0f172a",
+          orientation: "portrait-primary",
+          icons: [
+            {
+              src:
+                "data:image/svg+xml;base64," +
+                btoa(`
+                  <svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+                    <defs>
+                      <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+                        <stop offset="0%" stop-color="#2563eb"/>
+                        <stop offset="100%" stop-color="#7c3aed"/>
+                      </linearGradient>
+                    </defs>
+                    <rect width="192" height="192" rx="42" fill="url(#g)"/>
+                    <text x="50%" y="56%" text-anchor="middle" font-size="92" font-family="Arial, sans-serif" font-weight="900" fill="white">M</text>
+                  </svg>
+                `),
+              sizes: "192x192",
+              type: "image/svg+xml",
+              purpose: "any maskable"
+            }
+          ]
+        };
+        const blob = new Blob([JSON.stringify(manifest)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        let link = document.querySelector('link[rel="manifest"]');
+        if (!link) {
+          link = document.createElement("link");
+          link.rel = "manifest";
+          document.head.appendChild(link);
+        }
+        link.href = url;
+      } catch {}
+    }
+
+    function cacheStaticForOffline() {
+      try {
+        saveLS(KEYS.appcache, {
+          savedAt: new Date().toISOString(),
+          html: document.documentElement.outerHTML
+        });
+      } catch {}
+    }
+
+    function getUserName() {
+      if (!state.auth?.email) return "";
+      const found = APP_CONFIG.allowedUsers.find(u => u.email.toLowerCase() === String(state.auth.email).toLowerCase());
+      if (found?.name) return found.name;
+      const left = String(state.auth.email).split("@")[0] || "";
+      return left.charAt(0).toUpperCase() + left.slice(1);
     }
 
     function getEntriesFiltered() {
       return state.entries.filter(e => {
         const q = state.search.trim().toLowerCase();
-        const matchQ = !q || [e.shop, e.person, e.product, e.note, e.unit].some(v => String(v || '').toLowerCase().includes(q));
-        const matchShop = state.filterShop === 'all' || e.shop === state.filterShop;
+        const matchQ =
+          !q ||
+          [e.shop, e.person, e.product, e.note, e.unit].some(v =>
+            String(v || "").toLowerCase().includes(q)
+          );
+        const matchShop = state.filterShop === "all" || e.shop === state.filterShop;
         const matchFrom = !state.fromDate || e.date >= state.fromDate;
         const matchTo = !state.toDate || e.date <= state.toDate;
         return matchQ && matchShop && matchFrom && matchTo;
-      }).sort((a, b) => (b.date + b.createdAt).localeCompare(a.date + a.createdAt));
+      }).sort((a, b) => (b.date + (b.createdAt || "")).localeCompare(a.date + (a.createdAt || "")));
     }
 
     function getMilkEntriesFiltered() {
       return state.milkEntries.filter(e => {
         const q = state.search.trim().toLowerCase();
-        const matchQ = !q || [e.shop, e.person, e.type, e.note].some(v => String(v || '').toLowerCase().includes(q));
-        const matchShop = state.filterShop === 'all' || e.shop === state.filterShop;
+        const matchQ =
+          !q ||
+          [e.shop, e.person, e.type, e.note].some(v =>
+            String(v || "").toLowerCase().includes(q)
+          );
+        const matchShop = state.filterShop === "all" || e.shop === state.filterShop;
         const matchFrom = !state.fromDate || e.date >= state.fromDate;
         const matchTo = !state.toDate || e.date <= state.toDate;
         return matchQ && matchShop && matchFrom && matchTo;
-      }).sort((a, b) => (b.date + b.createdAt).localeCompare(a.date + a.createdAt));
+      }).sort((a, b) => (b.date + (b.createdAt || "")).localeCompare(a.date + (a.createdAt || "")));
     }
 
     function getTodayEntries() {
-      return state.entries.filter(e => e.date === state.selectedDate).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      return state.entries
+        .filter(e => e.date === state.selectedDate)
+        .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
     }
 
     function getTodayMilkEntries() {
-      return state.milkEntries.filter(e => e.date === state.selectedDate).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      return state.milkEntries
+        .filter(e => e.date === state.selectedDate)
+        .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
     }
 
     function getMonthEntries() {
-      return state.entries.filter(e => e.date.startsWith(state.selectedMonth)).sort((a, b) => (a.date + a.createdAt).localeCompare(b.date + b.createdAt));
+      return state.entries
+        .filter(e => e.date.startsWith(state.selectedMonth))
+        .sort((a, b) => (a.date + (a.createdAt || "")).localeCompare(b.date + (b.createdAt || "")));
     }
 
     function getMonthMilkEntries() {
-      return state.milkEntries.filter(e => e.date.startsWith(state.selectedMonth)).sort((a, b) => (a.date + a.createdAt).localeCompare(b.date + b.createdAt));
+      return state.milkEntries
+        .filter(e => e.date.startsWith(state.selectedMonth))
+        .sort((a, b) => (a.date + (a.createdAt || "")).localeCompare(b.date + (b.createdAt || "")));
     }
 
     function totalOf(entries) {
@@ -595,8 +1720,8 @@
     function milkTotals(entries) {
       return entries.reduce((acc, e) => {
         const litres = Number(e.litres || 0);
-        if (e.type === 'give') acc.give += litres;
-        if (e.type === 'take') acc.take += litres;
+        if (e.type === "give") acc.give += litres;
+        if (e.type === "take") acc.take += litres;
         acc.net = acc.give - acc.take;
         return acc;
       }, { give: 0, take: 0, net: 0 });
@@ -605,73 +1730,72 @@
     function summarizeBy(entries, key) {
       const map = new Map();
       entries.forEach(e => map.set(e[key], (map.get(e[key]) || 0) + Number(e.price || 0)));
-      return [...map.entries()].sort((a,b) => b[1]-a[1]);
+      return [...map.entries()].sort((a, b) => b[1] - a[1]);
     }
 
     function summarizeMilkBy(entries, key) {
       const map = new Map();
       entries.forEach(e => map.set(e[key], (map.get(e[key]) || 0) + Number(e.litres || 0)));
-      return [...map.entries()].sort((a,b) => b[1]-a[1]);
+      return [...map.entries()].sort((a, b) => b[1] - a[1]);
     }
 
     function autoBackupIfNeeded(entryDate) {
       const now = new Date().toISOString();
       const dailyId = `day:${entryDate}`;
       const weeklyId = `week:${weekKey(entryDate)}`;
-      const monthlyId = `month:${entryDate.slice(0,7)}`;
+      const monthlyId = `month:${entryDate.slice(0, 7)}`;
 
       const existingIds = new Set(state.backups.map(b => b.ref));
+
       const shopDataByDay = state.entries.filter(e => e.date === entryDate);
       const shopDataByWeek = state.entries.filter(e => weekKey(e.date) === weekKey(entryDate));
-      const shopDataByMonth = state.entries.filter(e => e.date.startsWith(entryDate.slice(0,7)));
+      const shopDataByMonth = state.entries.filter(e => e.date.startsWith(entryDate.slice(0, 7)));
 
       const milkDataByDay = state.milkEntries.filter(e => e.date === entryDate);
       const milkDataByWeek = state.milkEntries.filter(e => weekKey(e.date) === weekKey(entryDate));
-      const milkDataByMonth = state.milkEntries.filter(e => e.date.startsWith(entryDate.slice(0,7)));
+      const milkDataByMonth = state.milkEntries.filter(e => e.date.startsWith(entryDate.slice(0, 7)));
 
       if (!existingIds.has(dailyId) && (shopDataByDay.length || milkDataByDay.length)) {
-        state.backups.unshift({ id: uid(), ref: dailyId, type: 'day', label: entryDate, createdAt: now, data: shopDataByDay, milkData: milkDataByDay });
+        state.backups.unshift({
+          id: uid(),
+          ref: dailyId,
+          type: "day",
+          label: entryDate,
+          createdAt: now,
+          data: shopDataByDay,
+          milkData: milkDataByDay
+        });
       }
+
       if (!existingIds.has(weeklyId) && (shopDataByWeek.length || milkDataByWeek.length)) {
-        state.backups.unshift({ id: uid(), ref: weeklyId, type: 'week', label: weekKey(entryDate), createdAt: now, data: shopDataByWeek, milkData: milkDataByWeek });
+        state.backups.unshift({
+          id: uid(),
+          ref: weeklyId,
+          type: "week",
+          label: weekKey(entryDate),
+          createdAt: now,
+          data: shopDataByWeek,
+          milkData: milkDataByWeek
+        });
       }
+
       if (!existingIds.has(monthlyId) && (shopDataByMonth.length || milkDataByMonth.length)) {
-        state.backups.unshift({ id: uid(), ref: monthlyId, type: 'month', label: entryDate.slice(0,7), createdAt: now, data: shopDataByMonth, milkData: milkDataByMonth });
+        state.backups.unshift({
+          id: uid(),
+          ref: monthlyId,
+          type: "month",
+          label: entryDate.slice(0, 7),
+          createdAt: now,
+          data: shopDataByMonth,
+          milkData: milkDataByMonth
+        });
       }
 
       state.backups = state.backups.slice(0, 100);
     }
 
-    function entryRows(entries) {
-      return entries.map((e, i) => ({
-        '#': i + 1,
-        Date: e.date,
-        Shop: e.shop,
-        Person: e.person,
-        Product: e.product,
-        Quantity: e.quantity,
-        Unit: e.unit,
-        Price: Number(e.price),
-        Note: e.note || '',
-        CreatedAt: e.createdAt
-      }));
-    }
-
-    function milkRows(entries) {
-      return entries.map((e, i) => ({
-        '#': i + 1,
-        Date: e.date,
-        Shop: e.shop,
-        Person: e.person,
-        Type: e.type === 'give' ? 'Giving' : 'Taking',
-        Litres: Number(e.litres),
-        Note: e.note || '',
-        CreatedAt: e.createdAt
-      }));
-    }
-
     function downloadBlob(filename, blob) {
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = filename;
       document.body.appendChild(a);
@@ -679,97 +1803,140 @@
       setTimeout(() => {
         URL.revokeObjectURL(a.href);
         a.remove();
-      }, 300);
-      toast(tr('downloaded'), 'success');
+      }, 400);
+      toast(tr("downloaded"), "success");
     }
 
-    function exportExcel(entries, filename, mode = 'ledger') {
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(mode === 'milk' ? milkRows(entries) : entryRows(entries));
-      XLSX.utils.book_append_sheet(wb, ws, mode === 'milk' ? 'Milk' : 'Ledger');
-      const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      downloadBlob(filename, new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+    function toCSV(rows) {
+      if (!rows.length) return "";
+      const headers = Object.keys(rows[0]);
+      const escape = (v) => {
+        const s = String(v ?? "");
+        if (/[,"\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+        return s;
+      };
+      return [
+        headers.map(escape).join(","),
+        ...rows.map(r => headers.map(h => escape(r[h])).join(","))
+      ].join("\n");
     }
 
-    function exportCSV(entries, filename, mode = 'ledger') {
-      const ws = XLSX.utils.json_to_sheet(mode === 'milk' ? milkRows(entries) : entryRows(entries));
-      const csv = XLSX.utils.sheet_to_csv(ws);
-      downloadBlob(filename, new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+    function entryRows(entries) {
+      return entries.map((e, i) => ({
+        "#": i + 1,
+        Date: e.date,
+        Shop: e.shop,
+        Person: e.person,
+        Product: e.product,
+        Quantity: e.quantity,
+        Unit: e.unit,
+        Price: Number(e.price),
+        Note: e.note || "",
+        CreatedAt: e.createdAt || ""
+      }));
     }
 
-    async function exportPdf(entries, title, filename, mode = 'ledger') {
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('p', 'pt', 'a4');
-      const margin = 28;
-      let y = 48;
+    function milkRows(entries) {
+      return entries.map((e, i) => ({
+        "#": i + 1,
+        Date: e.date,
+        Shop: e.shop,
+        Person: e.person,
+        Type: e.type === "give" ? "Giving" : "Taking",
+        Litres: Number(e.litres),
+        Note: e.note || "",
+        CreatedAt: e.createdAt || ""
+      }));
+    }
 
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(16);
-      pdf.text(title, margin, y);
-      y += 20;
+    function exportCSV(entries, filename, mode = "ledger") {
+      const rows = mode === "milk" ? milkRows(entries) : entryRows(entries);
+      const csv = toCSV(rows);
+      downloadBlob(filename, new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+    }
 
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(10);
-      pdf.text(`Generated: ${new Date().toLocaleString()}`, margin, y);
-      y += 16;
-      pdf.text(`Total Records: ${entries.length}`, margin, y);
-      y += 16;
-
-      if (mode === 'milk') {
-        const mt = milkTotals(entries);
-        pdf.text(`Giving: ${fmtLitre(mt.give)}   Taking: ${fmtLitre(mt.take)}   Net: ${fmtLitre(mt.net)}`, margin, y);
-        y += 24;
-
-        const headers = ['Date', 'Shop', 'Person', 'Type', 'Litres', 'Note'];
-        const rows = entries.map(e => [e.date, e.shop, e.person, e.type === 'give' ? tr('milkGive') : tr('milkTake'), fmtLitre(e.litres), e.note || '']);
-        const colWidths = [60, 78, 75, 60, 55, 180];
-        const rowHeight = 18;
-
-        function drawRow(values, isHeader = false) {
-          let x = margin;
-          pdf.setFont('helvetica', isHeader ? 'bold' : 'normal');
-          values.forEach((v, idx) => {
-            pdf.rect(x, y - 12, colWidths[idx], rowHeight);
-            pdf.text(String(v).slice(0, idx === 5 ? 34 : 18), x + 4, y);
-            x += colWidths[idx];
-          });
-          y += rowHeight;
-          if (y > 770) {
-            pdf.addPage();
-            y = 50;
-          }
-        }
-        drawRow(headers, true);
-        rows.forEach(r => drawRow(r));
-      } else {
-        pdf.text(`Total Amount: ${fmtMoney(totalOf(entries))}`, margin, y);
-        y += 24;
-
-        const headers = ['Date', 'Shop', 'Person', 'Product', 'Qty', 'Unit', 'Price'];
-        const rows = entries.map(e => [e.date, e.shop, e.person, e.product, String(e.quantity), e.unit, fmtMoney(e.price)]);
-        const colWidths = [60, 78, 70, 100, 36, 40, 60];
-        const rowHeight = 18;
-
-        function drawRow(values, isHeader = false) {
-          let x = margin;
-          pdf.setFont('helvetica', isHeader ? 'bold' : 'normal');
-          values.forEach((v, idx) => {
-            pdf.rect(x, y - 12, colWidths[idx], rowHeight);
-            pdf.text(String(v).slice(0, 18), x + 4, y);
-            x += colWidths[idx];
-          });
-          y += rowHeight;
-          if (y > 770) {
-            pdf.addPage();
-            y = 50;
-          }
-        }
-        drawRow(headers, true);
-        rows.forEach(r => drawRow(r));
+    function exportExcel(entries, filename, mode = "ledger") {
+      const rows = mode === "milk" ? milkRows(entries) : entryRows(entries);
+      if (!rows.length) {
+        toast(tr("noData"), "warning");
+        return;
       }
+      const headers = Object.keys(rows[0]);
+      const html = `
+        <html>
+          <head><meta charset="utf-8"></head>
+          <body>
+            <table border="1">
+              <tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join("")}</tr>
+              ${rows.map(r => `<tr>${headers.map(h => `<td>${escapeHtml(r[h])}</td>`).join("")}</tr>`).join("")}
+            </table>
+          </body>
+        </html>
+      `;
+      downloadBlob(
+        filename,
+        new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" })
+      );
+    }
 
-      pdf.save(filename);
-      toast(tr('downloaded'), 'success');
+    function printReport(entries, title, mode = "ledger") {
+      const rows = mode === "milk" ? milkRows(entries) : entryRows(entries);
+      const totalsText =
+        mode === "milk"
+          ? (() => {
+              const mt = milkTotals(entries);
+              return `
+                <div style="margin:12px 0 20px;font-size:14px;">
+                  <strong>${tr("totalGiven")}:</strong> ${fmtLitre(mt.give)} &nbsp; | &nbsp;
+                  <strong>${tr("totalTaken")}:</strong> ${fmtLitre(mt.take)} &nbsp; | &nbsp;
+                  <strong>${tr("netMilk")}:</strong> ${fmtLitre(mt.net)}
+                </div>
+              `;
+            })()
+          : `
+            <div style="margin:12px 0 20px;font-size:14px;">
+              <strong>${tr("totalPrice")}:</strong> ${fmtMoney(totalOf(entries))}
+            </div>
+          `;
+
+      const headers = rows.length ? Object.keys(rows[0]) : [];
+      const tableHtml = rows.length
+        ? `
+          <table style="width:100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+              <tr>${headers.map(h => `<th style="border:1px solid #ddd;padding:8px;text-align:left;background:#f4f4f5;">${escapeHtml(h)}</th>`).join("")}</tr>
+            </thead>
+            <tbody>
+              ${rows.map(r => `<tr>${headers.map(h => `<td style="border:1px solid #ddd;padding:8px;vertical-align:top;">${escapeHtml(r[h])}</td>`).join("")}</tr>`).join("")}
+            </tbody>
+          </table>
+        `
+        : `<div style="padding:24px 0;color:#666;">${escapeHtml(tr("noData"))}</div>`;
+
+      const win = window.open("", "_blank", "width=1200,height=900");
+      if (!win) {
+        toast(tr("exportDone"), "success");
+        return;
+      }
+      win.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8" />
+            <title>${escapeHtml(title)}</title>
+          </head>
+          <body style="font-family:Arial,sans-serif;padding:26px;color:#111;">
+            <h1 style="margin:0 0 8px;">${escapeHtml(title)}</h1>
+            <div style="font-size:12px;color:#555;">Generated: ${new Date().toLocaleString()}</div>
+            ${totalsText}
+            ${tableHtml}
+            <script>
+              setTimeout(function(){ window.print(); }, 300);
+            <\/script>
+          </body>
+        </html>
+      `);
+      win.document.close();
     }
 
     function exportBackupFile() {
@@ -782,657 +1949,351 @@
         backups: state.backups,
         shops: state.shops
       };
-      downloadBlob(`masoi-backup-${todayStr()}.json`, new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+      downloadBlob(
+        `masoi-backup-${todayStr()}.json`,
+        new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" })
+      );
     }
 
-    function StatCard(title, value, icon, sub = '') {
+    function statCard(title, value, icon, sub = "") {
       return `
-        <div class="glass card-3d rounded-3xl p-5 shadow-soft animate-fadeIn">
-          <div class="flex items-start justify-between gap-4">
+        <div class="glass stat-card card-3d">
+          <div class="stat-top">
             <div>
-              <div class="text-sm text-slate-500 dark:text-slate-300">${escapeHtml(title)}</div>
-              <div class="text-2xl sm:text-3xl font-bold mt-2 tracking-tight">${escapeHtml(value)}</div>
-              ${sub ? `<div class="text-xs mt-2 text-slate-500 dark:text-slate-400">${escapeHtml(sub)}</div>` : ''}
+              <div class="stat-label">${escapeHtml(title)}</div>
+              <div class="stat-value">${escapeHtml(value)}</div>
+              ${sub ? `<div class="stat-sub">${escapeHtml(sub)}</div>` : ""}
             </div>
-            <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-500 text-white flex items-center justify-center shadow-lg">${icon}</div>
+            <div class="stat-icon">${icon}</div>
           </div>
         </div>
-      `;
-    }
-
-    function TopBar() {
-      return `
-        <header class="no-print sticky top-0 z-50 px-4 pt-4">
-          <div class="glass rounded-3xl px-4 py-3 shadow-glass">
-            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div class="flex items-center gap-3">
-                <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-500 to-violet-500 text-white grid place-items-center font-bold shadow-floaty animate-floaty">M</div>
-                <div>
-                  <div class="text-xl font-bold leading-none">${tr('appTitle')}</div>
-                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">${tr('developedBy')}: ${APP_CONFIG.developer}</div>
-                </div>
-              </div>
-              <div class="flex flex-wrap items-center gap-2">
-                <button id="langToggle" class="btn-3d rounded-2xl px-3 py-2 text-sm bg-white/70 dark:bg-slate-800/80 glass">${state.lang === 'en' ? 'हिंदी' : 'English'}</button>
-                <button id="themeToggle" class="btn-3d rounded-2xl px-3 py-2 text-sm bg-white/70 dark:bg-slate-800/80 glass">${state.theme === 'dark' ? tr('light') : tr('dark')}</button>
-                <button id="logoutBtn" class="btn-3d rounded-2xl px-4 py-2 text-sm text-white bg-gradient-to-r from-rose-500 to-red-500">${tr('logout')}</button>
-              </div>
-            </div>
-          </div>
-        </header>
-      `;
-    }
-
-    function BottomNav() {
-      const tabs = [
-        ['dashboard', tr('home')],
-        ['add', tr('addEntry')],
-        ['ledger', tr('ledger')],
-        ['milk', tr('milk')],
-        ['reports', tr('reports')],
-        ['backups', tr('backups')],
-      ];
-      return `
-        <div class="no-print sticky-bottom-nav safe-area px-4 pb-4 mt-6">
-          <div class="glass rounded-3xl px-2 py-2 shadow-soft">
-            <div class="grid grid-cols-3 sm:grid-cols-6 gap-1 text-center text-xs sm:text-sm">
-              ${tabs.map(([key, label]) => `
-                <button data-nav="${key}" class="nav-btn rounded-2xl px-2 py-3 ${state.page === key ? 'bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg' : 'text-slate-600 dark:text-slate-200'}">
-                  ${escapeHtml(label)}
-                </button>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function LoginPage() {
-      return `
-        <main class="min-h-screen flex items-center justify-center p-4 page-fade">
-          <div class="w-full max-w-5xl grid lg:grid-cols-2 gap-6 items-stretch">
-            <section class="glass rounded-[2rem] p-8 shadow-glass card-3d flex flex-col justify-between">
-              <div>
-                <div class="inline-flex items-center gap-2 rounded-full px-4 py-2 bg-white/60 dark:bg-slate-800/70 text-sm shadow-soft">
-                  <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-                  ${tr('appTitle')}
-                </div>
-                <h1 class="text-4xl sm:text-5xl font-black tracking-tight mt-6 leading-tight">
-                  ${tr('appTitle')}
-                </h1>
-                <p class="mt-4 text-slate-600 dark:text-slate-300 text-base sm:text-lg">
-                  ${tr('developedBy')}: ${APP_CONFIG.developer}
-                </p>
-              </div>
-              <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                ${StatCard(tr('dailyBackup'), '24/7', 'D')}
-                ${StatCard(tr('language'), state.lang === 'en' ? 'EN / HI' : 'HI / EN', 'A')}
-                ${StatCard(tr('theme'), state.theme === 'dark' ? tr('dark') : tr('light'), 'T')}
-              </div>
-            </section>
-
-            <section class="glass rounded-[2rem] p-8 shadow-glass card-3d">
-              <div class="max-w-md mx-auto">
-                <div class="text-sm uppercase tracking-[0.25em] text-blue-600 dark:text-blue-300 font-semibold">${APP_CONFIG.appName}</div>
-                <h2 class="text-3xl font-black mt-3">${tr('loginTitle')}</h2>
-
-                <form id="loginForm" class="space-y-4 mt-8">
-                  <div>
-                    <label class="block text-sm mb-2">${tr('email')}</label>
-                    <input name="email" type="email" class="soft-input w-full rounded-2xl px-4 py-3" placeholder="admin@masoi.com" required />
-                  </div>
-                  <div>
-                    <label class="block text-sm mb-2">${tr('password')}</label>
-                    <input name="password" type="password" class="soft-input w-full rounded-2xl px-4 py-3" placeholder="******" required />
-                  </div>
-                  <button class="btn-3d w-full rounded-2xl px-5 py-3 text-white font-semibold bg-gradient-to-r from-blue-600 via-indigo-500 to-violet-500">${tr('login')}</button>
-                </form>
-
-                <div class="mt-6 flex gap-2">
-                  <button id="langToggle" class="btn-3d rounded-2xl px-4 py-2 glass">${state.lang === 'en' ? 'हिंदी' : 'English'}</button>
-                  <button id="themeToggle" class="btn-3d rounded-2xl px-4 py-2 glass">${state.theme === 'dark' ? tr('light') : tr('dark')}</button>
-                </div>
-              </div>
-            </section>
-          </div>
-        </main>
-      `;
-    }
-
-    function AddEntryForm() {
-      const editing = state.editingId ? state.entries.find(e => e.id === state.editingId) : null;
-      const selectedUnit = editing?.unit || 'Kg';
-      const isCustom = editing && !['Piece','Kg','Gram','Litre','ml','Pack','Dozen','पीस','किलो','ग्राम','लीटर','एमएल','पैक','दर्जन'].includes(editing.unit);
-      return `
-        <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d animate-fadeIn">
-          <div class="flex items-center justify-between gap-3 mb-5">
-            <div>
-              <h2 class="text-2xl font-bold">${state.editingId ? tr('update') : tr('addEntry')}</h2>
-            </div>
-            <div class="text-right">
-              <div class="text-xs text-slate-500 dark:text-slate-400">${tr('selectedDay')}</div>
-              <div class="font-semibold">${formatDateNice(state.selectedDate, state.lang)}</div>
-            </div>
-          </div>
-
-          <form id="entryForm" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-sm mb-2">${tr('shop')}</label>
-              <select name="shop" class="soft-input w-full rounded-2xl px-4 py-3" required>
-                ${state.shops.map(shop => `<option ${editing?.shop===shop?'selected':''}>${escapeHtml(shop)}</option>`).join('')}
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm mb-2">${tr('date')}</label>
-              <input name="date" type="date" value="${editing?.date || state.selectedDate}" class="soft-input w-full rounded-2xl px-4 py-3" required />
-            </div>
-            <div>
-              <label class="block text-sm mb-2">${tr('person')}</label>
-              <input name="person" type="text" value="${escapeHtml(editing?.person || '')}" class="soft-input w-full rounded-2xl px-4 py-3" required />
-            </div>
-            <div>
-              <label class="block text-sm mb-2">${tr('product')}</label>
-              <input name="product" type="text" value="${escapeHtml(editing?.product || '')}" class="soft-input w-full rounded-2xl px-4 py-3" required />
-            </div>
-            <div>
-              <label class="block text-sm mb-2">${tr('quantity')}</label>
-              <input name="quantity" type="number" step="0.01" min="0" value="${editing?.quantity || ''}" class="soft-input w-full rounded-2xl px-4 py-3" required />
-            </div>
-            <div>
-              <label class="block text-sm mb-2">${tr('unit')}</label>
-              <select id="unitSelect" name="unit" class="soft-input w-full rounded-2xl px-4 py-3" required>
-                <option value="Piece" ${selectedUnit==='Piece'?'selected':''}>${tr('unitPiece')}</option>
-                <option value="Kg" ${selectedUnit==='Kg'?'selected':''}>${tr('unitKg')}</option>
-                <option value="Gram" ${selectedUnit==='Gram'?'selected':''}>${tr('unitGram')}</option>
-                <option value="Litre" ${selectedUnit==='Litre'?'selected':''}>${tr('unitLitre')}</option>
-                <option value="ml" ${selectedUnit==='ml'?'selected':''}>${tr('unitMl')}</option>
-                <option value="Pack" ${selectedUnit==='Pack'?'selected':''}>${tr('unitPack')}</option>
-                <option value="Dozen" ${selectedUnit==='Dozen'?'selected':''}>${tr('unitDozen')}</option>
-                <option value="custom" ${isCustom?'selected':''}>${tr('unitCustom')}</option>
-              </select>
-            </div>
-            <div id="customUnitWrap" class="${isCustom ? '' : 'hidden'}">
-              <label class="block text-sm mb-2">${tr('customUnit')}</label>
-              <input name="customUnit" type="text" value="${isCustom ? escapeHtml(editing.unit) : ''}" class="soft-input w-full rounded-2xl px-4 py-3" />
-            </div>
-            <div>
-              <label class="block text-sm mb-2">${tr('price')}</label>
-              <input name="price" type="number" step="0.01" min="0" value="${editing?.price || ''}" class="soft-input w-full rounded-2xl px-4 py-3" required />
-            </div>
-            <div class="md:col-span-2 xl:col-span-4">
-              <label class="block text-sm mb-2">${tr('note')}</label>
-              <textarea name="note" rows="3" class="soft-input w-full rounded-2xl px-4 py-3">${escapeHtml(editing?.note || '')}</textarea>
-            </div>
-            <div class="md:col-span-2 xl:col-span-4 flex flex-wrap gap-3 pt-2">
-              <button class="btn-3d rounded-2xl px-5 py-3 text-white font-semibold bg-gradient-to-r from-blue-600 via-indigo-500 to-violet-500">${state.editingId ? tr('update') : tr('save')}</button>
-              ${state.editingId ? `<button type="button" id="cancelEditBtn" class="btn-3d rounded-2xl px-5 py-3 glass">${tr('cancel')}</button>` : ''}
-            </div>
-          </form>
-        </section>
-      `;
-    }
-
-    function MilkEntryForm() {
-      const editing = state.editingMilkId ? state.milkEntries.find(e => e.id === state.editingMilkId) : null;
-      return `
-        <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d animate-fadeIn">
-          <div class="flex items-center justify-between gap-3 mb-5">
-            <div>
-              <h2 class="text-2xl font-bold">${state.editingMilkId ? tr('update') : tr('milkSection')}</h2>
-            </div>
-            <div class="text-right">
-              <div class="text-xs text-slate-500 dark:text-slate-400">${tr('selectedDay')}</div>
-              <div class="font-semibold">${formatDateNice(state.selectedDate, state.lang)}</div>
-            </div>
-          </div>
-
-          <form id="milkForm" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-sm mb-2">${tr('shop')}</label>
-              <select name="shop" class="soft-input w-full rounded-2xl px-4 py-3" required>
-                ${state.shops.map(shop => `<option ${editing?.shop===shop?'selected':''}>${escapeHtml(shop)}</option>`).join('')}
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm mb-2">${tr('date')}</label>
-              <input name="date" type="date" value="${editing?.date || state.selectedDate}" class="soft-input w-full rounded-2xl px-4 py-3" required />
-            </div>
-            <div>
-              <label class="block text-sm mb-2">${tr('person')}</label>
-              <input name="person" type="text" value="${escapeHtml(editing?.person || '')}" class="soft-input w-full rounded-2xl px-4 py-3" required />
-            </div>
-            <div>
-              <label class="block text-sm mb-2">${tr('milkType')}</label>
-              <select name="type" class="soft-input w-full rounded-2xl px-4 py-3" required>
-                <option value="give" ${editing?.type==='give'?'selected':''}>${tr('milkGive')}</option>
-                <option value="take" ${editing?.type==='take'?'selected':''}>${tr('milkTake')}</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm mb-2">${tr('litres')}</label>
-              <input name="litres" type="number" step="0.01" min="0" value="${editing?.litres ?? ''}" class="soft-input w-full rounded-2xl px-4 py-3" required />
-            </div>
-            <div class="md:col-span-2 xl:col-span-3">
-              <label class="block text-sm mb-2">${tr('note')}</label>
-              <textarea name="note" rows="3" class="soft-input w-full rounded-2xl px-4 py-3">${escapeHtml(editing?.note || '')}</textarea>
-            </div>
-            <div class="md:col-span-2 xl:col-span-4 flex flex-wrap gap-3 pt-2">
-              <button class="btn-3d rounded-2xl px-5 py-3 text-white font-semibold bg-gradient-to-r from-emerald-500 via-green-500 to-lime-500">${state.editingMilkId ? tr('update') : tr('save')}</button>
-              ${state.editingMilkId ? `<button type="button" id="cancelMilkEditBtn" class="btn-3d rounded-2xl px-5 py-3 glass">${tr('cancel')}</button>` : ''}
-            </div>
-          </form>
-        </section>
-      `;
-    }
-
-    function DashboardPage() {
-      const todayEntries = state.entries.filter(e => e.date === todayStr());
-      const currentMonthEntries = state.entries.filter(e => e.date.startsWith(monthStr()));
-      const currentMonthMilk = state.milkEntries.filter(e => e.date.startsWith(monthStr()));
-      const milkMonthTotals = milkTotals(currentMonthMilk);
-      const shopBreakdown = summarizeBy(currentMonthEntries, 'shop');
-      const personBreakdown = summarizeBy(currentMonthEntries, 'person');
-      const itemBreakdown = summarizeBy(currentMonthEntries, 'product').slice(0, 6);
-
-      return `
-        <main class="px-4 py-4 space-y-6 page-fade">
-          ${TopBar()}
-
-          <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
-            ${StatCard(tr('totalToday'), fmtMoney(totalOf(todayEntries)), '₹', formatDateNice(todayStr(), state.lang))}
-            ${StatCard(tr('monthTotal'), fmtMoney(totalOf(currentMonthEntries)), 'M', monthStr())}
-            ${StatCard(tr('totalEntries'), String(state.entries.length), '#', tr('records'))}
-            ${StatCard(tr('netMilk'), fmtLitre(milkMonthTotals.net), 'L', state.selectedMonth)}
-            ${StatCard(tr('backups'), String(state.backups.length), 'B', tr('backupList'))}
-          </section>
-
-          <section class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div class="xl:col-span-2 space-y-6">
-              ${AddEntryForm()}
-
-              <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-                  <div>
-                    <h3 class="text-2xl font-bold">${tr('todayEntries')}</h3>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">${formatDateNice(state.selectedDate, state.lang)}</p>
-                  </div>
-                  <div class="flex flex-wrap gap-2">
-                    <input id="selectedDateInput" type="date" value="${state.selectedDate}" class="soft-input rounded-2xl px-4 py-2.5" />
-                    <button id="exportDayPdf" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportPdfDay')}</button>
-                    <button id="exportDayExcel" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportExcelDay')}</button>
-                  </div>
-                </div>
-                ${renderEntriesTable(getTodayEntries())}
-              </section>
-            </div>
-
-            <div class="space-y-6">
-              ${SummaryPanel(shopBreakdown, personBreakdown, itemBreakdown)}
-              ${QuickActionsCard()}
-            </div>
-          </section>
-
-          ${BottomNav()}
-        </main>
-      `;
-    }
-
-    function SummaryPanel(shopBreakdown, personBreakdown, itemBreakdown) {
-      return `
-        <section class="glass rounded-[2rem] p-5 shadow-soft card-3d">
-          <h3 class="text-2xl font-bold mb-4">${tr('summary')}</h3>
-
-          <div class="space-y-5">
-            <div>
-              <div class="text-sm font-semibold mb-2">${tr('shopBreakdown')}</div>
-              <div class="space-y-2">
-                ${shopBreakdown.length ? shopBreakdown.map(([k,v]) => rowBar(k,v, totalOf(getMonthEntries()), false)).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
-              </div>
-            </div>
-            <div>
-              <div class="text-sm font-semibold mb-2">${tr('amountByPerson')}</div>
-              <div class="space-y-2">
-                ${personBreakdown.length ? personBreakdown.slice(0,6).map(([k,v]) => rowBar(k,v, totalOf(getMonthEntries()), false)).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
-              </div>
-            </div>
-            <div>
-              <div class="text-sm font-semibold mb-2">${tr('itemBreakdown')}</div>
-              <div class="space-y-2">
-                ${itemBreakdown.length ? itemBreakdown.map(([k,v]) => rowBar(k,v, totalOf(getMonthEntries()), false)).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
-              </div>
-            </div>
-          </div>
-        </section>
-      `;
-    }
-
-    function MilkSummaryPanel(entries) {
-      const byShop = summarizeMilkBy(entries, 'shop');
-      const byPerson = summarizeMilkBy(entries, 'person');
-      const totals = milkTotals(entries);
-      const totalMilk = totals.give + totals.take || 0;
-
-      return `
-        <section class="glass rounded-[2rem] p-5 shadow-soft card-3d">
-          <h3 class="text-2xl font-bold mb-4">${tr('summary')}</h3>
-          <div class="space-y-5">
-            <div class="grid grid-cols-1 gap-3">
-              <div class="rounded-2xl bg-white/50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-4">
-                <div class="text-xs text-slate-500 dark:text-slate-400">${tr('totalGiven')}</div>
-                <div class="mt-1 text-xl font-bold">${fmtLitre(totals.give)}</div>
-              </div>
-              <div class="rounded-2xl bg-white/50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-4">
-                <div class="text-xs text-slate-500 dark:text-slate-400">${tr('totalTaken')}</div>
-                <div class="mt-1 text-xl font-bold">${fmtLitre(totals.take)}</div>
-              </div>
-              <div class="rounded-2xl bg-white/50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-4">
-                <div class="text-xs text-slate-500 dark:text-slate-400">${tr('netMilk')}</div>
-                <div class="mt-1 text-xl font-bold">${fmtLitre(totals.net)}</div>
-              </div>
-            </div>
-
-            <div>
-              <div class="text-sm font-semibold mb-2">${tr('shopBreakdown')}</div>
-              <div class="space-y-2">
-                ${byShop.length ? byShop.map(([k,v]) => rowBar(k,v, totalMilk, true)).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
-              </div>
-            </div>
-
-            <div>
-              <div class="text-sm font-semibold mb-2">${tr('amountByPerson')}</div>
-              <div class="space-y-2">
-                ${byPerson.length ? byPerson.slice(0, 8).map(([k,v]) => rowBar(k,v, totalMilk, true)).join('') : `<div class="text-sm text-slate-500">${tr('noData')}</div>`}
-              </div>
-            </div>
-          </div>
-        </section>
       `;
     }
 
     function rowBar(label, value, total, isMilk = false) {
-      const width = total ? Math.max(10, Math.round((value / total) * 100)) : 10;
+      const percent = total ? Math.max(10, Math.round((value / total) * 100)) : 10;
       return `
-        <div>
-          <div class="flex justify-between gap-3 text-sm mb-1">
-            <span class="truncate">${escapeHtml(label)}</span>
-            <span class="font-semibold">${isMilk ? fmtLitre(value) : fmtMoney(value)}</span>
+        <div class="bar-row">
+          <div class="bar-top">
+            <span>${escapeHtml(label)}</span>
+            <strong>${isMilk ? fmtLitre(value) : fmtMoney(value)}</strong>
           </div>
-          <div class="h-2.5 rounded-full bg-slate-200/70 dark:bg-slate-700/70 overflow-hidden">
-            <div class="h-full rounded-full bg-gradient-to-r from-blue-500 to-violet-500" style="width:${width}%"></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${percent}%"></div></div>
+        </div>
+      `;
+    }
+
+    function detailBox(label, value) {
+      return `
+        <div class="detail-box">
+          <div class="detail-label">${escapeHtml(label)}</div>
+          <div class="detail-value">${escapeHtml(value)}</div>
+        </div>
+      `;
+    }
+
+    function topBar() {
+      const userName = getUserName();
+      return `
+        <div class="topbar no-print">
+          <div class="container">
+            <div class="glass topbar-inner card-3d">
+              <div class="brand">
+                <div class="brand-logo">M</div>
+                <div class="brand-meta">
+                  <div class="brand-title">${tr("appTitle")}</div>
+                  <div class="brand-sub">
+                    <span>${tr("developedBy")}: ${APP_CONFIG.developer}</span>
+                    <span class="offline-chip">
+                      <span class="offline-dot" style="background:${state.online ? "#22c55e" : "#ef4444"}; box-shadow: 0 0 0 6px ${state.online ? "rgba(34,197,94,.11)" : "rgba(239,68,68,.11)"};"></span>
+                      ${state.online ? tr("online") : tr("offline")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="top-actions">
+                <div class="header-right-meta">
+                  <span class="badge">
+                    <span class="dot"></span>
+                    ${tr("user")}: ${escapeHtml(userName)}
+                  </span>
+                  <button id="langToggle" class="btn">${state.lang === "en" ? "हिंदी" : "English"}</button>
+                  <button id="themeToggle" class="btn">${state.theme === "dark" ? tr("light") : tr("dark")}</button>
+                  <button id="installBtn" class="btn">${tr("installApp")}</button>
+                  <button id="logoutBtn" class="btn btn-danger">${tr("logout")}</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       `;
     }
 
-    function QuickActionsCard() {
+    function bottomNav() {
+      const tabs = [
+        ["dashboard", "⌂", tr("home")],
+        ["add", "+", tr("addEntry")],
+        ["ledger", "≡", tr("ledger")],
+        ["milk", "◔", tr("milk")],
+        ["reports", "◫", tr("reports")],
+        ["backups", "⎘", tr("backups")]
+      ];
+
       return `
-        <section class="glass rounded-[2rem] p-5 shadow-soft card-3d">
-          <h3 class="text-2xl font-bold mb-4">${tr('settings')}</h3>
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm mb-2">${tr('language')}</label>
-              <div class="flex gap-2">
-                <button id="langEn" class="btn-3d rounded-2xl px-4 py-2 ${state.lang==='en'?'bg-gradient-to-r from-blue-600 to-violet-600 text-white':'glass'}">English</button>
-                <button id="langHi" class="btn-3d rounded-2xl px-4 py-2 ${state.lang==='hi'?'bg-gradient-to-r from-blue-600 to-violet-600 text-white':'glass'}">हिंदी</button>
-              </div>
-            </div>
-            <div>
-              <label class="block text-sm mb-2">${tr('theme')}</label>
-              <div class="flex gap-2">
-                <button id="themeLight" class="btn-3d rounded-2xl px-4 py-2 ${state.theme==='light'?'bg-gradient-to-r from-blue-600 to-violet-600 text-white':'glass'}">${tr('light')}</button>
-                <button id="themeDark" class="btn-3d rounded-2xl px-4 py-2 ${state.theme==='dark'?'bg-gradient-to-r from-blue-600 to-violet-600 text-white':'glass'}">${tr('dark')}</button>
-              </div>
-            </div>
-            <div>
-              <label class="block text-sm mb-2">${tr('addShop')}</label>
-              <div class="flex gap-2">
-                <input id="newShopName" class="soft-input flex-1 rounded-2xl px-4 py-2.5" placeholder="${tr('newShopName')}" />
-                <button id="addShopBtn" class="btn-3d rounded-2xl px-4 py-2.5 text-white bg-gradient-to-r from-emerald-500 to-green-600">${tr('add')}</button>
-              </div>
+        <div class="bottom-nav-wrap no-print">
+          <div class="container">
+            <div class="glass bottom-nav">
+              ${tabs.map(([key, icon, label]) => `
+                <button class="nav-item ${state.page === key ? "active" : ""}" data-nav="${key}">
+                  <span class="nav-icon">${icon}</span>
+                  <span class="nav-text">${escapeHtml(label)}</span>
+                </button>
+              `).join("")}
             </div>
           </div>
+        </div>
+      `;
+    }
+
+    function loginPage() {
+      return `
+        <main class="login-wrap">
+          <div class="login-grid">
+            <section class="glass hero-panel card-3d">
+              <div>
+                <div class="hero-kicker">
+                  <span class="dot"></span>
+                  ${tr("offlineReady")}
+                </div>
+                <h1 class="hero-title">${tr("appTitle")}</h1>
+                <div class="hero-text">
+                  ${tr("developedBy")}: ${APP_CONFIG.developer}
+                </div>
+                <div class="pill-note">${tr("installHint")}</div>
+              </div>
+
+              <div class="hero-badges">
+                <div class="glass hero-mini card-3d">
+                  <div class="muted">${tr("dailyBackup")}</div>
+                  <div class="big">24/7</div>
+                </div>
+                <div class="glass hero-mini card-3d">
+                  <div class="muted">${tr("language")}</div>
+                  <div class="big">${state.lang === "en" ? "EN / HI" : "HI / EN"}</div>
+                </div>
+                <div class="glass hero-mini card-3d">
+                  <div class="muted">${tr("theme")}</div>
+                  <div class="big">${state.theme === "dark" ? tr("dark") : tr("light")}</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="glass login-panel card-3d">
+              <div class="login-card">
+                <div class="muted" style="text-transform:uppercase; letter-spacing:.25em; font-size:12px; font-weight:800;">
+                  ${APP_CONFIG.appName}
+                </div>
+                <h2 class="section-title" style="margin-top:10px;">${tr("loginTitle")}</h2>
+
+                <form id="loginForm" style="margin-top:26px; display:grid; gap:14px;">
+                  <div class="form-field">
+                    <label class="field-label">${tr("email")}</label>
+                    <input name="email" type="email" class="soft-input" placeholder="admin@masoi.com" required />
+                  </div>
+                  <div class="form-field">
+                    <label class="field-label">${tr("password")}</label>
+                    <input name="password" type="password" class="soft-input" placeholder="******" required />
+                  </div>
+                  <button class="btn btn-primary" style="width:100%; min-height:50px; font-weight:800;">${tr("login")}</button>
+                </form>
+
+                <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+                  <button id="langToggle" class="btn">${state.lang === "en" ? "हिंदी" : "English"}</button>
+                  <button id="themeToggle" class="btn">${state.theme === "dark" ? tr("light") : tr("dark")}</button>
+                  <button id="installBtn" class="btn">${tr("installApp")}</button>
+                </div>
+
+                <div class="install-tip">${tr("installHint")}</div>
+              </div>
+            </section>
+          </div>
+        </main>
+      `;
+    }
+
+    function addEntryForm() {
+      const editing = state.editingId ? state.entries.find(e => e.id === state.editingId) : null;
+      const selectedUnit = editing?.unit || "Kg";
+      const standardUnits = ["Piece", "Kg", "Gram", "Litre", "ml", "Pack", "Dozen"];
+      const isCustom = editing && !standardUnits.includes(editing.unit);
+
+      return `
+        <section class="glass section card-3d">
+          <div class="toolbar">
+            <div>
+              <h2 class="section-title">${state.editingId ? tr("update") : tr("addEntry")}</h2>
+              <div class="section-sub">${formatDateNice(state.selectedDate, state.lang)}</div>
+            </div>
+          </div>
+
+          <form id="entryForm" class="form-grid">
+            <div class="form-field">
+              <label class="field-label">${tr("shop")}</label>
+              <select name="shop" class="soft-input" required>
+                ${state.shops.map(shop => `<option ${editing?.shop === shop ? "selected" : ""}>${escapeHtml(shop)}</option>`).join("")}
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">${tr("date")}</label>
+              <input name="date" type="date" value="${editing?.date || state.selectedDate}" class="soft-input" required />
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">${tr("person")}</label>
+              <input name="person" type="text" value="${escapeHtml(editing?.person || "")}" class="soft-input" required />
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">${tr("product")}</label>
+              <input name="product" type="text" value="${escapeHtml(editing?.product || "")}" class="soft-input" required />
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">${tr("quantity")}</label>
+              <input name="quantity" type="number" step="0.01" min="0" value="${editing?.quantity ?? ""}" class="soft-input" required />
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">${tr("unit")}</label>
+              <select id="unitSelect" name="unit" class="soft-input" required>
+                <option value="Piece" ${selectedUnit === "Piece" ? "selected" : ""}>${tr("unitPiece")}</option>
+                <option value="Kg" ${selectedUnit === "Kg" ? "selected" : ""}>${tr("unitKg")}</option>
+                <option value="Gram" ${selectedUnit === "Gram" ? "selected" : ""}>${tr("unitGram")}</option>
+                <option value="Litre" ${selectedUnit === "Litre" ? "selected" : ""}>${tr("unitLitre")}</option>
+                <option value="ml" ${selectedUnit === "ml" ? "selected" : ""}>${tr("unitMl")}</option>
+                <option value="Pack" ${selectedUnit === "Pack" ? "selected" : ""}>${tr("unitPack")}</option>
+                <option value="Dozen" ${selectedUnit === "Dozen" ? "selected" : ""}>${tr("unitDozen")}</option>
+                <option value="custom" ${isCustom ? "selected" : ""}>${tr("unitCustom")}</option>
+              </select>
+            </div>
+
+            <div id="customUnitWrap" class="form-field ${isCustom ? "" : "hidden"}">
+              <label class="field-label">${tr("customUnit")}</label>
+              <input name="customUnit" type="text" value="${isCustom ? escapeHtml(editing.unit) : ""}" class="soft-input" />
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">${tr("price")}</label>
+              <input name="price" type="number" step="0.01" min="0" value="${editing?.price ?? ""}" class="soft-input" required />
+            </div>
+
+            <div class="form-field" style="grid-column:1 / -1;">
+              <label class="field-label">${tr("note")}</label>
+              <textarea name="note" class="soft-input">${escapeHtml(editing?.note || "")}</textarea>
+            </div>
+
+            <div style="grid-column:1 / -1; display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btn-primary">${state.editingId ? tr("update") : tr("save")}</button>
+              ${state.editingId ? `<button type="button" id="cancelEditBtn" class="btn">${tr("cancel")}</button>` : ""}
+            </div>
+          </form>
         </section>
       `;
     }
 
-    function LedgerPage() {
-      const filtered = getEntriesFiltered();
+    function milkEntryForm() {
+      const editing = state.editingMilkId ? state.milkEntries.find(e => e.id === state.editingMilkId) : null;
       return `
-        <main class="px-4 py-4 space-y-6 page-fade">
-          ${TopBar()}
-          <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d">
-            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
-              <div>
-                <h2 class="text-2xl font-bold">${tr('allEntries')}</h2>
-                <p class="text-sm text-slate-500 dark:text-slate-400">${tr('records')}: ${filtered.length}</p>
-              </div>
-              <div class="flex flex-wrap gap-2">
-                <button id="exportCsvBtn" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportCsv')}</button>
-                <button id="backupNowBtn" class="btn-3d rounded-2xl px-4 py-2.5 text-white bg-gradient-to-r from-amber-500 to-orange-500">${tr('manualBackup')}</button>
-              </div>
+        <section class="glass section card-3d">
+          <div class="toolbar">
+            <div>
+              <h2 class="section-title">${state.editingMilkId ? tr("update") : tr("milkSection")}</h2>
+              <div class="section-sub">${formatDateNice(state.selectedDate, state.lang)}</div>
             </div>
+          </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3 mb-4">
-              <input id="searchInput" class="soft-input rounded-2xl px-4 py-3" placeholder="${tr('search')}" value="${escapeHtml(state.search)}" />
-              <select id="filterShopSelect" class="soft-input rounded-2xl px-4 py-3">
-                <option value="all">${tr('filterShop')}</option>
-                ${state.shops.map(s => `<option value="${escapeHtml(s)}" ${state.filterShop===s?'selected':''}>${escapeHtml(s)}</option>`).join('')}
+          <form id="milkForm" class="form-grid">
+            <div class="form-field">
+              <label class="field-label">${tr("shop")}</label>
+              <select name="shop" class="soft-input" required>
+                ${state.shops.map(shop => `<option ${editing?.shop === shop ? "selected" : ""}>${escapeHtml(shop)}</option>`).join("")}
               </select>
-              <input id="fromDateInput" type="date" class="soft-input rounded-2xl px-4 py-3" value="${state.fromDate}" />
-              <input id="toDateInput" type="date" class="soft-input rounded-2xl px-4 py-3" value="${state.toDate}" />
-              <button id="clearFiltersBtn" class="btn-3d rounded-2xl px-4 py-3 glass">${tr('clearFilters')}</button>
             </div>
 
-            ${renderEntriesTable(filtered)}
-          </section>
-          ${BottomNav()}
-        </main>
-      `;
-    }
-
-    function MilkPage() {
-      const todayMilk = getTodayMilkEntries();
-      const monthMilk = getMonthMilkEntries();
-      const todayTotals = milkTotals(todayMilk);
-      const monthTotals = milkTotals(monthMilk);
-
-      return `
-        <main class="px-4 py-4 space-y-6 page-fade">
-          ${TopBar()}
-
-          <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-            ${StatCard(tr('totalGiven'), fmtLitre(todayTotals.give), 'G', formatDateNice(state.selectedDate, state.lang))}
-            ${StatCard(tr('totalTaken'), fmtLitre(todayTotals.take), 'T', formatDateNice(state.selectedDate, state.lang))}
-            ${StatCard(tr('netMilk'), fmtLitre(monthTotals.net), 'L', state.selectedMonth)}
-            ${StatCard(tr('milkEntries'), String(state.milkEntries.length), '#', tr('records'))}
-          </section>
-
-          <section class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div class="xl:col-span-2 space-y-6">
-              ${MilkEntryForm()}
-
-              <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-                  <div>
-                    <h3 class="text-2xl font-bold">${tr('milkEntries')}</h3>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">${formatDateNice(state.selectedDate, state.lang)}</p>
-                  </div>
-                  <div class="flex flex-wrap gap-2">
-                    <input id="selectedDateInput" type="date" value="${state.selectedDate}" class="soft-input rounded-2xl px-4 py-2.5" />
-                    <button id="exportMilkDayPdf" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportMilkPdfDay')}</button>
-                    <button id="exportMilkDayExcel" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportMilkExcelDay')}</button>
-                  </div>
-                </div>
-                ${renderMilkTable(todayMilk)}
-              </section>
+            <div class="form-field">
+              <label class="field-label">${tr("date")}</label>
+              <input name="date" type="date" value="${editing?.date || state.selectedDate}" class="soft-input" required />
             </div>
 
-            <div class="space-y-6">
-              ${MilkSummaryPanel(monthMilk)}
-            </div>
-          </section>
-
-          ${BottomNav()}
-        </main>
-      `;
-    }
-
-    function ReportsPage() {
-      const monthEntries = getMonthEntries();
-      const monthMilk = getMonthMilkEntries();
-      const milkMonthTotals = milkTotals(monthMilk);
-      return `
-        <main class="px-4 py-4 space-y-6 page-fade">
-          ${TopBar()}
-          <section class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div class="xl:col-span-2 glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d">
-              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
-                <div>
-                  <h2 class="text-2xl font-bold">${tr('reports')}</h2>
-                  <p class="text-sm text-slate-500 dark:text-slate-400">${tr('monthWise')}</p>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                  <input id="selectedMonthInput" type="month" value="${state.selectedMonth}" class="soft-input rounded-2xl px-4 py-2.5" />
-                  <button id="exportMonthPdf" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportPdfMonth')}</button>
-                  <button id="exportMonthExcel" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportExcelMonth')}</button>
-                  <button id="exportMilkMonthPdf" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportMilkPdfMonth')}</button>
-                  <button id="exportMilkMonthExcel" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportMilkExcelMonth')}</button>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5">
-                ${StatCard(tr('monthTotal'), fmtMoney(totalOf(monthEntries)), '₹', state.selectedMonth)}
-                ${StatCard(tr('totalEntries'), String(monthEntries.length), '#', tr('records'))}
-                ${StatCard(tr('netMilk'), fmtLitre(milkMonthTotals.net), 'L', state.selectedMonth)}
-                ${StatCard(tr('milkEntries'), String(monthMilk.length), 'M', tr('records'))}
-              </div>
-
-              <div class="space-y-6">
-                <div>
-                  <h3 class="text-xl font-bold mb-3">${tr('allEntries')}</h3>
-                  ${renderEntriesTable(monthEntries)}
-                </div>
-                <div>
-                  <h3 class="text-xl font-bold mb-3">${tr('milkEntries')}</h3>
-                  ${renderMilkTable(monthMilk)}
-                </div>
-              </div>
+            <div class="form-field">
+              <label class="field-label">${tr("person")}</label>
+              <input name="person" type="text" value="${escapeHtml(editing?.person || "")}" class="soft-input" required />
             </div>
 
-            <div class="space-y-6">
-              ${SummaryPanel(summarizeBy(monthEntries, 'shop'), summarizeBy(monthEntries, 'person'), summarizeBy(monthEntries, 'product').slice(0, 8))}
-              ${MilkSummaryPanel(monthMilk)}
-            </div>
-          </section>
-          ${BottomNav()}
-        </main>
-      `;
-    }
-
-    function BackupsPage() {
-      return `
-        <main class="px-4 py-4 space-y-6 page-fade">
-          ${TopBar()}
-          <section class="glass rounded-[2rem] p-5 sm:p-6 shadow-soft card-3d">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5">
-              <div>
-                <h2 class="text-2xl font-bold">${tr('backups')}</h2>
-              </div>
-              <div class="flex flex-wrap gap-2">
-                <button id="exportBackupFileBtn" class="btn-3d rounded-2xl px-4 py-2.5 glass">${tr('exportBackup')}</button>
-                <label class="btn-3d rounded-2xl px-4 py-2.5 glass cursor-pointer">
-                  ${tr('importBackup')}
-                  <input id="importBackupInput" type="file" accept="application/json" class="hidden-file-input" />
-                </label>
-              </div>
+            <div class="form-field">
+              <label class="field-label">${tr("milkType")}</label>
+              <select name="type" class="soft-input" required>
+                <option value="give" ${editing?.type === "give" ? "selected" : ""}>${tr("milkGive")}</option>
+                <option value="take" ${editing?.type === "take" ? "selected" : ""}>${tr("milkTake")}</option>
+              </select>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              ${StatCard(tr('dailyBackup'), String(state.backups.filter(b=>b.type==='day').length), 'D', tr('backupList'))}
-              ${StatCard(tr('weeklyBackup'), String(state.backups.filter(b=>b.type==='week').length), 'W', tr('backupList'))}
-              ${StatCard(tr('monthlyBackup'), String(state.backups.filter(b=>b.type==='month').length), 'M', tr('backupList'))}
+            <div class="form-field">
+              <label class="field-label">${tr("litres")}</label>
+              <input name="litres" type="number" step="0.01" min="0" value="${editing?.litres ?? ""}" class="soft-input" required />
             </div>
 
-            <div class="overflow-x-auto table-scroll rounded-3xl border border-slate-200/60 dark:border-slate-700/60">
-              <table class="min-w-full text-sm">
-                <thead class="bg-slate-100/80 dark:bg-slate-800/70">
-                  <tr>
-                    <th class="text-left px-4 py-3">${tr('backupType')}</th>
-                    <th class="text-left px-4 py-3">${tr('summary')}</th>
-                    <th class="text-left px-4 py-3">${tr('records')}</th>
-                    <th class="text-left px-4 py-3">${tr('milkEntries')}</th>
-                    <th class="text-left px-4 py-3">${tr('createdAt')}</th>
-                    <th class="text-left px-4 py-3">${tr('actions')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${state.backups.length ? state.backups.map(b => `
-                    <tr class="border-t border-slate-200/60 dark:border-slate-700/60">
-                      <td class="px-4 py-3 capitalize">${escapeHtml(b.type)}</td>
-                      <td class="px-4 py-3">${escapeHtml(b.label)}</td>
-                      <td class="px-4 py-3">${(b.data || []).length}</td>
-                      <td class="px-4 py-3">${(b.milkData || []).length}</td>
-                      <td class="px-4 py-3">${new Date(b.createdAt).toLocaleString(state.lang === 'hi' ? 'hi-IN' : 'en-IN')}</td>
-                      <td class="px-4 py-3">
-                        <div class="flex gap-2 flex-wrap">
-                          <button data-restore-backup="${b.id}" class="restore-backup btn-3d rounded-xl px-3 py-2 text-white bg-gradient-to-r from-emerald-500 to-green-600">${tr('restore')}</button>
-                          <button data-download-backup="${b.id}" class="download-backup btn-3d rounded-xl px-3 py-2 glass">${tr('download')}</button>
-                        </div>
-                      </td>
-                    </tr>
-                  `).join('') : `
-                    <tr>
-                      <td colspan="6" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">${tr('noData')}</td>
-                    </tr>
-                  `}
-                </tbody>
-              </table>
+            <div class="form-field" style="grid-column: span 3;">
+              <label class="field-label">${tr("note")}</label>
+              <textarea name="note" class="soft-input">${escapeHtml(editing?.note || "")}</textarea>
             </div>
-          </section>
-          ${BottomNav()}
-        </main>
+
+            <div style="grid-column:1 / -1; display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btn-success">${state.editingMilkId ? tr("update") : tr("save")}</button>
+              ${state.editingMilkId ? `<button type="button" id="cancelMilkEditBtn" class="btn">${tr("cancel")}</button>` : ""}
+            </div>
+          </form>
+        </section>
       `;
     }
 
     function renderEntriesTable(entries) {
       return `
-        <div class="overflow-x-auto table-scroll rounded-3xl border border-slate-200/60 dark:border-slate-700/60">
-          <table class="min-w-full text-sm">
-            <thead class="bg-slate-100/80 dark:bg-slate-800/70">
+        <div class="table-wrap">
+          <table>
+            <thead>
               <tr>
-                <th class="text-left px-4 py-3">${tr('date')}</th>
-                <th class="text-left px-4 py-3">${tr('shop')}</th>
-                <th class="text-left px-4 py-3">${tr('person')}</th>
-                <th class="text-left px-4 py-3">${tr('product')}</th>
-                <th class="text-left px-4 py-3">${tr('quantity')}</th>
-                <th class="text-left px-4 py-3">${tr('unit')}</th>
-                <th class="text-left px-4 py-3">${tr('price')}</th>
-                <th class="text-left px-4 py-3">${tr('actions')}</th>
+                <th>${tr("date")}</th>
+                <th>${tr("shop")}</th>
+                <th>${tr("person")}</th>
+                <th>${tr("product")}</th>
+                <th>${tr("quantity")}</th>
+                <th>${tr("unit")}</th>
+                <th>${tr("price")}</th>
+                <th>${tr("actions")}</th>
               </tr>
             </thead>
             <tbody>
               ${entries.length ? entries.map(e => `
-                <tr class="border-t border-slate-200/60 dark:border-slate-700/60 hover:bg-white/40 dark:hover:bg-slate-800/40 transition-colors">
-                  <td class="px-4 py-3 whitespace-nowrap">${formatDateNice(e.date, state.lang)}</td>
-                  <td class="px-4 py-3">${escapeHtml(e.shop)}</td>
-                  <td class="px-4 py-3">${escapeHtml(e.person)}</td>
-                  <td class="px-4 py-3">
-                    <button data-open-entry="${e.id}" class="underline decoration-dotted underline-offset-4">${escapeHtml(e.product)}</button>
-                  </td>
-                  <td class="px-4 py-3">${escapeHtml(e.quantity)}</td>
-                  <td class="px-4 py-3">${escapeHtml(e.unit)}</td>
-                  <td class="px-4 py-3 font-semibold">${fmtMoney(e.price)}</td>
-                  <td class="px-4 py-3">
-                    <div class="flex gap-2 flex-wrap">
-                      <button data-edit="${e.id}" class="edit-btn btn-3d rounded-xl px-3 py-2 text-white bg-gradient-to-r from-blue-600 to-indigo-600">${tr('edit')}</button>
-                      <button data-delete="${e.id}" class="delete-btn btn-3d rounded-xl px-3 py-2 text-white bg-gradient-to-r from-rose-500 to-red-500">${tr('del')}</button>
+                <tr>
+                  <td>${formatDateNice(e.date, state.lang)}</td>
+                  <td>${escapeHtml(e.shop)}</td>
+                  <td>${escapeHtml(e.person)}</td>
+                  <td><button class="text-link-btn" data-open-entry="${e.id}">${escapeHtml(e.product)}</button></td>
+                  <td>${escapeHtml(e.quantity)}</td>
+                  <td>${escapeHtml(e.unit)}</td>
+                  <td><strong>${fmtMoney(e.price)}</strong></td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="btn btn-primary tiny-btn" data-edit="${e.id}">${tr("edit")}</button>
+                      <button class="btn btn-danger tiny-btn" data-delete="${e.id}">${tr("del")}</button>
                     </div>
                   </td>
                 </tr>
-              `).join('') : `
-                <tr>
-                  <td colspan="8" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">${tr('noData')}</td>
-                </tr>
+              `).join("") : `
+                <tr><td colspan="8"><div class="empty-box">${tr("noData")}</div></td></tr>
               `}
             </tbody>
           </table>
@@ -1442,41 +2303,37 @@
 
     function renderMilkTable(entries) {
       return `
-        <div class="overflow-x-auto table-scroll rounded-3xl border border-slate-200/60 dark:border-slate-700/60">
-          <table class="min-w-full text-sm">
-            <thead class="bg-slate-100/80 dark:bg-slate-800/70">
+        <div class="table-wrap">
+          <table>
+            <thead>
               <tr>
-                <th class="text-left px-4 py-3">${tr('date')}</th>
-                <th class="text-left px-4 py-3">${tr('shop')}</th>
-                <th class="text-left px-4 py-3">${tr('person')}</th>
-                <th class="text-left px-4 py-3">${tr('milkType')}</th>
-                <th class="text-left px-4 py-3">${tr('litres')}</th>
-                <th class="text-left px-4 py-3">${tr('note')}</th>
-                <th class="text-left px-4 py-3">${tr('actions')}</th>
+                <th>${tr("date")}</th>
+                <th>${tr("shop")}</th>
+                <th>${tr("person")}</th>
+                <th>${tr("milkType")}</th>
+                <th>${tr("litres")}</th>
+                <th>${tr("note")}</th>
+                <th>${tr("actions")}</th>
               </tr>
             </thead>
             <tbody>
               ${entries.length ? entries.map(e => `
-                <tr class="border-t border-slate-200/60 dark:border-slate-700/60 hover:bg-white/40 dark:hover:bg-slate-800/40 transition-colors">
-                  <td class="px-4 py-3 whitespace-nowrap">${formatDateNice(e.date, state.lang)}</td>
-                  <td class="px-4 py-3">${escapeHtml(e.shop)}</td>
-                  <td class="px-4 py-3">${escapeHtml(e.person)}</td>
-                  <td class="px-4 py-3">${e.type === 'give' ? tr('milkGive') : tr('milkTake')}</td>
-                  <td class="px-4 py-3 font-semibold">${fmtLitre(e.litres)}</td>
-                  <td class="px-4 py-3">
-                    <button data-open-milk="${e.id}" class="underline decoration-dotted underline-offset-4">${escapeHtml(e.note || '-')}</button>
-                  </td>
-                  <td class="px-4 py-3">
-                    <div class="flex gap-2 flex-wrap">
-                      <button data-edit-milk="${e.id}" class="edit-milk-btn btn-3d rounded-xl px-3 py-2 text-white bg-gradient-to-r from-emerald-500 to-green-600">${tr('edit')}</button>
-                      <button data-delete-milk="${e.id}" class="delete-milk-btn btn-3d rounded-xl px-3 py-2 text-white bg-gradient-to-r from-rose-500 to-red-500">${tr('del')}</button>
+                <tr>
+                  <td>${formatDateNice(e.date, state.lang)}</td>
+                  <td>${escapeHtml(e.shop)}</td>
+                  <td>${escapeHtml(e.person)}</td>
+                  <td>${e.type === "give" ? tr("milkGive") : tr("milkTake")}</td>
+                  <td><strong>${fmtLitre(e.litres)}</strong></td>
+                  <td><button class="text-link-btn" data-open-milk="${e.id}">${escapeHtml(e.note || "-")}</button></td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="btn btn-success tiny-btn" data-edit-milk="${e.id}">${tr("edit")}</button>
+                      <button class="btn btn-danger tiny-btn" data-delete-milk="${e.id}">${tr("del")}</button>
                     </div>
                   </td>
                 </tr>
-              `).join('') : `
-                <tr>
-                  <td colspan="7" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">${tr('noData')}</td>
-                </tr>
+              `).join("") : `
+                <tr><td colspan="7"><div class="empty-box">${tr("noData")}</div></td></tr>
               `}
             </tbody>
           </table>
@@ -1484,67 +2341,430 @@
       `;
     }
 
-    function EntryModal() {
-      if (!state.modalEntryId) return '';
+    function summaryPanel(shopBreakdown, personBreakdown, itemBreakdown) {
+      return `
+        <section class="glass summary-box card-3d">
+          <h3 class="summary-head">${tr("summary")}</h3>
+
+          <div>
+            <div class="tiny-note note-strong">${tr("shopBreakdown")}</div>
+            <div style="margin-top:10px;">
+              ${shopBreakdown.length
+                ? shopBreakdown.map(([k, v]) => rowBar(k, v, totalOf(getMonthEntries()), false)).join("")
+                : `<div class="tiny-note">${tr("noData")}</div>`}
+            </div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <div class="tiny-note note-strong">${tr("amountByPerson")}</div>
+            <div style="margin-top:10px;">
+              ${personBreakdown.length
+                ? personBreakdown.slice(0, 6).map(([k, v]) => rowBar(k, v, totalOf(getMonthEntries()), false)).join("")
+                : `<div class="tiny-note">${tr("noData")}</div>`}
+            </div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <div class="tiny-note note-strong">${tr("itemBreakdown")}</div>
+            <div style="margin-top:10px;">
+              ${itemBreakdown.length
+                ? itemBreakdown.map(([k, v]) => rowBar(k, v, totalOf(getMonthEntries()), false)).join("")
+                : `<div class="tiny-note">${tr("noData")}</div>`}
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function milkSummaryPanel(entries) {
+      const byShop = summarizeMilkBy(entries, "shop");
+      const byPerson = summarizeMilkBy(entries, "person");
+      const totals = milkTotals(entries);
+      const totalMilk = totals.give + totals.take || 0;
+
+      return `
+        <section class="glass summary-box card-3d">
+          <h3 class="summary-head">${tr("summary")}</h3>
+
+          <div class="two-col-inline">
+            <div class="minicard">
+              <div class="label">${tr("totalGiven")}</div>
+              <div class="value">${fmtLitre(totals.give)}</div>
+            </div>
+            <div class="minicard">
+              <div class="label">${tr("totalTaken")}</div>
+              <div class="value">${fmtLitre(totals.take)}</div>
+            </div>
+          </div>
+
+          <div class="minicard" style="margin-top:14px;">
+            <div class="label">${tr("netMilk")}</div>
+            <div class="value">${fmtLitre(totals.net)}</div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <div class="tiny-note note-strong">${tr("shopBreakdown")}</div>
+            <div style="margin-top:10px;">
+              ${byShop.length
+                ? byShop.map(([k, v]) => rowBar(k, v, totalMilk, true)).join("")
+                : `<div class="tiny-note">${tr("noData")}</div>`}
+            </div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <div class="tiny-note note-strong">${tr("amountByPerson")}</div>
+            <div style="margin-top:10px;">
+              ${byPerson.length
+                ? byPerson.slice(0, 8).map(([k, v]) => rowBar(k, v, totalMilk, true)).join("")
+                : `<div class="tiny-note">${tr("noData")}</div>`}
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function settingsCard() {
+      return `
+        <section class="glass summary-box card-3d">
+          <h3 class="summary-head">${tr("settings")}</h3>
+
+          <div class="settings-grid">
+            <div>
+              <div class="tiny-note note-strong">${tr("language")}</div>
+              <div class="segment" style="margin-top:10px;">
+                <button id="langEn" class="btn ${state.lang === "en" ? "active" : ""}">English</button>
+                <button id="langHi" class="btn ${state.lang === "hi" ? "active" : ""}">हिंदी</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="tiny-note note-strong">${tr("theme")}</div>
+              <div class="segment" style="margin-top:10px;">
+                <button id="themeLight" class="btn ${state.theme === "light" ? "active" : ""}">${tr("light")}</button>
+                <button id="themeDark" class="btn ${state.theme === "dark" ? "active" : ""}">${tr("dark")}</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="tiny-note note-strong">${tr("addShop")}</div>
+              <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+                <input id="newShopName" class="soft-input" placeholder="${tr("newShopName")}" />
+                <button id="addShopBtn" class="btn btn-success">${tr("add")}</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function dashboardPage() {
+      const todayEntries = state.entries.filter(e => e.date === todayStr());
+      const currentMonthEntries = state.entries.filter(e => e.date.startsWith(monthStr()));
+      const currentMonthMilk = state.milkEntries.filter(e => e.date.startsWith(monthStr()));
+      const milkMonthTotals = milkTotals(currentMonthMilk);
+      const shopBreakdown = summarizeBy(currentMonthEntries, "shop");
+      const personBreakdown = summarizeBy(currentMonthEntries, "person");
+      const itemBreakdown = summarizeBy(currentMonthEntries, "product").slice(0, 6);
+
+      return `
+        ${topBar()}
+        <main class="page">
+          <div class="container">
+            <section class="stats-wrap">
+              ${statCard(tr("totalToday"), fmtMoney(totalOf(todayEntries)), "₹", formatDateNice(todayStr(), state.lang))}
+              ${statCard(tr("monthTotal"), fmtMoney(totalOf(currentMonthEntries)), "M", monthStr())}
+              ${statCard(tr("totalEntries"), String(state.entries.length), "#", tr("records"))}
+              ${statCard(tr("netMilk"), fmtLitre(milkMonthTotals.net), "L", state.selectedMonth)}
+              ${statCard(tr("backups"), String(state.backups.length), "B", tr("backupList"))}
+            </section>
+
+            <section class="content-cols" style="margin-top:18px;">
+              <div style="display:grid; gap:16px;">
+                ${addEntryForm()}
+
+                <section class="glass section card-3d">
+                  <div class="toolbar">
+                    <div>
+                      <h3 class="section-title">${tr("todayEntries")}</h3>
+                      <div class="section-sub">${formatDateNice(state.selectedDate, state.lang)}</div>
+                    </div>
+                    <div class="toolbar-right">
+                      <input id="selectedDateInput" type="date" value="${state.selectedDate}" class="soft-input" />
+                      <button id="exportDayPdf" class="btn">${tr("printPdf")}</button>
+                      <button id="exportDayExcel" class="btn">${tr("exportExcelDay")}</button>
+                    </div>
+                  </div>
+                  ${renderEntriesTable(getTodayEntries())}
+                </section>
+              </div>
+
+              <div class="summary-stack">
+                ${summaryPanel(shopBreakdown, personBreakdown, itemBreakdown)}
+                ${settingsCard()}
+              </div>
+            </section>
+          </div>
+        </main>
+        ${bottomNav()}
+      `;
+    }
+
+    function ledgerPage() {
+      const filtered = getEntriesFiltered();
+      return `
+        ${topBar()}
+        <main class="page">
+          <div class="container">
+            <section class="glass section card-3d">
+              <div class="toolbar">
+                <div>
+                  <h2 class="section-title">${tr("allEntries")}</h2>
+                  <div class="section-sub">${tr("records")}: ${filtered.length}</div>
+                </div>
+                <div class="toolbar-right">
+                  <button id="exportCsvBtn" class="btn">${tr("exportCsv")}</button>
+                  <button id="backupNowBtn" class="btn btn-warn">${tr("manualBackup")}</button>
+                </div>
+              </div>
+
+              <div class="form-grid" style="margin-bottom:14px;">
+                <input id="searchInput" class="soft-input" placeholder="${tr("search")}" value="${escapeHtml(state.search)}" />
+                <select id="filterShopSelect" class="soft-input">
+                  <option value="all">${tr("filterShop")}</option>
+                  ${state.shops.map(s => `<option value="${escapeHtml(s)}" ${state.filterShop === s ? "selected" : ""}>${escapeHtml(s)}</option>`).join("")}
+                </select>
+                <input id="fromDateInput" type="date" class="soft-input" value="${state.fromDate}" />
+                <input id="toDateInput" type="date" class="soft-input" value="${state.toDate}" />
+                <button id="clearFiltersBtn" class="btn" style="grid-column: span 1;">${tr("clearFilters")}</button>
+              </div>
+
+              ${renderEntriesTable(filtered)}
+            </section>
+          </div>
+        </main>
+        ${bottomNav()}
+      `;
+    }
+
+    function milkPage() {
+      const todayMilk = getTodayMilkEntries();
+      const monthMilk = getMonthMilkEntries();
+      const todayTotals = milkTotals(todayMilk);
+      const monthTotals = milkTotals(monthMilk);
+
+      return `
+        ${topBar()}
+        <main class="page">
+          <div class="container">
+            <section class="stats-wrap" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+              ${statCard(tr("totalGiven"), fmtLitre(todayTotals.give), "G", formatDateNice(state.selectedDate, state.lang))}
+              ${statCard(tr("totalTaken"), fmtLitre(todayTotals.take), "T", formatDateNice(state.selectedDate, state.lang))}
+              ${statCard(tr("netMilk"), fmtLitre(monthTotals.net), "L", state.selectedMonth)}
+              ${statCard(tr("milkEntries"), String(state.milkEntries.length), "#", tr("records"))}
+            </section>
+
+            <section class="content-cols" style="margin-top:18px;">
+              <div style="display:grid; gap:16px;">
+                ${milkEntryForm()}
+
+                <section class="glass section card-3d">
+                  <div class="toolbar">
+                    <div>
+                      <h3 class="section-title">${tr("milkEntries")}</h3>
+                      <div class="section-sub">${formatDateNice(state.selectedDate, state.lang)}</div>
+                    </div>
+                    <div class="toolbar-right">
+                      <input id="selectedDateInput" type="date" value="${state.selectedDate}" class="soft-input" />
+                      <button id="exportMilkDayPdf" class="btn">${tr("printPdf")}</button>
+                      <button id="exportMilkDayExcel" class="btn">${tr("exportMilkExcelDay")}</button>
+                    </div>
+                  </div>
+                  ${renderMilkTable(todayMilk)}
+                </section>
+              </div>
+
+              <div class="summary-stack">
+                ${milkSummaryPanel(monthMilk)}
+              </div>
+            </section>
+          </div>
+        </main>
+        ${bottomNav()}
+      `;
+    }
+
+    function reportsPage() {
+      const monthEntries = getMonthEntries();
+      const monthMilk = getMonthMilkEntries();
+      const milkMonthTotals = milkTotals(monthMilk);
+
+      return `
+        ${topBar()}
+        <main class="page">
+          <div class="container">
+            <section class="content-cols">
+              <div style="display:grid; gap:16px;">
+                <section class="glass section card-3d">
+                  <div class="toolbar">
+                    <div>
+                      <h2 class="section-title">${tr("reports")}</h2>
+                      <div class="section-sub">${tr("monthWise")}</div>
+                    </div>
+                    <div class="toolbar-right">
+                      <input id="selectedMonthInput" type="month" value="${state.selectedMonth}" class="soft-input" />
+                      <button id="exportMonthPdf" class="btn">${tr("printPdf")}</button>
+                      <button id="exportMonthExcel" class="btn">${tr("exportExcelMonth")}</button>
+                      <button id="exportMilkMonthPdf" class="btn">${tr("printPdf")}</button>
+                      <button id="exportMilkMonthExcel" class="btn">${tr("exportMilkExcelMonth")}</button>
+                    </div>
+                  </div>
+
+                  <section class="stats-wrap" style="grid-template-columns:repeat(4,minmax(0,1fr)); margin-bottom:16px;">
+                    ${statCard(tr("monthTotal"), fmtMoney(totalOf(monthEntries)), "₹", state.selectedMonth)}
+                    ${statCard(tr("totalEntries"), String(monthEntries.length), "#", tr("records"))}
+                    ${statCard(tr("netMilk"), fmtLitre(milkMonthTotals.net), "L", state.selectedMonth)}
+                    ${statCard(tr("milkEntries"), String(monthMilk.length), "M", tr("records"))}
+                  </section>
+
+                  <div style="display:grid; gap:18px;">
+                    <div>
+                      <h3 class="section-title" style="font-size:24px;">${tr("allEntries")}</h3>
+                      <div style="margin-top:10px;">${renderEntriesTable(monthEntries)}</div>
+                    </div>
+                    <div>
+                      <h3 class="section-title" style="font-size:24px;">${tr("milkEntries")}</h3>
+                      <div style="margin-top:10px;">${renderMilkTable(monthMilk)}</div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <div class="summary-stack">
+                ${summaryPanel(
+                  summarizeBy(monthEntries, "shop"),
+                  summarizeBy(monthEntries, "person"),
+                  summarizeBy(monthEntries, "product").slice(0, 8)
+                )}
+                ${milkSummaryPanel(monthMilk)}
+              </div>
+            </section>
+          </div>
+        </main>
+        ${bottomNav()}
+      `;
+    }
+
+    function backupsPage() {
+      return `
+        ${topBar()}
+        <main class="page">
+          <div class="container">
+            <section class="glass section card-3d">
+              <div class="toolbar">
+                <div>
+                  <h2 class="section-title">${tr("backups")}</h2>
+                </div>
+                <div class="toolbar-right">
+                  <button id="exportBackupFileBtn" class="btn">${tr("exportBackup")}</button>
+                  <label class="btn" for="importBackupInput">${tr("importBackup")}</label>
+                  <input id="importBackupInput" class="file-input" type="file" accept="application/json" />
+                </div>
+              </div>
+
+              <section class="stats-wrap" style="grid-template-columns:repeat(3,minmax(0,1fr)); margin-bottom:16px;">
+                ${statCard(tr("dailyBackup"), String(state.backups.filter(b => b.type === "day").length), "D", tr("backupList"))}
+                ${statCard(tr("weeklyBackup"), String(state.backups.filter(b => b.type === "week").length), "W", tr("backupList"))}
+                ${statCard(tr("monthlyBackup"), String(state.backups.filter(b => b.type === "month").length), "M", tr("backupList"))}
+              </section>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>${tr("backupType")}</th>
+                      <th>${tr("summary")}</th>
+                      <th>${tr("records")}</th>
+                      <th>${tr("milkEntries")}</th>
+                      <th>${tr("createdAt")}</th>
+                      <th>${tr("actions")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${state.backups.length ? state.backups.map(b => `
+                      <tr>
+                        <td>${escapeHtml(b.type)}</td>
+                        <td>${escapeHtml(b.label)}</td>
+                        <td>${(b.data || []).length}</td>
+                        <td>${(b.milkData || []).length}</td>
+                        <td>${new Date(b.createdAt).toLocaleString(state.lang === "hi" ? "hi-IN" : "en-IN")}</td>
+                        <td>
+                          <div class="table-actions">
+                            <button class="btn btn-success tiny-btn" data-restore-backup="${b.id}">${tr("restore")}</button>
+                            <button class="btn tiny-btn" data-download-backup="${b.id}">${tr("download")}</button>
+                          </div>
+                        </td>
+                      </tr>
+                    `).join("") : `
+                      <tr><td colspan="6"><div class="empty-box">${tr("noData")}</div></td></tr>
+                    `}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </main>
+        ${bottomNav()}
+      `;
+    }
+
+    function entryModal() {
+      if (!state.modalEntryId) return "";
       const e = state.entries.find(x => x.id === state.modalEntryId);
-      if (!e) return '';
+      if (!e) return "";
       return `
-        <div class="fixed inset-0 z-[999] bg-slate-950/50 backdrop-blur-sm p-4 flex items-center justify-center modal-enter">
-          <div class="glass rounded-[2rem] p-6 w-full max-w-xl shadow-2xl">
-            <div class="flex items-center justify-between gap-3 mb-5">
-              <h3 class="text-2xl font-bold">${tr('entryDetails')}</h3>
-              <button id="closeEntryModal" class="btn-3d rounded-2xl px-4 py-2 glass">${tr('close')}</button>
+        <div class="modal-backdrop">
+          <div class="glass modal card-3d">
+            <div class="toolbar">
+              <div><h3 class="section-title" style="font-size:28px;">${tr("entryDetails")}</h3></div>
+              <button id="closeEntryModal" class="btn">${tr("close")}</button>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              ${detailCell(tr('date'), formatDateNice(e.date, state.lang))}
-              ${detailCell(tr('shop'), e.shop)}
-              ${detailCell(tr('person'), e.person)}
-              ${detailCell(tr('product'), e.product)}
-              ${detailCell(tr('quantity'), String(e.quantity))}
-              ${detailCell(tr('unit'), e.unit)}
-              ${detailCell(tr('price'), fmtMoney(e.price))}
-              ${detailCell(tr('createdAt'), new Date(e.createdAt).toLocaleString(state.lang === 'hi' ? 'hi-IN' : 'en-IN'))}
-              <div class="sm:col-span-2">
-                ${detailCell(tr('note'), e.note || '-')}
-              </div>
+            <div class="detail-grid">
+              ${detailBox(tr("date"), formatDateNice(e.date, state.lang))}
+              ${detailBox(tr("shop"), e.shop)}
+              ${detailBox(tr("person"), e.person)}
+              ${detailBox(tr("product"), e.product)}
+              ${detailBox(tr("quantity"), String(e.quantity))}
+              ${detailBox(tr("unit"), e.unit)}
+              ${detailBox(tr("price"), fmtMoney(e.price))}
+              ${detailBox(tr("createdAt"), new Date(e.createdAt || new Date().toISOString()).toLocaleString(state.lang === "hi" ? "hi-IN" : "en-IN"))}
+              <div style="grid-column:1 / -1;">${detailBox(tr("note"), e.note || "-")}</div>
             </div>
           </div>
         </div>
       `;
     }
 
-    function MilkModal() {
-      if (!state.modalMilkId) return '';
+    function milkModal() {
+      if (!state.modalMilkId) return "";
       const e = state.milkEntries.find(x => x.id === state.modalMilkId);
-      if (!e) return '';
+      if (!e) return "";
       return `
-        <div class="fixed inset-0 z-[999] bg-slate-950/50 backdrop-blur-sm p-4 flex items-center justify-center modal-enter">
-          <div class="glass rounded-[2rem] p-6 w-full max-w-xl shadow-2xl">
-            <div class="flex items-center justify-between gap-3 mb-5">
-              <h3 class="text-2xl font-bold">${tr('milkSection')}</h3>
-              <button id="closeMilkModal" class="btn-3d rounded-2xl px-4 py-2 glass">${tr('close')}</button>
+        <div class="modal-backdrop">
+          <div class="glass modal card-3d">
+            <div class="toolbar">
+              <div><h3 class="section-title" style="font-size:28px;">${tr("milkSection")}</h3></div>
+              <button id="closeMilkModal" class="btn">${tr("close")}</button>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              ${detailCell(tr('date'), formatDateNice(e.date, state.lang))}
-              ${detailCell(tr('shop'), e.shop)}
-              ${detailCell(tr('person'), e.person)}
-              ${detailCell(tr('milkType'), e.type === 'give' ? tr('milkGive') : tr('milkTake'))}
-              ${detailCell(tr('litres'), fmtLitre(e.litres))}
-              ${detailCell(tr('createdAt'), new Date(e.createdAt).toLocaleString(state.lang === 'hi' ? 'hi-IN' : 'en-IN'))}
-              <div class="sm:col-span-2">
-                ${detailCell(tr('note'), e.note || '-')}
-              </div>
+            <div class="detail-grid">
+              ${detailBox(tr("date"), formatDateNice(e.date, state.lang))}
+              ${detailBox(tr("shop"), e.shop)}
+              ${detailBox(tr("person"), e.person)}
+              ${detailBox(tr("milkType"), e.type === "give" ? tr("milkGive") : tr("milkTake"))}
+              ${detailBox(tr("litres"), fmtLitre(e.litres))}
+              ${detailBox(tr("createdAt"), new Date(e.createdAt || new Date().toISOString()).toLocaleString(state.lang === "hi" ? "hi-IN" : "en-IN"))}
+              <div style="grid-column:1 / -1;">${detailBox(tr("note"), e.note || "-")}</div>
             </div>
           </div>
-        </div>
-      `;
-    }
-
-    function detailCell(label, value) {
-      return `
-        <div class="rounded-2xl bg-white/50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-4">
-          <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">${escapeHtml(label)}</div>
-          <div class="font-semibold">${escapeHtml(value)}</div>
         </div>
       `;
     }
@@ -1552,277 +2772,319 @@
     function render() {
       applyTheme();
       persist();
+      const app = $("#app");
+      if (!app) return;
 
-      const app = $('#app');
       if (!state.auth) {
-        app.innerHTML = LoginPage();
+        app.innerHTML = loginPage();
         bindLoginEvents();
+        cacheStaticForOffline();
         return;
       }
 
-      let html = '';
+      let html = "";
       switch (state.page) {
-        case 'add':
-        case 'dashboard':
-          html = DashboardPage();
+        case "add":
+        case "dashboard":
+          html = dashboardPage();
           break;
-        case 'ledger':
-          html = LedgerPage();
+        case "ledger":
+          html = ledgerPage();
           break;
-        case 'milk':
-          html = MilkPage();
+        case "milk":
+          html = milkPage();
           break;
-        case 'reports':
-          html = ReportsPage();
+        case "reports":
+          html = reportsPage();
           break;
-        case 'backups':
-          html = BackupsPage();
+        case "backups":
+          html = backupsPage();
           break;
         default:
-          html = DashboardPage();
+          html = dashboardPage();
       }
 
-      app.innerHTML = html + EntryModal() + MilkModal();
+      app.innerHTML = html + entryModal() + milkModal();
       bindAuthedEvents();
+      startReminderCycle();
+      cacheStaticForOffline();
+    }
+
+    function bindCommonTopActions() {
+      $("#langToggle")?.addEventListener("click", () => {
+        state.lang = state.lang === "en" ? "hi" : "en";
+        render();
+      });
+
+      $("#themeToggle")?.addEventListener("click", () => {
+        state.theme = state.theme === "dark" ? "light" : "dark";
+        render();
+      });
+
+      $("#installBtn")?.addEventListener("click", async () => {
+        if (state.installPromptEvent) {
+          state.installPromptEvent.prompt();
+          try {
+            await state.installPromptEvent.userChoice;
+          } catch {}
+          state.installPromptEvent = null;
+          toast(tr("appInstalled"), "success");
+          return;
+        }
+        toast(tr("installHint"), "info");
+      });
     }
 
     function bindLoginEvents() {
-      $('#loginForm')?.addEventListener('submit', (e) => {
+      bindCommonTopActions();
+
+      $("#loginForm")?.addEventListener("submit", (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
-        const email = String(fd.get('email') || '').trim().toLowerCase();
-        const password = String(fd.get('password') || '');
-        const ok = APP_CONFIG.allowedUsers.find(u => u.email.toLowerCase() === email && u.password === password);
-        if (!ok) return toast(tr('invalidLogin'), 'error');
-        state.auth = { email: ok.email, loggedAt: new Date().toISOString() };
-        render();
-      });
-
-      $('#langToggle')?.addEventListener('click', () => {
-        state.lang = state.lang === 'en' ? 'hi' : 'en';
-        render();
-      });
-      $('#themeToggle')?.addEventListener('click', () => {
-        state.theme = state.theme === 'dark' ? 'light' : 'dark';
+        const email = String(fd.get("email") || "").trim().toLowerCase();
+        const password = String(fd.get("password") || "");
+        const ok = APP_CONFIG.allowedUsers.find(
+          u => u.email.toLowerCase() === email && u.password === password
+        );
+        if (!ok) {
+          toast(tr("invalidLogin"), "error");
+          return;
+        }
+        state.auth = { email: ok.email, name: ok.name || "", loggedAt: new Date().toISOString() };
+        state.page = "dashboard";
         render();
       });
     }
 
     function bindAuthedEvents() {
-      $('#logoutBtn')?.addEventListener('click', () => {
+      bindCommonTopActions();
+
+      $("#logoutBtn")?.addEventListener("click", () => {
         state.auth = null;
+        state.editingId = null;
+        state.editingMilkId = null;
+        state.modalEntryId = null;
+        state.modalMilkId = null;
+        if (state.flashTimer) clearInterval(state.flashTimer);
         render();
       });
 
-      $('#langToggle')?.addEventListener('click', () => {
-        state.lang = state.lang === 'en' ? 'hi' : 'en';
-        render();
-      });
-      $('#themeToggle')?.addEventListener('click', () => {
-        state.theme = state.theme === 'dark' ? 'light' : 'dark';
-        render();
-      });
-
-      $('#langEn')?.addEventListener('click', () => { state.lang = 'en'; render(); });
-      $('#langHi')?.addEventListener('click', () => { state.lang = 'hi'; render(); });
-      $('#themeLight')?.addEventListener('click', () => { state.theme = 'light'; render(); });
-      $('#themeDark')?.addEventListener('click', () => { state.theme = 'dark'; render(); });
-
-      $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
+      $$(".nav-item").forEach(btn => btn.addEventListener("click", () => {
         state.page = btn.dataset.nav;
         state.editingId = null;
         state.editingMilkId = null;
         render();
       }));
 
-      $('#selectedDateInput')?.addEventListener('change', (e) => {
-        state.selectedDate = e.target.value || todayStr();
+      $("#langEn")?.addEventListener("click", () => { state.lang = "en"; render(); });
+      $("#langHi")?.addEventListener("click", () => { state.lang = "hi"; render(); });
+      $("#themeLight")?.addEventListener("click", () => { state.theme = "light"; render(); });
+      $("#themeDark")?.addEventListener("click", () => { state.theme = "dark"; render(); });
+
+      $("#selectedDateInput")?.addEventListener("change", (e) => {
+        state.selectedDate = e.target.value || dateInputValue();
         render();
       });
 
-      $('#selectedMonthInput')?.addEventListener('change', (e) => {
+      $("#selectedMonthInput")?.addEventListener("change", (e) => {
         state.selectedMonth = e.target.value || monthStr();
         render();
       });
 
-      $('#newShopName')?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
+      $("#newShopName")?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
           e.preventDefault();
-          $('#addShopBtn')?.click();
+          $("#addShopBtn")?.click();
         }
       });
 
-      $('#addShopBtn')?.addEventListener('click', () => {
-        const input = $('#newShopName');
+      $("#addShopBtn")?.addEventListener("click", () => {
+        const input = $("#newShopName");
         if (!input) return;
         const name = input.value.trim();
         if (!name) return;
-        if (!state.shops.includes(name)) state.shops.push(name);
-        input.value = '';
-        toast(tr('shopAdded'), 'success');
+        if (!state.shops.includes(name)) {
+          state.shops.push(name);
+          toast(tr("shopAdded"), "success");
+        }
+        input.value = "";
         render();
       });
 
-      $('#entryForm')?.addEventListener('submit', (e) => {
+      $("#entryForm")?.addEventListener("submit", (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
-        const unitRaw = fd.get('unit');
-        const customUnit = String(fd.get('customUnit') || '').trim();
-        const unit = unitRaw === 'custom' ? customUnit : unitRaw;
-
+        const unitRaw = String(fd.get("unit") || "");
+        const customUnit = String(fd.get("customUnit") || "").trim();
+        const unit = unitRaw === "custom" ? customUnit : unitRaw;
         const payload = {
-          shop: String(fd.get('shop') || '').trim(),
-          date: String(fd.get('date') || ''),
-          person: String(fd.get('person') || '').trim(),
-          product: String(fd.get('product') || '').trim(),
-          quantity: Number(fd.get('quantity') || 0),
-          unit: String(unit || '').trim(),
-          price: Number(fd.get('price') || 0),
-          note: String(fd.get('note') || '').trim(),
+          shop: String(fd.get("shop") || "").trim(),
+          date: String(fd.get("date") || ""),
+          person: String(fd.get("person") || "").trim(),
+          product: String(fd.get("product") || "").trim(),
+          quantity: Number(fd.get("quantity") || 0),
+          unit: String(unit || "").trim(),
+          price: Number(fd.get("price") || 0),
+          note: String(fd.get("note") || "").trim()
         };
 
-        if (!payload.shop || !payload.date || !payload.person || !payload.product || !payload.quantity || !payload.unit || payload.price < 0) {
-          return toast(tr('fillRequired'), 'warning');
+        if (!payload.shop || !payload.date || !payload.person || !payload.product || payload.quantity <= 0 || !payload.unit || payload.price < 0) {
+          toast(tr("fillRequired"), "warning");
+          return;
         }
 
         if (state.editingId) {
           const idx = state.entries.findIndex(x => x.id === state.editingId);
           if (idx >= 0) {
             state.entries[idx] = { ...state.entries[idx], ...payload, updatedAt: new Date().toISOString() };
-            toast(tr('updated'), 'success');
+            toast(tr("updated"), "success");
           }
           state.editingId = null;
         } else {
           state.entries.unshift({ id: uid(), ...payload, createdAt: new Date().toISOString() });
-          toast(tr('saved'), 'success');
+          toast(tr("saved"), "success");
         }
+
         autoBackupIfNeeded(payload.date);
         render();
       });
 
-      $('#milkForm')?.addEventListener('submit', (e) => {
+      $("#milkForm")?.addEventListener("submit", (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
-
         const payload = {
-          shop: String(fd.get('shop') || '').trim(),
-          date: String(fd.get('date') || ''),
-          person: String(fd.get('person') || '').trim(),
-          type: String(fd.get('type') || 'give'),
-          litres: Number(fd.get('litres') || 0),
-          note: String(fd.get('note') || '').trim(),
+          shop: String(fd.get("shop") || "").trim(),
+          date: String(fd.get("date") || ""),
+          person: String(fd.get("person") || "").trim(),
+          type: String(fd.get("type") || "give"),
+          litres: Number(fd.get("litres") || 0),
+          note: String(fd.get("note") || "").trim()
         };
 
         if (!payload.shop || !payload.date || !payload.person || !payload.type || payload.litres <= 0) {
-          return toast(tr('fillRequired'), 'warning');
+          toast(tr("fillRequired"), "warning");
+          return;
         }
 
         if (state.editingMilkId) {
           const idx = state.milkEntries.findIndex(x => x.id === state.editingMilkId);
           if (idx >= 0) {
             state.milkEntries[idx] = { ...state.milkEntries[idx], ...payload, updatedAt: new Date().toISOString() };
-            toast(tr('milkUpdated'), 'success');
+            toast(tr("milkUpdated"), "success");
           }
           state.editingMilkId = null;
         } else {
           state.milkEntries.unshift({ id: uid(), ...payload, createdAt: new Date().toISOString() });
-          toast(tr('milkSaved'), 'success');
+          toast(tr("milkSaved"), "success");
         }
+
         autoBackupIfNeeded(payload.date);
         render();
       });
 
-      $('#cancelEditBtn')?.addEventListener('click', () => {
+      $("#cancelEditBtn")?.addEventListener("click", () => {
         state.editingId = null;
         render();
       });
 
-      $('#cancelMilkEditBtn')?.addEventListener('click', () => {
+      $("#cancelMilkEditBtn")?.addEventListener("click", () => {
         state.editingMilkId = null;
         render();
       });
 
-      $('#unitSelect')?.addEventListener('change', (e) => {
-        const wrap = $('#customUnitWrap');
+      $("#unitSelect")?.addEventListener("change", (e) => {
+        const wrap = $("#customUnitWrap");
         if (!wrap) return;
-        wrap.classList.toggle('hidden', e.target.value !== 'custom');
+        wrap.classList.toggle("hidden", e.target.value !== "custom");
       });
 
-      $$('.edit-btn').forEach(btn => btn.addEventListener('click', () => {
+      $$("[data-edit]").forEach(btn => btn.addEventListener("click", () => {
         state.editingId = btn.dataset.edit;
-        state.page = 'dashboard';
+        state.page = "dashboard";
         render();
       }));
 
-      $$('.delete-btn').forEach(btn => btn.addEventListener('click', () => {
-        if (!confirm(tr('confirmDelete'))) return;
+      $$("[data-delete]").forEach(btn => btn.addEventListener("click", () => {
+        if (!confirm(tr("confirmDelete"))) return;
         state.entries = state.entries.filter(x => x.id !== btn.dataset.delete);
-        toast(tr('deleted'), 'success');
+        toast(tr("deleted"), "success");
         render();
       }));
 
-      $$('.edit-milk-btn').forEach(btn => btn.addEventListener('click', () => {
+      $$("[data-edit-milk]").forEach(btn => btn.addEventListener("click", () => {
         state.editingMilkId = btn.dataset.editMilk;
-        state.page = 'milk';
+        state.page = "milk";
         render();
       }));
 
-      $$('.delete-milk-btn').forEach(btn => btn.addEventListener('click', () => {
-        if (!confirm(tr('confirmDeleteMilk'))) return;
+      $$("[data-delete-milk]").forEach(btn => btn.addEventListener("click", () => {
+        if (!confirm(tr("confirmDeleteMilk"))) return;
         state.milkEntries = state.milkEntries.filter(x => x.id !== btn.dataset.deleteMilk);
-        toast(tr('milkDeleted'), 'success');
+        toast(tr("milkDeleted"), "success");
         render();
       }));
 
-      $$('[data-open-entry]').forEach(btn => btn.addEventListener('click', () => {
+      $$("[data-open-entry]").forEach(btn => btn.addEventListener("click", () => {
         state.modalEntryId = btn.dataset.openEntry;
         render();
       }));
 
-      $$('[data-open-milk]').forEach(btn => btn.addEventListener('click', () => {
+      $$("[data-open-milk]").forEach(btn => btn.addEventListener("click", () => {
         state.modalMilkId = btn.dataset.openMilk;
         render();
       }));
 
-      $('#closeEntryModal')?.addEventListener('click', () => {
+      $("#closeEntryModal")?.addEventListener("click", () => {
         state.modalEntryId = null;
         render();
       });
 
-      $('#closeMilkModal')?.addEventListener('click', () => {
+      $("#closeMilkModal")?.addEventListener("click", () => {
         state.modalMilkId = null;
         render();
       });
 
-      $('#searchInput')?.addEventListener('input', (e) => { state.search = e.target.value; render(); });
-      $('#filterShopSelect')?.addEventListener('change', (e) => { state.filterShop = e.target.value; render(); });
-      $('#fromDateInput')?.addEventListener('change', (e) => { state.fromDate = e.target.value; render(); });
-      $('#toDateInput')?.addEventListener('change', (e) => { state.toDate = e.target.value; render(); });
-
-      $('#clearFiltersBtn')?.addEventListener('click', () => {
-        state.search = '';
-        state.filterShop = 'all';
-        state.fromDate = '';
-        state.toDate = '';
+      $("#searchInput")?.addEventListener("input", (e) => {
+        state.search = e.target.value;
+        render();
+      });
+      $("#filterShopSelect")?.addEventListener("change", (e) => {
+        state.filterShop = e.target.value;
+        render();
+      });
+      $("#fromDateInput")?.addEventListener("change", (e) => {
+        state.fromDate = e.target.value;
+        render();
+      });
+      $("#toDateInput")?.addEventListener("change", (e) => {
+        state.toDate = e.target.value;
         render();
       });
 
-      $('#exportDayExcel')?.addEventListener('click', () => exportExcel(getTodayEntries(), `day-report-${state.selectedDate}.xlsx`, 'ledger'));
-      $('#exportMonthExcel')?.addEventListener('click', () => exportExcel(getMonthEntries(), `month-report-${state.selectedMonth}.xlsx`, 'ledger'));
-      $('#exportCsvBtn')?.addEventListener('click', () => exportCSV(getEntriesFiltered(), `ledger-${todayStr()}.csv`, 'ledger'));
-      $('#exportDayPdf')?.addEventListener('click', () => exportPdf(getTodayEntries(), `${APP_CONFIG.appName} - Day Report (${state.selectedDate})`, `day-report-${state.selectedDate}.pdf`, 'ledger'));
-      $('#exportMonthPdf')?.addEventListener('click', () => exportPdf(getMonthEntries(), `${APP_CONFIG.appName} - Month Report (${state.selectedMonth})`, `month-report-${state.selectedMonth}.pdf`, 'ledger'));
+      $("#clearFiltersBtn")?.addEventListener("click", () => {
+        state.search = "";
+        state.filterShop = "all";
+        state.fromDate = "";
+        state.toDate = "";
+        render();
+      });
 
-      $('#exportMilkDayExcel')?.addEventListener('click', () => exportExcel(getTodayMilkEntries(), `milk-day-report-${state.selectedDate}.xlsx`, 'milk'));
-      $('#exportMilkMonthExcel')?.addEventListener('click', () => exportExcel(getMonthMilkEntries(), `milk-month-report-${state.selectedMonth}.xlsx`, 'milk'));
-      $('#exportMilkDayPdf')?.addEventListener('click', () => exportPdf(getTodayMilkEntries(), `${APP_CONFIG.appName} - Milk Day Report (${state.selectedDate})`, `milk-day-report-${state.selectedDate}.pdf`, 'milk'));
-      $('#exportMilkMonthPdf')?.addEventListener('click', () => exportPdf(getMonthMilkEntries(), `${APP_CONFIG.appName} - Milk Month Report (${state.selectedMonth})`, `milk-month-report-${state.selectedMonth}.pdf`, 'milk'));
+      $("#exportDayExcel")?.addEventListener("click", () => exportExcel(getTodayEntries(), `day-report-${state.selectedDate}.xls`, "ledger"));
+      $("#exportMonthExcel")?.addEventListener("click", () => exportExcel(getMonthEntries(), `month-report-${state.selectedMonth}.xls`, "ledger"));
+      $("#exportCsvBtn")?.addEventListener("click", () => exportCSV(getEntriesFiltered(), `ledger-${todayStr()}.csv`, "ledger"));
+      $("#exportDayPdf")?.addEventListener("click", () => printReport(getTodayEntries(), `${APP_CONFIG.appName} - Day Report (${state.selectedDate})`, "ledger"));
+      $("#exportMonthPdf")?.addEventListener("click", () => printReport(getMonthEntries(), `${APP_CONFIG.appName} - Month Report (${state.selectedMonth})`, "ledger"));
 
-      $('#backupNowBtn')?.addEventListener('click', () => {
+      $("#exportMilkDayExcel")?.addEventListener("click", () => exportExcel(getTodayMilkEntries(), `milk-day-report-${state.selectedDate}.xls`, "milk"));
+      $("#exportMilkMonthExcel")?.addEventListener("click", () => exportExcel(getMonthMilkEntries(), `milk-month-report-${state.selectedMonth}.xls`, "milk"));
+      $("#exportMilkDayPdf")?.addEventListener("click", () => printReport(getTodayMilkEntries(), `${APP_CONFIG.appName} - Milk Day Report (${state.selectedDate})`, "milk"));
+      $("#exportMilkMonthPdf")?.addEventListener("click", () => printReport(getMonthMilkEntries(), `${APP_CONFIG.appName} - Milk Month Report (${state.selectedMonth})`, "milk"));
+
+      $("#backupNowBtn")?.addEventListener("click", () => {
         const snapshot = {
           id: uid(),
           ref: `manual:${new Date().toISOString()}`,
-          type: 'manual',
+          type: "manual",
           label: todayStr(),
           createdAt: new Date().toISOString(),
           data: [...state.entries],
@@ -1830,13 +3092,13 @@
         };
         state.backups.unshift(snapshot);
         state.backups = state.backups.slice(0, 100);
-        toast(tr('backupCreated'), 'success');
+        toast(tr("backupCreated"), "success");
         render();
       });
 
-      $('#exportBackupFileBtn')?.addEventListener('click', exportBackupFile);
+      $("#exportBackupFileBtn")?.addEventListener("click", exportBackupFile);
 
-      $('#importBackupInput')?.addEventListener('change', async (e) => {
+      $("#importBackupInput")?.addEventListener("change", async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
         try {
@@ -1846,67 +3108,80 @@
           if (Array.isArray(data.milkEntries)) state.milkEntries = data.milkEntries;
           if (Array.isArray(data.backups)) state.backups = data.backups;
           if (Array.isArray(data.shops)) state.shops = data.shops;
-          toast(tr('backupImported'), 'success');
+          toast(tr("backupImported"), "success");
           render();
         } catch {
-          toast('Invalid backup file.', 'error');
+          toast(tr("importError"), "error");
         }
       });
 
-      $$('.restore-backup').forEach(btn => btn.addEventListener('click', () => {
+      $$("[data-restore-backup]").forEach(btn => btn.addEventListener("click", () => {
         const backup = state.backups.find(b => b.id === btn.dataset.restoreBackup);
         if (!backup) return;
 
         const ledgerMap = new Map(state.entries.map(e => [e.id, e]));
         (backup.data || []).forEach(e => ledgerMap.set(e.id, e));
-        state.entries = [...ledgerMap.values()].sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+        state.entries = [...ledgerMap.values()].sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
 
         const milkMap = new Map(state.milkEntries.map(e => [e.id, e]));
         (backup.milkData || []).forEach(e => milkMap.set(e.id, e));
-        state.milkEntries = [...milkMap.values()].sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+        state.milkEntries = [...milkMap.values()].sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
 
-        toast(tr('backupRestored'), 'success');
+        toast(tr("backupRestored"), "success");
         render();
       }));
 
-      $$('.download-backup').forEach(btn => btn.addEventListener('click', () => {
+      $$("[data-download-backup]").forEach(btn => btn.addEventListener("click", () => {
         const backup = state.backups.find(b => b.id === btn.dataset.downloadBackup);
         if (!backup) return;
-        downloadBlob(`backup-${backup.type}-${backup.label}.json`, new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }));
+        downloadBlob(
+          `backup-${backup.type}-${backup.label}.json`,
+          new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" })
+        );
       }));
     }
 
-    function firstRunSetup() {
-      if (!readLS(KEYS.theme, null)) {
-        state.theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    function hideSplashAndShowApp() {
+      const splash = $("#splash");
+      const app = $("#app");
+      if (app) {
+        app.style.opacity = "1";
+        app.style.visibility = "visible";
+        app.style.pointerEvents = "auto";
       }
-      applyTheme();
-    }
-
-    function runSplashThenApp() {
-      const splash = $('#splash');
-      const app = $('#app');
 
       setTimeout(() => {
-        if (app) {
-          app.classList.remove('opacity-0');
-          app.classList.add('opacity-100');
-        }
-
         if (splash) {
-          splash.classList.add('hide');
-          splash.style.pointerEvents = 'none';
-
+          splash.classList.add("hide");
           setTimeout(() => {
-            splash.remove();
-          }, 600);
+            if (splash.parentNode) splash.remove();
+            toast(tr("appLoaded"), "success");
+          }, 650);
         }
       }, 3000);
     }
 
-    firstRunSetup();
-    render();
-    runSplashThenApp();
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      state.installPromptEvent = e;
+    });
+
+    window.addEventListener("online", () => {
+      state.online = true;
+      render();
+    });
+
+    window.addEventListener("offline", () => {
+      state.online = false;
+      render();
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      setInstallableMeta();
+      applyTheme();
+      render();
+      hideSplashAndShowApp();
+    });
   </script>
 </body>
 </html>
