@@ -94,10 +94,11 @@
       overflow-y: auto;
       transition: background 0.35s ease, color 0.25s ease, filter 0.25s ease;
       overscroll-behavior-x: none;
-      overscroll-behavior-y: none;
+      overscroll-behavior-y: auto;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
-      touch-action: pan-y manipulation;
+      touch-action: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     a {
@@ -369,6 +370,10 @@
       grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 16px;
       width: 100%;
+    }
+
+    .report-stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
     .stat-card {
@@ -671,7 +676,7 @@
       margin: 0 auto;
       pointer-events: auto;
       transform: translateZ(0);
-      touch-action: none;
+      touch-action: pan-x;
       user-select: none;
       -webkit-user-select: none;
     }
@@ -1318,6 +1323,10 @@
         grid-template-columns: 1fr;
       }
 
+      .report-stats {
+        grid-template-columns: 1fr !important;
+      }
+
       .form-grid {
         grid-template-columns: 1fr;
       }
@@ -1652,6 +1661,7 @@
         installApp: "Install App",
         offlineReady: "Offline Ready",
         user: "User",
+        author: "Author",
         printPdf: "Print / Save PDF",
         installHint: "For app-like use: open in Chrome and use Add to Home Screen or Install App.",
         installHintAndroid: "Android: open in Chrome > menu > Add to Home screen / Install app.",
@@ -1790,6 +1800,7 @@
         installApp: "ऐप इंस्टॉल",
         offlineReady: "ऑफलाइन तैयार",
         user: "यूज़र",
+        author: "लेखक",
         printPdf: "प्रिंट / PDF सेव",
         installHint: "ऐप जैसा चलाने के लिए Chrome में Add to Home Screen या Install App इस्तेमाल करें।",
         installHintAndroid: "Android: Chrome में खोलें > menu > Add to Home screen / Install app.",
@@ -2207,6 +2218,7 @@
         Date: e.date,
         Shop: e.shop,
         Person: e.person,
+        Author: e.author || "",
         Type: e.type === "give" ? "Giving" : "Taking",
         Litres: Number(e.litres),
         Note: e.note || "",
@@ -2617,6 +2629,11 @@
             </div>
 
             <div class="form-field">
+              <label class="field-label">${tr("author")}</label>
+              <input name="author" type="text" value="${escapeHtml(editing?.author || "")}" class="soft-input" placeholder="${tr("author")}" />
+            </div>
+
+            <div class="form-field">
               <label class="field-label">${tr("milkType")}</label>
               <select name="type" class="soft-input" required>
                 <option value="give" ${editing?.type === "give" ? "selected" : ""}>${tr("milkGive")}</option>
@@ -2629,7 +2646,7 @@
               <input name="litres" type="number" step="0.01" min="0" value="${editing?.litres ?? ""}" class="soft-input" required />
             </div>
 
-            <div class="form-field" style="grid-column: span 3;">
+            <div class="form-field" style="grid-column: 1 / -1;">
               <label class="field-label">${tr("note")}</label>
               <textarea name="note" class="soft-input">${escapeHtml(editing?.note || "")}</textarea>
             </div>
@@ -2694,6 +2711,7 @@
                 <th>${tr("date")}</th>
                 <th>${tr("shop")}</th>
                 <th>${tr("person")}</th>
+                <th>${tr("author")}</th>
                 <th>${tr("milkType")}</th>
                 <th>${tr("litres")}</th>
                 <th>${tr("note")}</th>
@@ -2706,6 +2724,7 @@
                   <td>${formatDateNice(e.date, state.lang)}</td>
                   <td>${escapeHtml(e.shop)}</td>
                   <td>${escapeHtml(e.person)}</td>
+                  <td>${escapeHtml(e.author || "-")}</td>
                   <td>${e.type === "give" ? tr("milkGive") : tr("milkTake")}</td>
                   <td><strong>${fmtLitre(e.litres)}</strong></td>
                   <td><button class="text-link-btn" data-open-milk="${e.id}">${escapeHtml(e.note || "-")}</button></td>
@@ -2717,7 +2736,7 @@
                   </td>
                 </tr>
               `).join("") : `
-                <tr><td colspan="7"><div class="empty-box">${tr("noData")}</div></td></tr>
+                <tr><td colspan="8"><div class="empty-box">${tr("noData")}</div></td></tr>
               `}
             </tbody>
           </table>
@@ -3003,7 +3022,7 @@
                     </div>
                   </div>
 
-                  <section class="stats-wrap" style="grid-template-columns:repeat(4,minmax(0,1fr)); margin-bottom:16px;">
+                  <section class="stats-wrap report-stats" style="margin-bottom:16px;">
                     ${statCard(tr("monthTotal"), fmtMoney(totalOf(monthEntries)), "₹", state.selectedMonth)}
                     ${statCard(tr("totalEntries"), String(monthEntries.length), "#", tr("records"))}
                     ${statCard(tr("netMilk"), fmtLitre(milkMonthTotals.net), "L", state.selectedMonth)}
@@ -3143,6 +3162,7 @@
               ${detailBox(tr("date"), formatDateNice(e.date, state.lang))}
               ${detailBox(tr("shop"), e.shop)}
               ${detailBox(tr("person"), e.person)}
+              ${detailBox(tr("author"), e.author || "-")}
               ${detailBox(tr("milkType"), e.type === "give" ? tr("milkGive") : tr("milkTake"))}
               ${detailBox(tr("litres"), fmtLitre(e.litres))}
               ${detailBox(tr("createdAt"), new Date(e.createdAt || new Date().toISOString()).toLocaleString(state.lang === "hi" ? "hi-IN" : "en-IN"))}
@@ -3345,6 +3365,7 @@
           shop: String(fd.get("shop") || "").trim(),
           date: String(fd.get("date") || ""),
           person: String(fd.get("person") || "").trim(),
+          author: String(fd.get("author") || "").trim(),
           type: String(fd.get("type") || "give"),
           litres: Number(fd.get("litres") || 0),
           note: String(fd.get("note") || "").trim()
@@ -3562,20 +3583,15 @@
       const nav = $(".bottom-nav");
       [navWrap, nav].forEach((el) => {
         if (!el) return;
-        el.addEventListener("touchmove", (e) => {
-          if (e.touches && e.touches.length > 1) {
-            e.preventDefault();
-          }
-        }, { passive: false });
-        el.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
-        el.addEventListener("gesturechange", (e) => e.preventDefault(), { passive: false });
+        el.style.touchAction = "pan-x";
       });
     }
 
     function enhanceSmoothness() {
       document.documentElement.style.scrollBehavior = "smooth";
       document.body.style.webkitOverflowScrolling = "touch";
-      document.body.style.overscrollBehavior = "none";
+      document.body.style.overscrollBehaviorX = "none";
+      document.body.style.overscrollBehaviorY = "auto";
     }
 
     window.addEventListener("beforeinstallprompt", (e) => {
