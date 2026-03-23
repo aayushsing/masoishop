@@ -376,6 +376,10 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
+    .milk-stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
     .stat-card {
       border-radius: 30px;
       padding: 18px;
@@ -1383,6 +1387,10 @@
       }
 
       .report-stats {
+        grid-template-columns: 1fr !important;
+      }
+
+      .milk-stats {
         grid-template-columns: 1fr !important;
       }
 
@@ -3069,7 +3077,7 @@
         ${topBar()}
         <main class="page">
           <div class="container">
-            <section class="stats-wrap" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+            <section class="stats-wrap milk-stats">
               ${statCard(tr("totalGiven"), fmtLitre(todayTotals.give), "G", formatDateNice(state.selectedDate, state.lang))}
               ${statCard(tr("totalTaken"), fmtLitre(todayTotals.take), "T", formatDateNice(state.selectedDate, state.lang))}
               ${statCard(tr("netMilk"), fmtLitre(monthTotals.net), "L", state.selectedMonth)}
