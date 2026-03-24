@@ -1765,7 +1765,41 @@
         border: 1px solid #ddd !important;
       }
     }
-  </style>
+  
+/* FORCE MILK CARDS VERTICAL */
+.milk-card-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px;
+  width: 100%;
+}
+
+/* EACH CARD FULL WIDTH */
+.milk-entry-card {
+  width: 100% !important;
+  display: block !important;
+}
+
+/* FIX INSIDE GRID */
+.milk-entry-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* MOBILE FIX */
+@media (max-width: 640px) {
+  .milk-card-list {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .milk-entry-meta {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+</style>
 </head>
 <body>
   <div id="splash" class="splash">
